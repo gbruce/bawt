@@ -5,5 +5,8 @@
   "main": "index.js",
   "repository": "git@github.com:gbruce/bawt.git",
   "author": "Guillermo Bruce <gbruce@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "wowser": "git+ssh://git@github.com:gbruce/wowser.git#dev"
+  }
 }
