@@ -1,0 +1,9 @@
+{
+  "name": "bawt",
+  "version": "1.0.0",
+  "description": "a bawt",
+  "main": "index.js",
+  "repository": "git@github.com:gbruce/bawt.git",
+  "author": "Guillermo Bruce <gbruce@gmail.com>",
+  "license": "MIT"
+}
