@@ -7,7 +7,16 @@
   "author": "Guillermo Bruce <gbruce@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/bytebuffer": "^5.0.34",
+    "@types/socket.io-client": "^1.4.32",
+    "@types/ws": "^3.2.1",
+    "byte-buffer": "^1.0.3",
+    "bytebuffer": "^5.0.1",
+    "deep-equal": "^1.0.1",
+    "jsbn": "timkurvers/jsbn.git#wowser",
+    "socket.io-client": "^2.0.4",
+    "ts-node": "^4.0.1",
     "typescript": "^2.6.2",
-    "wowser": "git+ssh://git@github.com:gbruce/wowser.git#dev"
+    "ws": "^3.3.2"
   }
 }
