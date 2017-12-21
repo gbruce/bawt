@@ -16,6 +16,7 @@
     "jsbn": "timkurvers/jsbn.git#wowser",
     "socket.io-client": "^2.0.4",
     "ts-node": "^4.0.1",
+    "tslint": "^5.8.0",
     "typescript": "^2.6.2",
     "ws": "^3.3.2"
   }
