@@ -3,10 +3,13 @@ import { EventEmitter} from 'events';
 import AuthOpcode from '../auth/opcode';
 import AuthPacket from '../auth/packet';
 import Realm from './realm';
+import { NewLogger } from '../utils/Logger';
+
+const Log = NewLogger('RealmHandler');
 
 class RealmsHandler extends EventEmitter {
-  private session: any;
   public list: Realm[];
+  private session: any;
 
   // Creates a new realm handler
   constructor(session: any) {
@@ -25,8 +28,8 @@ class RealmsHandler extends EventEmitter {
   }
 
   // Requests a fresh list of realms
-  refresh() {
-    console.info('refreshing realmlist');
+  public refresh() {
+    Log.info('refreshing realmlist');
 
     const ap = new AuthPacket(AuthOpcode.REALM_LIST, 1 + 4);
     ap.writeUint8(AuthOpcode.REALM_LIST);
@@ -37,7 +40,7 @@ class RealmsHandler extends EventEmitter {
   }
 
   // Realm list refresh handler (REALM_LIST)
-  handleRealmList(ap: AuthPacket) {
+  private handleRealmList(ap: AuthPacket) {
     const opcode = ap.readUint8();
     const size = ap.readUint16();         // packet-size
     ap.readUint32();   // (?)
