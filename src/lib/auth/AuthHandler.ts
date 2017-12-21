@@ -1,9 +1,14 @@
+
+import { Session } from '../../interface/Session';
+import SRP from '../crypto/srp';
+import Socket from '../net/socket';
+import { NewLogger } from '../utils/Logger';
 import AuthChallengeOpcode from './ChallengeOpcode';
 import AuthOpcode from './Opcode';
 import AuthPacket from './packet';
-import Socket from '../net/socket';
-import SRP from '../crypto/srp';
-import { Session } from '../../interface/Session';
+import * as Path from 'path';
+
+const Log = NewLogger(Path.basename(__filename));
 
 const ReadIntoByteArray = function(bytes: number, bb: ByteBuffer) {
   const result = [];
@@ -52,7 +57,7 @@ class AuthHandler extends Socket {
   connect(host: string, port: number = NaN) {
     if (!this.connected) {
       super.connect(host, port || AuthHandler.PORT);
-      console.info('connecting to auth-server @', this.host, ':', this.port);
+      Log.info('connecting to auth-server @', this.host, ':', this.port);
     }
     return this;
   }
@@ -66,7 +71,7 @@ class AuthHandler extends Socket {
     this.account = account.toUpperCase();
     this.password = password.toUpperCase();
 
-    console.info('authenticating ', this.account);
+    Log.info('authenticating ', this.account);
 
     // Extract configuration data
     const {
@@ -117,7 +122,7 @@ class AuthHandler extends Socket {
     ap.append(data);
     ap.offset = 0;
 
-    console.log('<==', ap.toString());
+    Log.info('<==', ap.toString());
 
     this.emit('packet:receive', ap);
     if (ap.opcodeName) {
@@ -133,7 +138,7 @@ class AuthHandler extends Socket {
 
   // Logon challenge handler (LOGON_CHALLENGE)
   handleLogonChallenge(ap: AuthPacket) {
-    console.log('handleLogonChallenge');
+    Log.info('handleLogonChallenge');
 
     const code = ap.readUint8();
     ap.readUint8();
@@ -141,7 +146,7 @@ class AuthHandler extends Socket {
 
     switch (status) {
       case AuthChallengeOpcode.SUCCESS:
-        console.info('received logon challenge');
+        Log.info('received logon challenge');
 
         const B = ReadIntoByteArray(32, ap);
         const glen = ap.readUint8(); // g-length
@@ -156,24 +161,23 @@ class AuthHandler extends Socket {
         const lpp = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
         lpp.writeUint8(AuthOpcode.LOGON_PROOF);
         lpp.append(this.srp.A.toArray());
-        console.log(' A: ' + this.toHexString(this.srp.A.toArray()));
+        Log.info(' A: ' + this.toHexString(this.srp.A.toArray()));
         if(this.srp.M1) {
-          console.log('M1: ' + this.toHexString(this.srp.M1.digest));
+          Log.info('M1: ' + this.toHexString(this.srp.M1.digest));
           lpp.append(this.srp.M1.digest);
         }
         lpp.append(new Uint8Array(20)); // CRC hash
         lpp.writeByte(0x00);      // number of keys
         lpp.writeByte(0x00);      // security flags
 
-        
         this.send(lpp);
         break;
       case AuthChallengeOpcode.ACCOUNT_INVALID:
-        console.warn('account invalid');
+        Log.warn('account invalid');
         this.emit('reject');
         break;
       case AuthChallengeOpcode.BUILD_INVALID:
-        console.warn('build invalid');
+        Log.warn('build invalid');
         this.emit('reject');
         break;
       default:
@@ -183,12 +187,12 @@ class AuthHandler extends Socket {
 
   // Logon proof handler (LOGON_PROOF)
   handleLogonProof(ap: AuthPacket) {
-    console.log('handleLogonProof');
+    Log.info('handleLogonProof');
 
     const code = ap.readUint8();
     ap.readUint8();
 
-    console.info('received proof response');
+    Log.info('received proof response');
 
     const M2 = ReadIntoByteArray(20, ap);
 
