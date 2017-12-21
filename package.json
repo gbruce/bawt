@@ -6,11 +6,13 @@
   "repository": "git@github.com:gbruce/bawt.git",
   "author": "Guillermo Bruce <gbruce@gmail.com>",
   "license": "MIT",
-  "scripts" : {
-    "lint": "tslint --project ."
+  "scripts": {
+    "lint": "tslint --project .",
+    "tsc": "tsc"
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.34",
+    "@types/deep-equal": "^1.0.1",
     "@types/socket.io-client": "^1.4.32",
     "@types/ws": "^3.2.1",
     "byte-buffer": "^1.0.3",
