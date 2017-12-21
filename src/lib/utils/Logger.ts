@@ -8,6 +8,7 @@ export function NewLogger(label: string = '') {
         colorize: true,
         timestamp: true,
         label,
+        level: 'debug',
       }),
     ],
   });

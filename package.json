@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "lint": "tslint --project .",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "connect": "ts-node ./src/index.ts"
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.34",

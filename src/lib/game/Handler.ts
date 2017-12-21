@@ -8,6 +8,10 @@ import GUID from '../game/guid';
 import SHA1 from '../crypto/hash/sha1';
 import Socket from '../net/socket';
 import Character from '../characters/Character';
+import * as process from 'process';
+import { NewLogger } from '../utils/Logger';
+
+const Log = NewLogger('GameHandler');
 
 const ReadIntoByteArray = function(bytes: number, bb: ByteBuffer) {
   const result = [];
@@ -55,7 +59,7 @@ class GameHandler extends Socket {
   connect(host: string, port: number) {
     if (!this.connected) {
       super.connect(host, port);
-      console.info('connecting to game-server @', this.host, ':', this.port);
+      Log.info('connecting to game-server @', this.host, ':', this.port);
     }
     return this;
   }
@@ -81,7 +85,7 @@ class GameHandler extends Socket {
   // Attempts to join game with given character
   join(character: Character) {
     if (character) {
-      console.info('joining game with', character.toString());
+      Log.info('joining game with', character.toString());
 
       const gp = new GamePacket(GameOpcode.CMSG_PLAYER_LOGIN, GamePacket.HEADER_SIZE_OUTGOING + GUID.LENGTH);
       gp.writeGUID(character.guid);
@@ -104,13 +108,17 @@ class GameHandler extends Socket {
     packet.append(buffer);
     packet.offset = 0;
 
-    console.log('<==', packet.toString());
+    Log.info('<==', packet.toString());
 
     this.emit('packet:receive', packet);
     if (packet.opcodeName) {
       this.emit(`packet:receive:${packet.opcodeName}`, packet);
     }
 
+    if (this._crypt) {
+      // REMOVE THIS
+      process.exit();
+    }
     /*
       if (this.remaining === false) {
 
@@ -156,7 +164,7 @@ class GameHandler extends Socket {
 
   // Auth challenge handler (SMSG_AUTH_CHALLENGE)
   handleAuthChallenge(gp: GamePacket) {
-    console.info('handling auth challenge');
+    Log.info('handling auth challenge');
     gp.littleEndian = false;
     const sz = gp.readUint16();
     gp.littleEndian = true;
@@ -173,9 +181,9 @@ class GameHandler extends Socket {
     hash.feed(salt);
     hash.feed(this.session.key);
 
-    console.log('seed: ' + this.toHexString(seed.toArray()));
-    console.log('salt: ' + this.toHexString(salt));
-    console.log('key: ' + this.toHexString(this.session.key));
+    Log.debug('seed: ' + this.toHexString(seed.toArray()));
+    Log.debug('salt: ' + this.toHexString(salt));
+    Log.debug('key: ' + this.toHexString(this.session.key));
 
     const build = this.session.config.build;
     const account = this.session.account;
@@ -197,7 +205,7 @@ class GameHandler extends Socket {
     app.writeUint32(0);
     app.writeUint32(0);
     app.append(hash.digest);
-    console.log('dig: ' + this.toHexString(hash.digest));
+    Log.debug('dig: ' + this.toHexString(hash.digest));
 //    app.writeUint32(0);
     app.append(this.addOnBuffer);
     // app.writeUnsignedInt(0);     // (?)
@@ -217,18 +225,18 @@ class GameHandler extends Socket {
 
   // Auth response handler (SMSG_AUTH_RESPONSE)
   handleAuthResponse(gp: GamePacket) {
-    console.info('handling auth response');
+    Log.info('handling auth response');
 
     // Handle result byte
     const result = gp.readUint8();
     if (result === 0x0D) {
-      console.warn('server-side auth/realm failure; try again');
+      Log.warn('server-side auth/realm failure; try again');
       this.emit('reject');
       return;
     }
 
     if (result === 0x15) {
-      console.warn('account in use/invalid; aborting');
+      Log.warn('account in use/invalid; aborting');
       this.emit('reject');
       return;
     }

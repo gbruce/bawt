@@ -6,9 +6,8 @@ import { NewLogger } from '../utils/Logger';
 import AuthChallengeOpcode from './ChallengeOpcode';
 import AuthOpcode from './Opcode';
 import AuthPacket from './packet';
-import * as Path from 'path';
 
-const Log = NewLogger(Path.basename(__filename));
+const Log = NewLogger('AuthHandler');
 
 const ReadIntoByteArray = function(bytes: number, bb: ByteBuffer) {
   const result = [];
