@@ -1,13 +1,12 @@
+import * as data from './client.json';
+import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
+import Character from './lib/characters/Character';
+import { default as CharacterHandler } from './lib/characters/Handler';
+import { default as GameHandler } from './lib/game/handler';
 import { default as RealmsHandler } from './lib/realms/Handler';
 import { default as Realm } from './lib/realms/Realm';
-import { default as CharacterHandler } from './lib/characters/Handler';
-import Character from './lib/characters/Character';
-import { default as GameHandler } from './lib/game/handler';
-import { Session } from './interface/Session';
 import realm from './lib/realms/Realm';
-import * as data from './client.json';
-
 
 class Raw {
   public config: Config;
@@ -15,7 +14,7 @@ class Raw {
     this.config = config;
   }
 
-  raw(value: string) {
+  public raw(value: string) {
     return (value.split('').reverse().join(''));
   }
 
@@ -44,7 +43,7 @@ class Config {
   public majorVersion: number;
   public minorVersion: number;
   public patchVersion: number;
-  
+
   constructor() {
     this.version = '3.3.5';
   }
@@ -53,8 +52,8 @@ class Config {
     [
       this.majorVersion,
       this.minorVersion,
-      this.patchVersion
-    ] = version.split('.').map(function(bit) {
+      this.patchVersion,
+    ] = version.split('.').map((bit) => {
       return parseInt(bit, 10);
     });
   }
@@ -62,6 +61,7 @@ class Config {
 }
 
 class Client implements Session {
+  public config: Config = new Config();
   private auth: AuthHandler;
   private realm: RealmsHandler;
   private character: CharacterHandler;
@@ -77,7 +77,7 @@ class Client implements Session {
     return this.auth.account;
   }
 
-  Start() {
+  public Start() {
     const config = data as any;
     this.auth = new AuthHandler(this);
     this.game = new GameHandler(this);
@@ -89,34 +89,31 @@ class Client implements Session {
     this.auth.on('connect', () => {
       this.auth.authenticate(config.username, config.password);
     });
-    
+
     this.auth.on('authenticate', () => {
       this.realm.refresh();
     });
 
     this.realm.on('refresh', () => {
-      this.selectedRealm = this.realm.list.find((realm): boolean => {
-        return realm.name === config.realm;
+      this.selectedRealm = this.realm.list.find((realmItem): boolean => {
+        return realmItem.name === config.realm;
       });
 
-      if(this.selectedRealm) {
-        this.game.connect(this.selectedRealm.host ,this.selectedRealm.port);
+      if (this.selectedRealm) {
+        this.game.connect(this.selectedRealm.host, this.selectedRealm.port);
       }
     });
 
     this.character.on('refresh', () => {
-      console.log('characters recieved');
       this.selectedChar = this.character.list.find((character) => {
-        return character.name == '';
+        return character.name === '';
       });
 
-      if(this.selectedRealm) {
-        this.game.connect(this.selectedRealm.host ,this.selectedRealm.port);
+      if (this.selectedRealm) {
+        this.game.connect(this.selectedRealm.host, this.selectedRealm.port);
       }
     });
   }
-
-  public config: Config = new Config();
 }
 
 const client = new Client();
