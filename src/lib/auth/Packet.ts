@@ -9,7 +9,7 @@ class AuthPacket extends BasePacket {
 
   constructor(opcode: any, source: any, outgoing = true) {
     super(opcode, source || AuthPacket.HEADER_SIZE, outgoing);
-    this.name = ObjectUtil.keyByValue(AuthOpcode, this.opcode);
+    this.name = ObjectUtil.KeyByValue(AuthOpcode, this.opcode);
   }
 
   // Finalizes this packet

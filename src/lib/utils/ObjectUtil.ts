@@ -1,7 +1,7 @@
 class ObjectUtil {
 
   // Retrieves key for given value (if any) in object
-  static keyByValue(object: any, target: any) {
+  public static KeyByValue(object: any, target: any) {
     if (!('lookup' in object)) {
       const lookup: any = {};
       for (const key in object) {

@@ -18,7 +18,7 @@ class GamePacket extends BasePacket {
     if (!source) {
       source = (outgoing) ? GamePacket.HEADER_SIZE_OUTGOING : GamePacket.HEADER_SIZE_INCOMING;
     }
-    this.name = ObjectUtil.keyByValue(GameOpcode, this.opcode);
+    this.name = ObjectUtil.KeyByValue(GameOpcode, this.opcode);
     
     if(outgoing) {
       // preallocate packet size(2 bytes)

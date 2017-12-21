@@ -41,11 +41,11 @@ class Crypt {
     this._decrypt = new RC4();
 
     // Calculate the encryption hash (through the server decryption key)
-    const enckey = ArrayUtil.fromHex('C2B3723CC6AED9B5343C53EE2F4367CE');
+    const enckey = ArrayUtil.FromHex('C2B3723CC6AED9B5343C53EE2F4367CE');
     const enchash = HMAC.fromArrays(enckey, key);
 
     // Calculate the decryption hash (through the client decryption key)
-    const deckey = ArrayUtil.fromHex('CC98AE04E897EACA12DDC09342915357');
+    const deckey = ArrayUtil.FromHex('CC98AE04E897EACA12DDC09342915357');
     const dechash = HMAC.fromArrays(deckey, key);
 
     // Seed RC4's with the computed hashes
