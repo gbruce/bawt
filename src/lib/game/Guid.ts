@@ -1,3 +1,5 @@
+import * as ByteBuffer from 'bytebuffer';
+
 class GUID {
   private raw: any;
   private low: any;
@@ -7,16 +9,16 @@ class GUID {
   static LENGTH = 8;
 
   // Creates a new GUID
-  constructor(buffer: any) {
+  constructor(buffer: ByteBuffer) {
 
     // Holds raw byte representation
     this.raw = buffer;
 
     // Holds low-part
-    this.low = buffer.readUnsignedInt();
+    this.low = buffer.readUint32();
 
     // Holds high-part
-    this.high = buffer.readUnsignedInt();
+    this.high = buffer.readUint32();
 
   }
 

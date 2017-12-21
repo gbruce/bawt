@@ -15,7 +15,7 @@ const ReadIntoByteArray = function(bytes: number, bb: ByteBuffer) {
 
 class AuthHandler extends Socket {
   private session: Session;
-  private account: any;
+  public account: string;
   private password: string|null;
   private srp: SRP;
 
@@ -30,7 +30,6 @@ class AuthHandler extends Socket {
     this.session = session;
 
     // Holds credentials for this session (if any)
-    this.account = null;
     this.password = null;
 
     // Holds Secure Remote Password implementation
@@ -45,7 +44,7 @@ class AuthHandler extends Socket {
   }
 
   // Retrieves the session key (if any)
-  get key() {
+  get key(): number[]|null {
     return this.srp && this.srp.K;
   }
 
@@ -87,12 +86,15 @@ class AuthHandler extends Socket {
     ap.writeUint8(0x00);
     ap.writeUint16(30 + this.account.length);
     ap.WriteString(game);         // game string
+    ap.writeUint8(0);
     ap.writeUint8(majorVersion);    // v1 (major)
     ap.writeUint8(minorVersion);    // v2 (minor)
     ap.writeUint8(patchVersion);    // v3 (patch)
     ap.writeUint16(build);          // build
     ap.WriteString(platform);      // platform
+    ap.writeUint8(0);
     ap.WriteString(os);            // os
+    ap.writeUint8(0);
     ap.WriteString(locale);        // locale
     ap.writeUint32(timezone); // timezone
     ap.writeUint8(127);
@@ -123,6 +125,12 @@ class AuthHandler extends Socket {
     }
   }
 
+  toHexString(byteArray: any) {
+    return Array.from(byteArray, function(byte: any) {
+      return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    }).join(':')
+  }
+
   // Logon challenge handler (LOGON_CHALLENGE)
   handleLogonChallenge(ap: AuthPacket) {
     console.log('handleLogonChallenge');
@@ -148,13 +156,16 @@ class AuthHandler extends Socket {
         const lpp = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
         lpp.writeUint8(AuthOpcode.LOGON_PROOF);
         lpp.append(this.srp.A.toArray());
+        console.log(' A: ' + this.toHexString(this.srp.A.toArray()));
         if(this.srp.M1) {
+          console.log('M1: ' + this.toHexString(this.srp.M1.digest));
           lpp.append(this.srp.M1.digest);
         }
         lpp.append(new Uint8Array(20)); // CRC hash
         lpp.writeByte(0x00);      // number of keys
         lpp.writeByte(0x00);      // security flags
 
+        
         this.send(lpp);
         break;
       case AuthChallengeOpcode.ACCOUNT_INVALID:

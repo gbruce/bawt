@@ -1,7 +1,7 @@
 class Realm {
-  private _host: string = '';
-  private _port: number = NaN;
-  private _address: string = '';
+  public _host: string = '';
+  public _port: number = NaN;
+  public _address: string = '';
   public name: string = '';
   public id: any;
   public icon: any;
@@ -37,7 +37,7 @@ class Realm {
   }
 
   // Retrieves host for this realm
-  get host() {
+  public get host() {
     return this._host;
   }
 

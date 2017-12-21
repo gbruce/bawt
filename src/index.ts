@@ -1,6 +1,13 @@
 import { default as AuthHandler } from './lib/auth/AuthHandler';
 import { default as RealmsHandler } from './lib/realms/Handler';
+import { default as Realm } from './lib/realms/Realm';
+import { default as CharacterHandler } from './lib/characters/Handler';
+import Character from './lib/characters/Character';
+import { default as GameHandler } from './lib/game/handler';
 import { Session } from './interface/Session';
+import realm from './lib/realms/Realm';
+import * as data from './client.json';
+
 
 class Raw {
   public config: Config;
@@ -9,7 +16,7 @@ class Raw {
   }
 
   raw(value: string) {
-    return ('\u0000\u0000\u0000\u0000' + value.split('').reverse().join('')).slice(-4);
+    return (value.split('').reverse().join(''));
   }
 
   get locale() {
@@ -27,7 +34,7 @@ class Raw {
 }
 
 class Config {
-  public game: string = 'Wow ';
+  public game: string = 'WoW';
   public build: number = 12340;
   public timezone: number = 0;
   public locale: string = 'enUS';
@@ -57,22 +64,55 @@ class Config {
 class Client implements Session {
   private auth: AuthHandler;
   private realm: RealmsHandler;
+  private character: CharacterHandler;
+  private game: GameHandler;
+  private selectedRealm: Realm|undefined;
+  private selectedChar: Character|undefined;
+
+  get key() {
+    return this.auth.key;
+  }
+
+  get account() {
+    return this.auth.account;
+  }
 
   Start() {
+    const config = data as any;
     this.auth = new AuthHandler(this);
+    this.game = new GameHandler(this);
     this.realm = new RealmsHandler(this);
+    this.character = new CharacterHandler(this);
 
-    this.auth.connect("logon.warmane.com",3724);
+    this.auth.connect(config.auth, config.port);
 
     this.auth.on('connect', () => {
-      console.log('connected');
-      this.auth.authenticate('gbruce', 'sollinip');
+      this.auth.authenticate(config.username, config.password);
     });
     
     this.auth.on('authenticate', () => {
-      console.log('authenticated');
-
       this.realm.refresh();
+    });
+
+    this.realm.on('refresh', () => {
+      this.selectedRealm = this.realm.list.find((realm): boolean => {
+        return realm.name === config.realm;
+      });
+
+      if(this.selectedRealm) {
+        this.game.connect(this.selectedRealm.host ,this.selectedRealm.port);
+      }
+    });
+
+    this.character.on('refresh', () => {
+      console.log('characters recieved');
+      this.selectedChar = this.character.list.find((character) => {
+        return character.name == '';
+      });
+
+      if(this.selectedRealm) {
+        this.game.connect(this.selectedRealm.host ,this.selectedRealm.port);
+      }
     });
   }
 

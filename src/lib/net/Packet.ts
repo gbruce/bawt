@@ -1,5 +1,5 @@
-//import { ByteBuffer } from 'byte-buffer';
 import * as ByteBuffer from 'bytebuffer';
+import GUID from '../game/Guid';
 
 class Packet extends ByteBuffer {
   protected opcode: any;
@@ -51,6 +51,11 @@ class Packet extends ByteBuffer {
   // Finalizes this packet
   finalize() {
     // return this;
+  }
+
+  // Reads GUID from this packet
+  readGUID(): GUID {
+    return new GUID(this);
   }
 
   WriteString( str: string, offset?: number ): ByteBuffer | number {

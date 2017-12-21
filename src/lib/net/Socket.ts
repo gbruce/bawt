@@ -102,7 +102,7 @@ class Socket extends EventEmitter {
   // Disconnects this socket
   disconnect() {
     if (this.connected) {
-      this.socket.close();
+      this.socket.end();
     }
     return this;
   }

@@ -1,6 +1,5 @@
 import BasePacket from '../net/packet';
 import GameOpcode from './opcode';
-import GUID from './Guid';
 import ObjectUtil from '../utils/ObjectUtil';
 
 class GamePacket extends BasePacket {
@@ -19,12 +18,14 @@ class GamePacket extends BasePacket {
     if (!source) {
       source = (outgoing) ? GamePacket.HEADER_SIZE_OUTGOING : GamePacket.HEADER_SIZE_INCOMING;
     }
-    super(opcode, source, outgoing);
-  }
-
-  // Retrieves the name of the opcode for this packet (if available)
-  get opcodeName() {
-    return ObjectUtil.keyByValue(GameOpcode, this.opcode);
+    this.name = ObjectUtil.keyByValue(GameOpcode, this.opcode);
+    
+    if(outgoing) {
+      // preallocate packet size(2 bytes)
+      this.writeUint16(0);
+      // insert opcode
+      this.writeUint32(opcode);
+    }
   }
 
   // Header size in bytes (dependent on packet origin)
@@ -33,11 +34,6 @@ class GamePacket extends BasePacket {
       return GamePacket.HEADER_SIZE_OUTGOING;
     }
     return GamePacket.HEADER_SIZE_INCOMING;
-  }
-
-  // Reads GUID from this packet
-  readGUID(): GUID {
-    return new GUID(this.readGUID());
   }
 
   // Writes given GUID to this packet

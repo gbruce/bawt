@@ -6,7 +6,7 @@ import Realm from './realm';
 
 class RealmsHandler extends EventEmitter {
   private session: any;
-  private list: any[];
+  public list: Realm[];
 
   // Creates a new realm handler
   constructor(session: any) {
