@@ -66,7 +66,7 @@ class Client implements Session {
 
     this.auth.on('connect', () => {
       console.log('connected');
-      this.auth.authenticate('gbruce', 'sollinip');
+      this.auth.authenticate('test', 'test');
     });
     
     this.auth.on('authenticate', () => {
