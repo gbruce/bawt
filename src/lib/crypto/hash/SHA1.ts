@@ -1,4 +1,4 @@
-var SHA1Base = require('jsbn/lib/sha1');
+import SHA1Base = require('jsbn/lib/sha1');
 
 import { default as Hash } from '../Hash';
 
