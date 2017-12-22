@@ -6,3 +6,4 @@ cache:
   yarn: true
 script:
   yarn lint
+  yarn tsc
