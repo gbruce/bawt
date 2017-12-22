@@ -5,5 +5,5 @@ node_js:
 cache:
   yarn: true
 script:
-  yarn lint
-  yarn tsc
+  - yarn lint
+  - yarn tsc
