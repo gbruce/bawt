@@ -77,7 +77,7 @@ class Socket extends EventEmitter {
 
       this.socket.on('error', (err: Error) => {
         this.socketOpen = false;
-        Log.error(err);
+        Log.error(err.message);
       });
     }
 
