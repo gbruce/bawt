@@ -1,4 +1,4 @@
-var SHA1Base = require('jsbn/lib/sha1');
+import SHA1Base = require('jsbn/lib/sha1');
 
 import { default as Hash } from '../Hash';
 
@@ -6,8 +6,8 @@ import { default as Hash } from '../Hash';
 class SHA1 extends Hash {
 
   // Finalizes this SHA-1 hash
-  finalize() {
-    this._digest = SHA1Base.fromArray(this._data.toArray());
+  public finalize() {
+    this.myDigest = SHA1Base.fromArray(this.data.toArray());
   }
 
 }

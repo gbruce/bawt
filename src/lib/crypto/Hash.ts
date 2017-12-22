@@ -1,54 +1,54 @@
-var ByteBuffer = require('byte-buffer');
+import ByteBuffer = require('byte-buffer');
 
 // Feedable hash implementation
 class Hash {
-  protected _data: any;
-  protected _digest: any;
+  protected data: any;
+  protected myDigest: any;
 
   // Creates a new hash
   constructor() {
 
     // Data fed to this hash
-    this._data = null;
+    this.data = null;
 
     // Resulting digest
-    this._digest = null;
+    this.myDigest = null;
 
     this.reset();
   }
 
   // Retrieves digest (finalizes this hash if needed)
   get digest() {
-    if (!this._digest) {
+    if (!this.myDigest) {
       this.finalize();
     }
-    return this._digest;
+    return this.myDigest;
   }
 
   // Resets this hash, voiding the digest and allowing new feeds
-  reset() {
-    this._data = new ByteBuffer(0, ByteBuffer.BIG_ENDIAN, true);
-    this._digest = null;
+  public reset() {
+    this.data = new ByteBuffer(0, ByteBuffer.BIG_ENDIAN, true);
+    this.myDigest = null;
     return this;
   }
 
   // Feeds hash given value
-  feed(value: any) {
-    if (this._digest) {
+  public feed(value: any) {
+    if (this.myDigest) {
       return this;
     }
 
     if (value.constructor === String) {
-      this._data.writeString(value);
+      this.data.writeString(value);
     } else {
-      this._data.write(value);
+      this.data.write(value);
     }
 
     return this;
   }
 
   // Finalizes this hash, calculates the digest and blocks additional feeds
-  finalize() {
+  public finalize() {
   }
 
 }

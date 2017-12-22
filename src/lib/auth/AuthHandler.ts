@@ -1,26 +1,31 @@
+
+import * as ByteBuffer from 'bytebuffer';
+import { Session } from '../../interface/Session';
+import SRP from '../crypto/SRP';
+import Socket from '../net/Socket';
+import { NewLogger } from '../utils/Logger';
 import AuthChallengeOpcode from './ChallengeOpcode';
 import AuthOpcode from './Opcode';
-import AuthPacket from './packet';
-import Socket from '../net/socket';
-import SRP from '../crypto/srp';
-import { Session } from '../../interface/Session';
+import AuthPacket from './Packet';
 
-const ReadIntoByteArray = function(bytes: number, bb: ByteBuffer) {
+const Log = NewLogger('AuthHandler');
+
+const ReadIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   const result = [];
-  for(let i=0; i<bytes; i++) {
+  for (let i = 0; i < bytes; i++) {
     result.push(bb.readUint8());
   }
   return result;
 };
 
 class AuthHandler extends Socket {
-  private session: Session;
-  public account: string;
-  private password: string|null;
-  private srp: SRP;
-
   // Default port for the auth-server
-  static PORT = 3724;
+  public static PORT = 3724;
+
+  public account: string;
+  private session: Session;
+  private password: string|null;
+  private srp: SRP|null;
 
   // Creates a new authentication handler
   constructor(session: Session) {
@@ -33,7 +38,7 @@ class AuthHandler extends Socket {
     this.password = null;
 
     // Holds Secure Remote Password implementation
-    this.srp;
+    this.srp = null;
 
     // Listen for incoming data
     this.on('data:receive', this.dataReceived);
@@ -49,16 +54,16 @@ class AuthHandler extends Socket {
   }
 
   // Connects to given host through given port
-  connect(host: string, port: number = NaN) {
+  public connect(host: string, port: number = NaN) {
     if (!this.connected) {
       super.connect(host, port || AuthHandler.PORT);
-      console.info('connecting to auth-server @', this.host, ':', this.port);
+      Log.info('connecting to auth-server @', this.host, ':', this.port);
     }
     return this;
   }
 
   // Sends authentication request to connected host
-  authenticate(account: any, password: string) {
+  public authenticate(account: any, password: string) {
     if (!this.connected) {
       return false;
     }
@@ -66,7 +71,7 @@ class AuthHandler extends Socket {
     this.account = account.toUpperCase();
     this.password = password.toUpperCase();
 
-    console.info('authenticating ', this.account);
+    Log.info('authenticating ', this.account);
 
     // Extract configuration data
     const {
@@ -76,9 +81,9 @@ class AuthHandler extends Socket {
       patchVersion,
       game,
       raw: {
-        os, locale, platform
+        os, locale, platform,
       },
-      timezone
+      timezone,
     } = this.session.config;
 
     const ap = new AuthPacket(AuthOpcode.LOGON_CHALLENGE, 4 + 29 + 1 + this.account.length);
@@ -108,7 +113,7 @@ class AuthHandler extends Socket {
   }
 
   // Data received handler
-  dataReceived(data: Buffer) {
+  private dataReceived(data: Buffer) {
     if (!this.connected) {
       return;
     }
@@ -117,7 +122,7 @@ class AuthHandler extends Socket {
     ap.append(data);
     ap.offset = 0;
 
-    console.log('<==', ap.toString());
+    Log.info('<==', ap.toString());
 
     this.emit('packet:receive', ap);
     if (ap.opcodeName) {
@@ -125,15 +130,15 @@ class AuthHandler extends Socket {
     }
   }
 
-  toHexString(byteArray: any) {
-    return Array.from(byteArray, function(byte: any) {
+  private toHexString(byteArray: any) {
+    return Array.from(byteArray, (byte: any) => {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-    }).join(':')
+    }).join(':');
   }
 
   // Logon challenge handler (LOGON_CHALLENGE)
-  handleLogonChallenge(ap: AuthPacket) {
-    console.log('handleLogonChallenge');
+  private handleLogonChallenge(ap: AuthPacket) {
+    Log.info('handleLogonChallenge');
 
     const code = ap.readUint8();
     ap.readUint8();
@@ -141,7 +146,7 @@ class AuthHandler extends Socket {
 
     switch (status) {
       case AuthChallengeOpcode.SUCCESS:
-        console.info('received logon challenge');
+        Log.info('received logon challenge');
 
         const B = ReadIntoByteArray(32, ap);
         const glen = ap.readUint8(); // g-length
@@ -156,24 +161,23 @@ class AuthHandler extends Socket {
         const lpp = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
         lpp.writeUint8(AuthOpcode.LOGON_PROOF);
         lpp.append(this.srp.A.toArray());
-        console.log(' A: ' + this.toHexString(this.srp.A.toArray()));
-        if(this.srp.M1) {
-          console.log('M1: ' + this.toHexString(this.srp.M1.digest));
+        Log.info(' A: ' + this.toHexString(this.srp.A.toArray()));
+        if (this.srp.M1) {
+          Log.info('M1: ' + this.toHexString(this.srp.M1.digest));
           lpp.append(this.srp.M1.digest);
         }
         lpp.append(new Uint8Array(20)); // CRC hash
         lpp.writeByte(0x00);      // number of keys
         lpp.writeByte(0x00);      // security flags
 
-        
         this.send(lpp);
         break;
       case AuthChallengeOpcode.ACCOUNT_INVALID:
-        console.warn('account invalid');
+        Log.warn('account invalid');
         this.emit('reject');
         break;
       case AuthChallengeOpcode.BUILD_INVALID:
-        console.warn('build invalid');
+        Log.warn('build invalid');
         this.emit('reject');
         break;
       default:
@@ -182,17 +186,17 @@ class AuthHandler extends Socket {
   }
 
   // Logon proof handler (LOGON_PROOF)
-  handleLogonProof(ap: AuthPacket) {
-    console.log('handleLogonProof');
+  private handleLogonProof(ap: AuthPacket) {
+    Log.info('handleLogonProof');
 
     const code = ap.readUint8();
     ap.readUint8();
 
-    console.info('received proof response');
+    Log.info('received proof response');
 
     const M2 = ReadIntoByteArray(20, ap);
 
-    if (this.srp.validate(M2)) {
+    if (this.srp && this.srp.validate(M2)) {
       this.emit('authenticate');
     } else {
       this.emit('reject');

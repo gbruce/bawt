@@ -1,23 +1,25 @@
 import * as ByteBuffer from 'bytebuffer';
 import { EventEmitter } from 'events';
 import { Socket as NetSocket } from 'net';
-import { default as Packet } from '../net/Packet'
+import { default as Packet } from '../net/Packet';
+import * as process from 'process';
+import { NewLogger } from '../utils/Logger';
 
-//import * as WebSocket from 'ws';
+const Log = NewLogger('net/Socket');
 
 // Base-class for any socket including signals and host/port management
 class Socket extends EventEmitter {
-  protected host: string|null;
-  protected port: any;
-  private uri: any;
-  private socket: NetSocket;
-  protected buffer: ByteBuffer;
-  private remaining: boolean;
-  private socketOpen: boolean = false;
-
   // Maximum buffer capacity
   // TODO: Arbitrarily chosen, determine this cap properly
-  static BUFFER_CAP: number = 2048;
+  public static BUFFER_CAP: number = 2048;
+
+  protected host: string|null;
+  protected port: any;
+  protected buffer: ByteBuffer;
+  private uri: any;
+  private socket: NetSocket;
+  private remaining: boolean;
+  private socketOpen: boolean = false;
 
   // Creates a new socket
   constructor() {
@@ -41,35 +43,26 @@ class Socket extends EventEmitter {
   }
 
   // Connects to given host through given port (if any; default port is implementation specific)
-  connect(host: string, port: number = NaN) {
+  public connect(host: string, port: number = NaN) {
     if (!this.connected) {
       this.host = host;
       this.port = port;
       this.uri = this.host + ':' + this.port;
       this.remaining = false;
 
-      // this.socket = new WebSocket(this.uri, 'binary');
-      //this.socket.binaryType = 'arraybuffer';
       this.socket = new NetSocket();
       this.socket.connect(this.port, this.host, () => {
         this.socketOpen = true;
         this.emit('connect');
       });
 
-      // this.socket.onopen = (e: any) => {
-      //   this.emit('connect', e);
-      // };
-
-      // this.socket.onclose = (e: any) => {
-      //   this.emit('disconnect', e);
-      // };
       this.socket.on('close', () => {
         this.socketOpen = false;
         this.emit('disconnect');
       });
 
       this.socket.on('data', (data: Buffer) => {
-        console.log('ondata');
+        Log.info('ondata');
         const index = this.buffer.offset;
         this.buffer.append(data);
 
@@ -84,7 +77,7 @@ class Socket extends EventEmitter {
 
       this.socket.on('error', (err: Error) => {
         this.socketOpen = false;
-        console.error(err);
+        Log.error(err.message);
       });
     }
 
@@ -92,7 +85,7 @@ class Socket extends EventEmitter {
   }
 
   // Attempts to reconnect to cached host and port
-  reconnect() {
+  public reconnect() {
     if (!this.connected && this.host && this.port) {
       this.connect(this.host, this.port);
     }
@@ -100,7 +93,7 @@ class Socket extends EventEmitter {
   }
 
   // Disconnects this socket
-  disconnect() {
+  public disconnect() {
     if (this.connected) {
       this.socket.end();
     }
@@ -108,26 +101,19 @@ class Socket extends EventEmitter {
   }
 
   // Finalizes and sends given packet
-  send(packet: Packet) {
+  public send(packet: Packet) {
     if (this.connected) {
-
       packet.finalize();
 
-      console.log('==>', packet.toString());
-      // console.debug packet.toHex()
-      // console.debug packet.toASCII()
+      Log.info('==>', packet.toString());
 
       this.socket.write(packet.buffer);
-      // this.socket.send(packet.buffer);
-
       this.emit('packet:send', packet);
-
       return true;
     }
 
     return false;
   }
-
 }
 
 export default Socket;

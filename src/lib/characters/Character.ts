@@ -18,7 +18,7 @@ class Character {
   public equipment: any[];
 
   // Short string representation of this character
-  toString() {
+  public toString() {
     return `[Character; GUID: ${this.guid}]`;
   }
 

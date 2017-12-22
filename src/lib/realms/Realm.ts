@@ -1,7 +1,7 @@
 class Realm {
-  public _host: string = '';
-  public _port: number = NaN;
-  public _address: string = '';
+  public myHost: string = '';
+  public myPort: number = NaN;
+  public myAddress: string = '';
   public name: string = '';
   public id: any;
   public icon: any;
@@ -32,33 +32,32 @@ class Realm {
   }
 
   // Short string representation of this realm
-  toString() {
-    return `[Realm; Name: ${this.name}; Address: ${this._address}; Characters: ${this.characters}]`;
+  public toString() {
+    return `[Realm; Name: ${this.name}; Address: ${this.myAddress}; Characters: ${this.characters}]`;
   }
 
   // Retrieves host for this realm
   public get host() {
-    return this._host;
+    return this.myHost;
   }
 
   // Retrieves port for this realm
   get port() {
-    return this._port;
+    return this.myPort;
   }
 
   // Retrieves address for this realm
   get address() {
-    return this._address;
+    return this.myAddress;
   }
 
   // Sets address for this realm
   set address(address: string) {
-    this._address = address;
-    const parts = this._address.split(':');
-    this._host = parts[0];
-    this._port = parseInt(parts[1]);
+    this.myAddress = address;
+    const parts = this.myAddress.split(':');
+    this.myHost = parts[0];
+    this.myPort = parseInt(parts[1], 10);
   }
-
 }
 
 export default Realm;

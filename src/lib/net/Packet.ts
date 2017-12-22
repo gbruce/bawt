@@ -26,7 +26,7 @@ class Packet extends ByteBuffer {
   }
 
   // Header size in bytes
-  get headerSize():number {
+  get headerSize(): number {
     return this.headerLength;
   }
 
@@ -42,24 +42,23 @@ class Packet extends ByteBuffer {
   }
 
   // Short string representation of this packet
-  toString() {
+  public toString() {
     const opcode = ('0000' + this.opcode.toString(16).toUpperCase()).slice(-4);
-    //return `[Packet; Opcode: ${this.opcodeName || 'UNKNOWN'} (0x${opcode}); Length: ${this.length}; Body: ${this.bodySize}; Index: ${this._index}]`;
     return `[Packet opcode:${this.opcode}]`;
   }
 
   // Finalizes this packet
-  finalize() {
+  public finalize() {
     // return this;
   }
 
   // Reads GUID from this packet
-  readGUID(): GUID {
+  public readGUID(): GUID {
     return new GUID(this);
   }
 
-  WriteString( str: string, offset?: number ): ByteBuffer | number {
-    return (<any>this).writeString(str, offset);
+  public WriteString( str: string, offset?: number ): ByteBuffer | number {
+    return (this as any).writeString(str, offset);
   }
 }
 
