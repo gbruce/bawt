@@ -11,21 +11,22 @@ import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
 
-const Log = NewLogger('GameHandler');
+const Log = NewLogger('game/Handler');
 
-const ReadIntoByteArray = function(bytes: number, bb: ByteBuffer) {
+const ReadIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   const result = [];
-  for(let i=0; i<bytes; i++) {
+  for (let i = 0; i < bytes; i++) {
     result.push(bb.readUint8());
   }
   return result;
 };
 
 class GameHandler extends Socket {
-  private AddOnHex ='9e020000789c75d2c16ac3300cc671ef2976e99becb4b450c2eacbe29e8b627f4b446c39384eb7f63dfabe65b70d94f34f48f047afc69826f2fd4e255cdefdc8b82241eab9352fe97b7732ffbc404897d557cea25a43a54759c63c6f70ad115f8c182c0b279ab52196c032a80bf61421818a4639f5544f79d834879faae001fd3ab89ce3a2e0d1ee47d20b1d6db7962b6e3ac6db3ceab2720c0dc9a46a2bcb0caf1f6c2b5297fd84ba95c7922f59954fe2a082fb2daadf739c60496880d6dbe509fa13b84201ddc4316e310bca5f7b7b1c3e9ee193c88d';
+  // tslint:disable-next-line:max-line-length
+  private AddOnHex = '9e020000789c75d2c16ac3300cc671ef2976e99becb4b450c2eacbe29e8b627f4b446c39384eb7f63dfabe65b70d94f34f48f047afc69826f2fd4e255cdefdc8b82241eab9352fe97b7732ffbc404897d557cea25a43a54759c63c6f70ad115f8c182c0b279ab52196c032a80bf61421818a4639f5544f79d834879faae001fd3ab89ce3a2e0d1ee47d20b1d6db7962b6e3ac6db3ceab2720c0dc9a46a2bcb0caf1f6c2b5297fd84ba95c7922f59954fe2a082fb2daadf739c60496880d6dbe509fa13b84201ddc4316e310bca5f7b7b1c3e9ee193c88d';
   private addOnBuffer: ByteBuffer;
   private session: any;
-  private _crypt: Crypt|null = null;
+  private crypt: Crypt|null = null;
 
   // Creates a new game handler
   constructor(session: any) {
@@ -43,7 +44,7 @@ class GameHandler extends Socket {
     this.on('packet:receive:SMSG_AUTH_CHALLENGE', (packet: any) => {
       this.handleAuthChallenge(packet);
     });
-     
+
     this.on('packet:receive:SMSG_AUTH_RESPONSE', (packet: any) => {
       this.handleAuthResponse(packet);
     });
@@ -56,7 +57,7 @@ class GameHandler extends Socket {
   }
 
   // Connects to given host through given port
-  connect(host: string, port: number) {
+  public connect(host: string, port: number) {
     if (!this.connected) {
       super.connect(host, port);
       Log.info('connecting to game-server @', this.host, ':', this.port);
@@ -65,25 +66,23 @@ class GameHandler extends Socket {
   }
 
   // Finalizes and sends given packet
-  send(packet: GamePacket) {    
-    const size = packet.offset;//  + GamePacket.OPCODE_SIZE_OUTGOING;
+  public send(packet: GamePacket) {
+    const size = packet.offset;
 
     packet.BE();
     packet.offset = 0;
-//    packet.littleEndian = false;
-    packet.writeUint16(size-2);
-//    packet.littleEndian = true;
+    packet.writeUint16(size - 2);
 
     // Encrypt header if needed
-    if (this._crypt) {
-      this._crypt.encrypt(new Uint8Array(packet.buffer, 0, GamePacket.HEADER_SIZE_OUTGOING));
+    if (this.crypt) {
+      this.crypt.encrypt(new Uint8Array(packet.buffer, 0, GamePacket.HEADER_SIZE_OUTGOING));
     }
 
     return super.send(packet);
   }
 
   // Attempts to join game with given character
-  join(character: Character) {
+  public join(character: Character) {
     if (character) {
       Log.info('joining game with', character.toString());
 
@@ -95,8 +94,14 @@ class GameHandler extends Socket {
     return false;
   }
 
+  public toHexString(byteArray: any) {
+    return Array.from(byteArray, (byte: any) => {
+      return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    }).join(':');
+  }
+
   // Data received handler
-  dataReceived(buffer: Buffer) {
+  private dataReceived(buffer: Buffer) {
     if (!this.connected) {
       return;
     }
@@ -115,55 +120,16 @@ class GameHandler extends Socket {
       this.emit(`packet:receive:${packet.opcodeName}`, packet);
     }
 
-    if (this._crypt) {
-      // REMOVE THIS
-      process.exit();
+    if (this.crypt) {
+      setTimeout(() => {
+        // REMOVE THIS
+        process.exit();
+      }, 500);
     }
-    /*
-      if (this.remaining === false) {
-
-        if (this.buffer.available < GamePacket.HEADER_SIZE_INCOMING) {
-          return;
-        }
-
-        // Decrypt header if needed
-        if (this._crypt) {
-          this._crypt.decrypt(new Uint8Array(this.buffer.buffer, this.buffer.index, GamePacket.HEADER_SIZE_INCOMING));
-        }
-
-        this.remaining = this.buffer.readUnsignedShort(ByteBuffer.BIG_ENDIAN);
-      }
-
-      if (this.remaining > 0 && this.buffer.available >= this.remaining) {
-        const size = GamePacket.OPCODE_SIZE_INCOMING + this.remaining;
-        const gp = new GamePacket(this.buffer.readUnsignedShort(), this.buffer.seek(-GamePacket.HEADER_SIZE_INCOMING).read(size), false);
-
-        this.remaining = false;
-
-        console.log('⟹', gp.toString());
-        // console.debug gp.toHex()
-        // console.debug gp.toASCII()
-
-        this.emit('packet:receive', gp);
-        if (gp.opcodeName) {
-          this.emit(`packet:receive:${gp.opcodeName}`, gp);
-        }
-
-      } else if (this.remaining !== 0) {
-        return;
-      }
-    }
-    */
-  }
-
-  toHexString(byteArray: any) {
-    return Array.from(byteArray, function(byte: any) {
-      return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-    }).join(':')
   }
 
   // Auth challenge handler (SMSG_AUTH_CHALLENGE)
-  handleAuthChallenge(gp: GamePacket) {
+  private handleAuthChallenge(gp: GamePacket) {
     Log.info('handling auth challenge');
     gp.littleEndian = false;
     const sz = gp.readUint16();
@@ -188,7 +154,6 @@ class GameHandler extends Socket {
     const build = this.session.config.build;
     const account = this.session.account;
 
-
     // const size = GamePacket.HEADER_SIZE_OUTGOING + 8 + this.session.account.length + 1 + 4 + 4 + 20 + 20 + 4;
     const size = 0;
 
@@ -206,25 +171,16 @@ class GameHandler extends Socket {
     app.writeUint32(0);
     app.append(hash.digest);
     Log.debug('dig: ' + this.toHexString(hash.digest));
-//    app.writeUint32(0);
     app.append(this.addOnBuffer);
-    // app.writeUnsignedInt(0);     // (?)
-    // app.writeUnsignedInt(0);     // (?)
-    // app.writeUnsignedInt(0);     // (?)
-    // app.writeUnsignedInt(0);     // (?)
-    // app.writeUnsignedInt(0);     // (?)
-    // app.write(hash.digest);      // digest
-    // app.writeUnsignedInt(0);     // addon-data
-
 
     this.send(app);
 
-    this._crypt = new Crypt();
-    this._crypt.key = this.session.key;
+    this.crypt = new Crypt();
+    this.crypt.key = this.session.key;
   }
 
   // Auth response handler (SMSG_AUTH_RESPONSE)
-  handleAuthResponse(gp: GamePacket) {
+  private handleAuthResponse(gp: GamePacket) {
     Log.info('handling auth response');
 
     // Handle result byte
@@ -247,7 +203,7 @@ class GameHandler extends Socket {
   }
 
   // World login handler (SMSG_LOGIN_VERIFY_WORLD)
-  handleWorldLogin(_gp: any) {
+  private handleWorldLogin(gp: any) {
     this.emit('join');
   }
 
