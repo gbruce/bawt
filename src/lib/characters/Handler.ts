@@ -1,13 +1,16 @@
 import { EventEmitter } from 'events';
-import { Session } from  '../../interface/Session';
+import { Session } from '../../interface/Session';
 import Character from './character';
 import { default as GamePacket } from '../game/packet';
 import GameOpcode from '../game/opcode';
 import AuthPacket from '../auth/packet';
+import { NewLogger } from '../utils/Logger';
+
+const Log = NewLogger('game/Handler');
 
 class CharacterHandler extends EventEmitter {
-  private session: any;
   public list: Character[] = [];
+  private session: any;
 
   // Creates a new character handler
   constructor(session: any) {
@@ -23,8 +26,8 @@ class CharacterHandler extends EventEmitter {
   }
 
   // Requests a fresh list of characters
-  refresh() {
-    console.info('refreshing character list');
+  public refresh() {
+    Log.info('refreshing character list');
 
     const gp = new GamePacket(GameOpcode.CMSG_CHAR_ENUM);
     gp.writeUint8(GameOpcode.CMSG_CHAR_ENUM);
@@ -33,15 +36,13 @@ class CharacterHandler extends EventEmitter {
   }
 
   // Character list refresh handler (SMSG_CHAR_ENUM)
-  handleCharacterList(gp: AuthPacket) {
+  private handleCharacterList(gp: AuthPacket) {
     const opcode = gp.readUint8();
     const count = gp.readUint8(); // number of characters
-
     this.list.length = 0;
 
     for (let i = 0; i < count; ++i) {
       const character = new Character();
-
       character.guid = gp.readGUID();
       character.name = gp.readCString();
       character.race = gp.readUint8();
@@ -64,7 +65,7 @@ class CharacterHandler extends EventEmitter {
       const pet = {
         model: gp.readUint32(),
         level: gp.readUint32(),
-        family: gp.readUint32()
+        family: gp.readUint32(),
       };
       if (pet.model) {
         character.pet = pet;
@@ -75,7 +76,7 @@ class CharacterHandler extends EventEmitter {
         const item = {
           model: gp.readUint32(),
           type: gp.readUint32(),
-          enchantment: gp.readUint32()
+          enchantment: gp.readUint32(),
         };
         character.equipment.push(item);
       }
@@ -85,7 +86,6 @@ class CharacterHandler extends EventEmitter {
 
     this.emit('refresh');
   }
-
 }
 
 export default CharacterHandler;
