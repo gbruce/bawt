@@ -1,12 +1,12 @@
 import * as ByteBuffer from 'bytebuffer';
 
 import BigNum from '../crypto/BigNum';
-import Crypt from '../crypto/crypt';
-import GameOpcode from './opcode';
-import GamePacket from './packet';
-import GUID from '../game/guid';
-import SHA1 from '../crypto/hash/sha1';
-import Socket from '../net/socket';
+import Crypt from '../crypto/Crypt';
+import GameOpcode from './Opcode';
+import GamePacket from './Packet';
+import GUID from '../game/Guid';
+import SHA1 from '../crypto/hash/SHA1';
+import Socket from '../net/Socket';
 import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
