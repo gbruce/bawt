@@ -1,12 +1,12 @@
 import * as ByteBuffer from 'bytebuffer';
 
 class GUID {
+  // GUID byte-length (64-bit)
+  public static LENGTH = 8;
+
   private raw: any;
   private low: any;
   private high: any;
-  
-  // GUID byte-length (64-bit)
-  static LENGTH = 8;
 
   // Creates a new GUID
   constructor(buffer: ByteBuffer) {
@@ -23,7 +23,7 @@ class GUID {
   }
 
   // Short string representation of this GUID
-  toString() {
+  public toString() {
     const high = ('0000' + this.high.toString(16)).slice(-4);
     const low = ('0000' + this.low.toString(16)).slice(-4);
     return `[GUID; Hex: 0x${high}${low}]`;
