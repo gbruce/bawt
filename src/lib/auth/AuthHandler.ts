@@ -1,12 +1,12 @@
 
 import * as ByteBuffer from 'bytebuffer';
 import { Session } from '../../interface/Session';
-import SRP from '../crypto/srp';
-import Socket from '../net/socket';
+import SRP from '../crypto/SRP';
+import Socket from '../net/Socket';
 import { NewLogger } from '../utils/Logger';
 import AuthChallengeOpcode from './ChallengeOpcode';
 import AuthOpcode from './Opcode';
-import AuthPacket from './packet';
+import AuthPacket from './Packet';
 
 const Log = NewLogger('AuthHandler');
 

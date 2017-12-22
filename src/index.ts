@@ -3,7 +3,7 @@ import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
 import Character from './lib/characters/Character';
 import { default as CharacterHandler } from './lib/characters/Handler';
-import { default as GameHandler } from './lib/game/handler';
+import { default as GameHandler } from './lib/game/Handler';
 import { default as RealmsHandler } from './lib/realms/Handler';
 import { default as Realm } from './lib/realms/Realm';
 import realm from './lib/realms/Realm';
