@@ -1,4 +1,4 @@
-var equal = require('deep-equal');
+import deepEqual = require('deep-equal');
 
 import BigNum from './BigNum';
 import SHA1 from './hash/sha1';
@@ -7,18 +7,18 @@ import SHA1 from './hash/sha1';
 // http://tools.ietf.org/html/rfc2945
 class SRP {
   private _N: BigNum;
-  private _g: BigNum;
-  private _s: BigNum|null;
-  private _x: BigNum|null;
-  private _u: BigNum|null;
-  private _k: BigNum;
+  private g: BigNum;
+  private s: BigNum|null;
+  private x: BigNum|null;
+  private u: BigNum|null;
+  private k: BigNum;
   private _B: BigNum|null;
-  private _v: BigNum|null;
+  private v: BigNum|null;
   private _S: BigNum|null;
   private _K: any[]|null;
   private _M1: SHA1|null;
   private _M2: SHA1|null;
-  private _a: BigNum;
+  private a: BigNum;
   private _A: BigNum;
 
   // Creates new SRP instance with given constant prime and generator
@@ -28,25 +28,25 @@ class SRP {
     this._N = BigNum.fromArray(N);
 
     // Generator (g)
-    this._g = BigNum.fromArray(g);
+    this.g = BigNum.fromArray(g);
 
     // Client salt (provided by server)
-    this._s = null;
+    this.s = null;
 
     // Salted authentication hash
-    this._x = null;
+    this.x = null;
 
     // Random scrambling parameter
-    this._u = null;
+    this.u = null;
 
     // Derived key
-    this._k = new BigNum(3);
+    this.k = new BigNum(3);
 
     // Server's public ephemeral value (provided by server)
     this._B = null;
 
     // Password verifier
-    this._v = null;
+    this.v = null;
 
     // Client-side session key
     this._S = null;
@@ -63,11 +63,11 @@ class SRP {
     while (true) {
 
       // Client's private ephemeral value (random)
-      this._a = BigNum.fromRand(19);
+      this.a = BigNum.fromRand(19);
 
       // Client's public ephemeral value based on the above
       // A = g ^ a mod N
-      this._A = this._g.modPow(this._a, this._N);
+      this._A = this.g.modPow(this.a, this._N);
 
       if (!this._A.mod(this._N).equals(BigNum.ZERO)) {
         break;
@@ -91,10 +91,10 @@ class SRP {
   }
 
   // Feeds salt, server's public ephemeral value, account and password strings
-  feed(s: any, B: any, I: any, P: any) {
+  public feed(s: any, B: any, I: any, P: any) {
 
     // Generated salt (s) and server's public ephemeral value (B)
-    this._s = BigNum.fromArray(s);
+    this.s = BigNum.fromArray(s);
     this._B = BigNum.fromArray(B);
 
     // Authentication hash consisting of user's account (I), a colon and user's password (P)
@@ -107,25 +107,25 @@ class SRP {
     // Salted authentication hash consisting of the salt and the authentication hash
     // x = H(s | auth)
     const x = new SHA1();
-    x.feed(this._s.toArray());
+    x.feed(this.s.toArray());
     x.feed(auth.digest);
-    this._x = BigNum.fromArray(x.digest);
+    this.x = BigNum.fromArray(x.digest);
 
     // Password verifier
     // v = g ^ x mod N
-    this._v = this._g.modPow(this._x, this._N);
+    this.v = this.g.modPow(this.x, this._N);
 
     // Random scrambling parameter consisting of the public ephemeral values
     // u = H(A | B)
     const u = new SHA1();
     u.feed(this._A.toArray());
     u.feed(this._B.toArray());
-    this._u = BigNum.fromArray(u.digest);
+    this.u = BigNum.fromArray(u.digest);
 
     // Client-side session key
     // S = (B - (kg^x)) ^ (a + ux)
-    const kgx = this._k.multiply(this._g.modPow(this._x, this._N));
-    const aux = this._a.add(this._u.multiply(this._x));
+    const kgx = this.k.multiply(this.g.modPow(this.x, this._N));
+    const aux = this.a.add(this.u.multiply(this.x));
     this._S = this._B.subtract(kgx).modPow(aux, this._N);
 
     // Store odd and even bytes in separate byte-arrays
@@ -158,7 +158,7 @@ class SRP {
     const Nh = new SHA1();
     const gh = new SHA1();
     Nh.feed(this._N.toArray()).finalize();
-    gh.feed(this._g.toArray()).finalize();
+    gh.feed(this.g.toArray()).finalize();
 
     // XOR N-prime and generator
     const Ngh = [];
@@ -171,7 +171,7 @@ class SRP {
     this._M1 = new SHA1();
     this._M1.feed(Ngh);
     this._M1.feed(userh.digest);
-    this._M1.feed(this._s.toArray());
+    this._M1.feed(this.s.toArray());
     this._M1.feed(this._A.toArray());
     this._M1.feed(this._B.toArray());
     this._M1.feed(this._K);
@@ -187,11 +187,11 @@ class SRP {
   }
 
   // Validates given M2 with expected M2
-  validate(M2: number[]) {
+  public validate(M2: number[]) {
     if (!this._M2) {
       return false;
     }
-    return equal(M2, this._M2.digest);
+    return deepEqual(M2, this._M2.digest);
   }
 
 }
