@@ -18,7 +18,20 @@ declare module BigInteger {
 }
 
 declare module 'jsbn/lib/big-integer' {
-  const value: BigInteger;
   export = BigInteger;
 }
 
+declare module 'jsbn/lib/sha1' {
+  export let HMAC: {
+    fromArrays(key: any, data: any): number[];
+    fromStrings(key: any, data: any): string;
+  }
+}
+
+declare class RC4 {
+  constructor();
+}
+
+declare module 'jsbn/lib/rc4' {
+  export = RC4;
+}
