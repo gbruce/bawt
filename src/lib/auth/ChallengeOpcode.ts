@@ -1,5 +1,4 @@
 class ChallengeOpcode {
-
   public static SUCCESS            = 0x00;
   public static UNKNOWN0           = 0x01;
   public static UNKNOWN1           = 0x02;
@@ -19,7 +18,6 @@ class ChallengeOpcode {
   public static LOCK_ENFORCED      = 0x10;
   public static TRIAL_EXPIRED      = 0x11;
   public static BATTLE_NET         = 0x12;
-
 }
 
 export default ChallengeOpcode;
