@@ -1,5 +1,5 @@
-import BasePacket from '../net/packet';
-import GameOpcode from './opcode';
+import BasePacket from '../net/Packet';
+import GameOpcode from './Opcode';
 import ObjectUtil from '../utils/ObjectUtil';
 
 class GamePacket extends BasePacket {

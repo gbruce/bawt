@@ -1,7 +1,7 @@
 import deepEqual = require('deep-equal');
 
 import BigNum from './BigNum';
-import SHA1 from './hash/sha1';
+import SHA1 from './hash/SHA1';
 
 // Secure Remote Password
 // http://tools.ietf.org/html/rfc2945

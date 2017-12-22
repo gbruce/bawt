@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 import { Session } from '../../interface/Session';
-import Character from './character';
-import { default as GamePacket } from '../game/packet';
-import GameOpcode from '../game/opcode';
-import AuthPacket from '../auth/packet';
+import Character from './Character';
+import { default as GamePacket } from '../game/Packet';
+import GameOpcode from '../game/Opcode';
+import AuthPacket from '../auth/Packet';
 import { NewLogger } from '../utils/Logger';
 
 const Log = NewLogger('game/Handler');

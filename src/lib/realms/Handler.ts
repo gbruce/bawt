@@ -1,8 +1,8 @@
 import { EventEmitter} from 'events';
 
-import AuthOpcode from '../auth/opcode';
-import AuthPacket from '../auth/packet';
-import Realm from './realm';
+import AuthOpcode from '../auth/Opcode';
+import AuthPacket from '../auth/Packet';
+import Realm from './Realm';
 import { NewLogger } from '../utils/Logger';
 
 const Log = NewLogger('RealmHandler');
