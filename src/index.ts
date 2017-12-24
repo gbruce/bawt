@@ -104,13 +104,19 @@ class Client implements Session {
       }
     });
 
+    this.game.on('authenticate', () => {
+      this.character.refresh();
+    });
+
     this.character.on('refresh', () => {
       this.selectedChar = this.character.list.find((character) => {
-        return character.name === '';
+        return character.name === config.character;
       });
 
       if (this.selectedRealm) {
-        this.game.connect(this.selectedRealm.host, this.selectedRealm.port);
+        if (this.selectedChar) {
+          this.game.join(this.selectedChar);
+        }
       }
     });
   }

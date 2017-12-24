@@ -62,7 +62,7 @@ class Socket extends EventEmitter {
       });
 
       this.socket.on('data', (data: Buffer) => {
-        Log.info('ondata');
+        Log.info('ondata ' + data.byteLength + ' bytes');
         const index = this.buffer.offset;
         this.buffer.append(data);
 
@@ -105,7 +105,7 @@ class Socket extends EventEmitter {
     if (this.connected) {
       packet.finalize();
 
-      Log.info('==>', packet.toString());
+      Log.info('==> ', packet.toString() + ' size:' + packet.capacity());
 
       this.socket.write(packet.buffer);
       this.emit('packet:send', packet);

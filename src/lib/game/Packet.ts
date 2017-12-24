@@ -1,6 +1,7 @@
 import BasePacket from '../net/Packet';
 import GameOpcode from './Opcode';
 import ObjectUtil from '../utils/ObjectUtil';
+import Guid from './Guid';
 
 class GamePacket extends BasePacket {
 
@@ -40,8 +41,8 @@ class GamePacket extends BasePacket {
   }
 
   // Writes given GUID to this packet
-  public writeGUID(guid: any) {
-    this.append(guid.raw);
+  public writeGUID(guid: Guid) {
+    guid.WriteTo(this);
     return this;
   }
 }
