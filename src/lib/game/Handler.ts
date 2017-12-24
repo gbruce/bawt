@@ -73,9 +73,18 @@ class GameHandler extends Socket {
     packet.offset = 0;
     packet.writeUint16(size - 2);
 
-    // Encrypt header if needed
+    // Encrypt header
     if (this.crypt) {
-      this.crypt.encrypt(new Uint8Array(packet.buffer, 0, GamePacket.HEADER_SIZE_OUTGOING));
+      packet.offset = 0;
+      const array = ReadIntoByteArray(6, packet);
+      this.crypt.encrypt(array);
+      packet.offset = 0;
+      packet.writeUint8(array[0]);
+      packet.writeUint8(array[1]);
+      packet.writeUint8(array[2]);
+      packet.writeUint8(array[3]);
+      packet.writeUint8(array[4]);
+      packet.writeUint8(array[5]);
     }
 
     return super.send(packet);
@@ -86,7 +95,7 @@ class GameHandler extends Socket {
     if (character) {
       Log.info('joining game with', character.toString());
 
-      const gp = new GamePacket(GameOpcode.CMSG_PLAYER_LOGIN, GamePacket.HEADER_SIZE_OUTGOING + GUID.LENGTH);
+      const gp = new GamePacket(GameOpcode.CMSG_PLAYER_LOGIN, 14);
       gp.writeGUID(character.guid);
       return this.send(gp);
     }
@@ -123,7 +132,7 @@ class GameHandler extends Socket {
       packet.append(packetSubarray);
       packet.offset = 0;
 
-      Log.info(`<==[Packet opcode:${packet.opcodeName} size:${size}]`);
+      Log.info(`<== [Packet opcode:${packet.opcodeName} size:${size}]`);
 
       this.emit('packet:receive', packet);
       if (packet.opcodeName) {

@@ -30,14 +30,13 @@ class CharacterHandler extends EventEmitter {
     Log.info('refreshing character list');
 
     const gp = new GamePacket(GameOpcode.CMSG_CHAR_ENUM);
-    gp.writeUint8(GameOpcode.CMSG_CHAR_ENUM);
-
     return this.session.game.send(gp);
   }
 
   // Character list refresh handler (SMSG_CHAR_ENUM)
   private handleCharacterList(gp: AuthPacket) {
-    const opcode = gp.readUint8();
+    gp.readUint16(); // size
+    gp.readUint16(); // opcode
     const count = gp.readUint8(); // number of characters
     this.list.length = 0;
 
@@ -62,6 +61,7 @@ class CharacterHandler extends EventEmitter {
       gp.readUint32(); // character customization
       gp.readUint8(); // (?)
 
+      /*
       const pet = {
         model: gp.readUint32(),
         level: gp.readUint32(),
@@ -80,6 +80,7 @@ class CharacterHandler extends EventEmitter {
         };
         character.equipment.push(item);
       }
+      */
 
       this.list.push(character);
     }
