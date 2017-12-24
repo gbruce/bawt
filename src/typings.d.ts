@@ -31,6 +31,10 @@ declare module 'jsbn/lib/sha1' {
 
 declare class RC4 {
   constructor();
+  init(key: any): void;
+  next(): any;
+  encrypt(data: any): void;
+  decrypt(data: any): void;
 }
 
 declare module 'jsbn/lib/rc4' {

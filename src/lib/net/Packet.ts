@@ -43,8 +43,8 @@ class Packet extends ByteBuffer {
 
   // Short string representation of this packet
   public toString() {
-    const opcode = ('0000' + this.opcode.toString(16).toUpperCase()).slice(-4);
-    return `[Packet opcode:${this.opcode}]`;
+    // const opcode = ('0000' + this.opcode.toString(16).toUpperCase()).slice(-4);
+    return `[Packet opcode:${this.opcodeName}]`;
   }
 
   // Finalizes this packet

@@ -106,25 +106,31 @@ class GameHandler extends Socket {
       return;
     }
 
-    const size = buffer.readUInt16BE(0);
-    const opcode = buffer.readUInt16LE(2);
+    let offset = 0;
+    while (offset < buffer.byteLength) {
+      const header = buffer.subarray(offset, offset + 4);
+      // Only the packet size and opcode are encrypted.
+      // 2 bytes (big endian) for the size
+      // 2 bytes (little endian) for the opcode
+      if (this.crypt) {
+        this.crypt.decrypt(header);
+      }
+      const size = buffer.readUInt16BE(offset) + 2;
+      const opcode = buffer.readUInt16LE(offset + 2);
 
-    const packet = new GamePacket(opcode, size, false);
-    packet.append(buffer);
-    packet.offset = 0;
+      const packetSubarray = buffer.subarray(offset, size);
+      const packet = new GamePacket(opcode, size, false);
+      packet.append(packetSubarray);
+      packet.offset = 0;
 
-    Log.info('<==', packet.toString());
+      Log.info(`<==[Packet opcode:${packet.opcodeName} size:${size}]`);
 
-    this.emit('packet:receive', packet);
-    if (packet.opcodeName) {
-      this.emit(`packet:receive:${packet.opcodeName}`, packet);
-    }
+      this.emit('packet:receive', packet);
+      if (packet.opcodeName) {
+        this.emit(`packet:receive:${packet.opcodeName}`, packet);
+      }
 
-    if (this.crypt) {
-      setTimeout(() => {
-        // REMOVE THIS
-        process.exit();
-      }, 500);
+      offset += size;
     }
   }
 
@@ -132,9 +138,9 @@ class GameHandler extends Socket {
   private handleAuthChallenge(gp: GamePacket) {
     Log.info('handling auth challenge');
     gp.littleEndian = false;
-    const sz = gp.readUint16();
+    gp.readUint16(); // size
     gp.littleEndian = true;
-    const opcode = gp.readUint16();
+    gp.readUint16(); // opcode
 
     gp.readUint32();
     const salt = ReadIntoByteArray(4, gp);
@@ -182,6 +188,9 @@ class GameHandler extends Socket {
   // Auth response handler (SMSG_AUTH_RESPONSE)
   private handleAuthResponse(gp: GamePacket) {
     Log.info('handling auth response');
+
+    gp.readUint16(); // size
+    gp.readUint16(); // opcode
 
     // Handle result byte
     const result = gp.readUint8();
