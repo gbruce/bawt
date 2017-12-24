@@ -28,7 +28,7 @@ class GUID {
     const low = ('0000' + this.low.toString(16)).slice(-4);
     return `[GUID; Hex: 0x${high}${low}]`;
   }
-  
+
   public WriteTo(buffer: ByteBuffer) {
     buffer.writeUint32(this.low);
     buffer.writeUint32(this.high);
