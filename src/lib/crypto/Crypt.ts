@@ -7,8 +7,8 @@ const HMAC = sha1.HMAC;
 const Log = NewLogger('game/Handler');
 
 class Crypt {
-  private myEncrypt: any;
-  private myDecrypt: any;
+  private myEncrypt: RC4|null;
+  private myDecrypt: RC4|null;
 
   // Creates crypt
   constructor() {

@@ -28,6 +28,8 @@ class GameOpcode {
   public static SMSG_SPELL_NON_MELEE_DAMAGE_LOG    = 0x0250;
   public static SMSG_INIT_WORLD_STATES             = 0x02C2;
   public static SMSG_UPDATE_WORLD_STATE            = 0x02C3;
+  public static SMSG_WARDEN_DATA                   = 0x02E6;
+  public static SMSG_ADDON_INFO                    = 0x02EF;
   public static SMSG_WEATHER                       = 0x02F4;
   public static MSG_SET_DUNGEON_DIFFICULTY         = 0x0329;
   public static SMSG_UPDATE_INSTANCE_OWNERSHIP     = 0x032B;
@@ -35,6 +37,7 @@ class GameOpcode {
   public static SMSG_MOTD                          = 0x033D;
   public static SMSG_TIME_SYNC_REQ                 = 0x0390;
   public static SMSG_FEATURE_SYSTEM_STATUS         = 0x03C9;
+  public static SMSG_CLIENTCACHE_VERSION           = 0x04AB;
   public static SMSG_SERVER_BUCK_DATA              = 0x041D;
   public static SMSG_SEND_UNLEARN_SPELLS           = 0x041E;
   public static SMSG_LEARNED_DANCE_MOVES           = 0x0455;
