@@ -37,7 +37,7 @@ class Config {
   public build: number = 12340;
   public timezone: number = 0;
   public locale: string = 'enUS';
-  public os: string = 'Win';
+  public os: string = 'OSX';
   public platform: string = 'x86';
   public raw: Raw = new Raw(this);
   public majorVersion: number;
@@ -100,7 +100,7 @@ class Client implements Session {
       });
 
       if (this.selectedRealm) {
-        this.game.connect(this.selectedRealm.host, this.selectedRealm.port);
+        this.game.connectToRealm(this.selectedRealm);
       }
     });
 
