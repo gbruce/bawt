@@ -1,4 +1,4 @@
-import * as data from './warmane-lord.json';
+import * as data from './client.json';
 import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
 import Character from './lib/characters/Character';
