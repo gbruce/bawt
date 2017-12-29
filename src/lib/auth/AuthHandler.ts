@@ -18,6 +18,70 @@ const ReadIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
+interface Result<T> {
+  success: boolean;
+  result: T|null;
+}
+
+interface LogonChallengeResult {
+  B: number[];
+  g: number[];
+  N: number[];
+  salt: number[];
+}
+
+function ToHexString(byteArray: any) {
+  return Array.from(byteArray, (byte: any) => {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+  }).join(':');
+}
+
+// LOGON_CHALLENGE
+export function DeserializeLogonChallenge(ap: AuthPacket): Result<LogonChallengeResult> {
+  Log.debug('DeserializeLogonChallenge');
+
+  const code = ap.readUint8();
+  ap.readUint8();
+  const status = ap.readUint8();
+
+  if (status === AuthChallengeOpcode.SUCCESS) {
+    Log.debug('auth challenge success');
+
+    const B = ReadIntoByteArray(32, ap);
+    const glen = ap.readUint8(); // g-length
+    const g = ReadIntoByteArray(glen, ap);
+    const Nlen = ap.readUint8(); // n-length
+    const N = ReadIntoByteArray(Nlen, ap);
+    const salt = ReadIntoByteArray(32, ap);
+
+    return {
+      success: true,
+      result: { B, g, N, salt },
+    };
+  }
+
+  return {
+    success: false,
+    result: null,
+  };
+}
+
+export function NewLogonProofPacket(srp: SRP) {
+  const packet = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
+  packet.writeUint8(AuthOpcode.LOGON_PROOF);
+  packet.append(srp.A.toArray());
+  Log.info(' A: ' + ToHexString(srp.A.toArray()));
+  if (srp.M1) {
+    Log.info('M1: ' + ToHexString(srp.M1.digest));
+    packet.append(srp.M1.digest);
+  }
+  packet.append(new Uint8Array(20)); // CRC hash
+  packet.writeByte(0x00);      // number of keys
+  packet.writeByte(0x00);      // security flags
+
+  return packet;
+}
+
 class AuthHandler extends Socket {
   // Default port for the auth-server
   public static PORT = 3724;
@@ -130,58 +194,19 @@ class AuthHandler extends Socket {
     }
   }
 
-  private toHexString(byteArray: any) {
-    return Array.from(byteArray, (byte: any) => {
-      return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-    }).join(':');
-  }
-
   // Logon challenge handler (LOGON_CHALLENGE)
-  private handleLogonChallenge(ap: AuthPacket) {
+  private handleLogonChallenge(packet: AuthPacket) {
     Log.info('handleLogonChallenge');
 
-    const code = ap.readUint8();
-    ap.readUint8();
-    const status = ap.readUint8();
-
-    switch (status) {
-      case AuthChallengeOpcode.SUCCESS:
-        Log.info('received logon challenge');
-
-        const B = ReadIntoByteArray(32, ap);
-        const glen = ap.readUint8(); // g-length
-        const g = ReadIntoByteArray(glen, ap);
-        const Nlen = ap.readUint8(); // n-length
-        const N = ReadIntoByteArray(Nlen, ap);
-        const salt = ReadIntoByteArray(32, ap);
-
-        this.srp = new SRP(N, g);
-        this.srp.feed(salt, B, this.account, this.password);
-
-        const lpp = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
-        lpp.writeUint8(AuthOpcode.LOGON_PROOF);
-        lpp.append(this.srp.A.toArray());
-        Log.info(' A: ' + this.toHexString(this.srp.A.toArray()));
-        if (this.srp.M1) {
-          Log.info('M1: ' + this.toHexString(this.srp.M1.digest));
-          lpp.append(this.srp.M1.digest);
-        }
-        lpp.append(new Uint8Array(20)); // CRC hash
-        lpp.writeByte(0x00);      // number of keys
-        lpp.writeByte(0x00);      // security flags
-
-        this.send(lpp);
-        break;
-      case AuthChallengeOpcode.ACCOUNT_INVALID:
-        Log.warn('account invalid');
-        this.emit('reject');
-        break;
-      case AuthChallengeOpcode.BUILD_INVALID:
-        Log.warn('build invalid');
-        this.emit('reject');
-        break;
-      default:
-        break;
+    const result = DeserializeLogonChallenge(packet);
+    if (result.success && result.result) {
+      const srpParams = result.result;
+      this.srp = new SRP(srpParams.N, srpParams.g);
+      this.srp.feed(srpParams.salt, srpParams.B, this.account, this.password);
+      this.send(NewLogonProofPacket(this.srp));
+    }
+    else {
+      this.emit('reject');
     }
   }
 
