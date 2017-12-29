@@ -72,6 +72,8 @@ class GameOpcode {
   public static SMSG_SPELL_START                   = 0x0131;
   public static SMSG_SPELL_GO                      = 0x0132;
   public static SMSG_BINDPOINT_UPDATE              = 0x0155;
+  public static CMSG_PING                          = 0x01DC;
+  public static SMSG_PONG                          = 0x01DD;
   public static SMSG_ITEM_TIME_UPDATE              = 0x01EA;
   public static SMSG_AUTH_CHALLENGE                = 0x01EC;
   public static CMSG_AUTH_PROOF                    = 0x01ED;
@@ -89,6 +91,8 @@ class GameOpcode {
   public static SMSG_UPDATE_INSTANCE_OWNERSHIP     = 0x032B;
   public static SMSG_INSTANCE_DIFFICULTY           = 0x033B;
   public static SMSG_MOTD                          = 0x033D;
+  public static SMSG_REALM_SPLIT                   = 0x038B;
+  public static CMSG_REALM_SPLIT                   = 0x038C;
   public static SMSG_TIME_SYNC_REQ                 = 0x0390;
   public static SMSG_FEATURE_SYSTEM_STATUS         = 0x03C9;
   public static SMSG_CLIENTCACHE_VERSION           = 0x04AB;
@@ -102,6 +106,7 @@ class GameOpcode {
   public static SMSG_EQUIPMENT_SET_LIST            = 0x04BC;
   public static SMSG_TALENTS_INFO                  = 0x04C0;
   public static MSG_SET_RAID_DIFFICULTY            = 0x04EB;
+  public static CMSG_READY_FOR_ACCOUNT_DATA_TIMES  = 0x04FF;
 }
 
 export default GameOpcode;

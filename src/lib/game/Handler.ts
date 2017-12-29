@@ -12,6 +12,7 @@ import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
 import Realm from 'lib/realms/Realm';
 import Guid from '../game/Guid';
+import { setInterval } from 'timers';
 
 const Log = NewLogger('game/Handler');
 
@@ -30,6 +31,7 @@ class GameHandler extends Socket {
   private session: any;
   private crypt: Crypt|null = null;
   private realm: Realm|null = null;
+  private pingCount: number = 1;
 
   // Creates a new game handler
   constructor(session: any) {
@@ -60,7 +62,35 @@ class GameHandler extends Socket {
       this.HandleCompressedUpdateObject(packet);
     });
 
+    this.on('packet:receive:SMSG_ACCOUNT_DATA_TIMES', (packet: any) => {
+    });
+
+    this.on('packet:receive:SMSG_PONG', (packet: GamePacket) => {
+      packet.readUint16(); // size
+      packet.readUint16(); // opcode
+      const pingCount = packet.readUint32(); // size
+      Log.info(`Pong ${pingCount}`);
+    });
+
     this.addOnBuffer = ByteBuffer.fromHex(this.AddOnHex);
+  }
+
+  public RequestRealmSplitState() {
+    if (!this.connected) {
+      return false;
+    }
+
+    const packet = new GamePacket(GameOpcode.CMSG_REALM_SPLIT, 10);
+    packet.writeUint32(1);
+    this.send(packet);
+  }
+
+  public NotifyReadyForAccountDataTimes() {
+    if (!this.connected) {
+      return false;
+    }
+
+    return this.send(new GamePacket(GameOpcode.CMSG_READY_FOR_ACCOUNT_DATA_TIMES, 6));
   }
 
   // Connects to given host through given port
@@ -237,6 +267,22 @@ class GameHandler extends Socket {
 
     // TODO: Ensure the account is flagged as WotLK (expansion //2)
     this.emit('authenticate');
+
+    this.ping();
+    setInterval(() => this.ping(), 30000);
+  }
+
+  private ping() {
+    const gp = new GamePacket(GameOpcode.CMSG_PING, 14);
+    gp.writeUint32(this.pingCount); // ping
+    gp.writeUint32(50); // latency
+
+    this.pingCount++;
+    return this.send(gp);
+  }
+
+  private handlePong(gp: GamePacket) {
+
   }
 
   // World login handler (SMSG_LOGIN_VERIFY_WORLD)
