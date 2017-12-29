@@ -79,6 +79,8 @@ class Socket extends EventEmitter {
         this.socketOpen = false;
         Log.error(err.message);
       });
+
+      Log.info('connecting to game-server @', this.host, ':', this.port);
     }
 
     return this;

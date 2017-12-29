@@ -86,9 +86,9 @@ class AuthHandler extends Socket {
       timezone,
     } = this.session.config;
 
-    const ap = new AuthPacket(AuthOpcode.LOGON_CHALLENGE, 4 + 29 + 1 + this.account.length);
+    const ap = new AuthPacket(AuthOpcode.LOGON_CHALLENGE, 34 + this.account.length);
     ap.writeUint8(AuthOpcode.LOGON_CHALLENGE);
-    ap.writeUint8(0x00);
+    ap.writeUint8(0x08);
     ap.writeUint16(30 + this.account.length);
     ap.WriteString(game);         // game string
     ap.writeUint8(0);

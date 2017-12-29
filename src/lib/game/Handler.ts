@@ -10,6 +10,9 @@ import Socket from '../net/Socket';
 import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
+import Realm from 'lib/realms/Realm';
+import Guid from '../game/Guid';
+import { setInterval } from 'timers';
 
 const Log = NewLogger('game/Handler');
 
@@ -27,6 +30,8 @@ class GameHandler extends Socket {
   private addOnBuffer: ByteBuffer;
   private session: any;
   private crypt: Crypt|null = null;
+  private realm: Realm|null = null;
+  private pingCount: number = 1;
 
   // Creates a new game handler
   constructor(session: any) {
@@ -53,14 +58,46 @@ class GameHandler extends Socket {
       this.handleWorldLogin(packet);
     });
 
+    this.on('packet:receive:SMSG_COMPRESSED_UPDATE_OBJECT', (packet: any) => {
+      this.HandleCompressedUpdateObject(packet);
+    });
+
+    this.on('packet:receive:SMSG_ACCOUNT_DATA_TIMES', (packet: any) => {
+    });
+
+    this.on('packet:receive:SMSG_PONG', (packet: GamePacket) => {
+      packet.readUint16(); // size
+      packet.readUint16(); // opcode
+      const pingCount = packet.readUint32(); // size
+      Log.info(`Pong ${pingCount}`);
+    });
+
     this.addOnBuffer = ByteBuffer.fromHex(this.AddOnHex);
   }
 
-  // Connects to given host through given port
-  public connect(host: string, port: number) {
+  public RequestRealmSplitState() {
     if (!this.connected) {
-      super.connect(host, port);
-      Log.info('connecting to game-server @', this.host, ':', this.port);
+      return false;
+    }
+
+    const packet = new GamePacket(GameOpcode.CMSG_REALM_SPLIT, 10);
+    packet.writeUint32(1);
+    this.send(packet);
+  }
+
+  public NotifyReadyForAccountDataTimes() {
+    if (!this.connected) {
+      return false;
+    }
+
+    return this.send(new GamePacket(GameOpcode.CMSG_READY_FOR_ACCOUNT_DATA_TIMES, 6));
+  }
+
+  // Connects to given host through given port
+  public connectToRealm(realm: Realm) {
+    if (!this.connected) {
+      this.realm = realm;
+      super.connect(realm.host, realm.port);
     }
     return this;
   }
@@ -107,6 +144,11 @@ class GameHandler extends Socket {
     return Array.from(byteArray, (byte: any) => {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
     }).join(':');
+  }
+
+  private HandleCompressedUpdateObject(packet: GamePacket): void {
+    packet.readUint16(); // size
+    packet.readUint16(); // opcode
   }
 
   // Data received handler
@@ -175,15 +217,17 @@ class GameHandler extends Socket {
     const app = new GamePacket(GameOpcode.CMSG_AUTH_PROOF);
     app.LE();
     app.writeUint32(build); // build
-    app.writeUint32(0);     // (?)
+    app.writeUint32(0);     // (?) login server id
     app.writeCString(account);   // account
-    app.writeUint32(0);     // (?)
+    app.writeUint32(0);     // (?) login server type
     app.append(seed.toArray());
 
-    app.writeUint64(0);
-    app.writeUint32(0x2c);
-    app.writeUint32(0);
-    app.writeUint32(0);
+    app.writeUint32(0); // region id
+    app.writeUint32(0); // battlegroup id
+    if (this.realm) {
+      app.writeUint32(this.realm.id); // realm id
+    }
+    app.writeUint64(0); // dos response
     app.append(hash.digest);
     Log.debug('dig: ' + this.toHexString(hash.digest));
     app.append(this.addOnBuffer);
@@ -215,9 +259,30 @@ class GameHandler extends Socket {
       return;
     }
 
-    // TODO: Ensure the account is flagged as WotLK (expansion //2)
+    if (result !== 12) {
+      Log.warn('auth response error:' + result);
+      this.emit('reject');
+      return;
+    }
 
+    // TODO: Ensure the account is flagged as WotLK (expansion //2)
     this.emit('authenticate');
+
+    this.ping();
+    setInterval(() => this.ping(), 30000);
+  }
+
+  private ping() {
+    const gp = new GamePacket(GameOpcode.CMSG_PING, 14);
+    gp.writeUint32(this.pingCount); // ping
+    gp.writeUint32(50); // latency
+
+    this.pingCount++;
+    return this.send(gp);
+  }
+
+  private handlePong(gp: GamePacket) {
+
   }
 
   // World login handler (SMSG_LOGIN_VERIFY_WORLD)
