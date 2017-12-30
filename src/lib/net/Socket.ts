@@ -66,8 +66,6 @@ class Socket extends EventEmitter {
         const index = this.buffer.offset;
         this.buffer.append(data);
 
-        // this.buffer.index = index;
-
         this.emit('data:receive', data);
 
         if (this.buffer.remaining() === 0 && this.buffer.capacity() > Socket.BUFFER_CAP) {
@@ -107,7 +105,7 @@ class Socket extends EventEmitter {
     if (this.connected) {
       packet.finalize();
 
-      Log.info('==> ', packet.toString() + ' size:' + packet.capacity());
+      Log.info(`==> [Packet opcode:${packet.opcodeName} size:${packet.capacity()}]`);
 
       this.socket.write(packet.buffer);
       this.emit('packet:send', packet);

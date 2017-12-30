@@ -93,6 +93,10 @@ export function HandleCharacterList(gp: GamePacket): Character[] {
       gp.readUint32(); // aura id
     }
 
+    Log.debug(`Char guid:${character.guid} name:"${character.name}" level:${character.level} ` +
+        `zone:${character.zone} map:${character.map} pos:(${character.x.toFixed(2)}, ` +
+        `${character.y.toFixed(2)}, ${character.z.toFixed(2)})`);
+
     list.push(character);
   }
 
