@@ -14,18 +14,22 @@ let currentVersion = Version.None;
 
 export function SetVersion(version: string): boolean {
   if (!initialized) {
-    initialized = true;
-
     switch (version) {
       case Version.None:
         currentVersion = Version.None;
-        return true;
+        break;
       case Version.WoW_1_12_1:
         currentVersion = Version.WoW_1_12_1;
-        return true;
+        break;
       case Version.WoW_3_3_5:
         currentVersion = Version.WoW_3_3_5;
-        return true;
+        break;
+    }
+
+    if (currentVersion !== Version.None) {
+      initialized = true;
+      Log.info('Version set to ' + currentVersion);
+      return true;
     }
 
     return false;
