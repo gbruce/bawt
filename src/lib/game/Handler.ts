@@ -13,6 +13,7 @@ import { NewLogger } from '../utils/Logger';
 import Realm from 'lib/realms/Realm';
 import Guid from '../game/Guid';
 import { setInterval } from 'timers';
+import { GetVersion, Version } from '../utils/Version';
 
 const Log = NewLogger('game/Handler');
 
@@ -193,7 +194,10 @@ class GameHandler extends Socket {
     gp.littleEndian = true;
     gp.readUint16(); // opcode
 
-    gp.readUint32();
+    if (GetVersion() === Version.WoW_3_3_5) {
+      gp.readUint32();
+    }
+
     const salt = ReadIntoByteArray(4, gp);
     const seed = BigNum.fromRand(4);
 
@@ -219,15 +223,20 @@ class GameHandler extends Socket {
     app.writeUint32(build); // build
     app.writeUint32(0);     // (?) login server id
     app.writeCString(account);   // account
-    app.writeUint32(0);     // (?) login server type
+    if (GetVersion() === Version.WoW_3_3_5) {
+      app.writeUint32(0);     // (?) login server type
+    }
     app.append(seed.toArray());
 
-    app.writeUint32(0); // region id
-    app.writeUint32(0); // battlegroup id
-    if (this.realm) {
-      app.writeUint32(this.realm.id); // realm id
+    if (GetVersion() === Version.WoW_3_3_5) {
+      app.writeUint32(0); // region id
+      app.writeUint32(0); // battlegroup id
+      if (this.realm) {
+        app.writeUint32(this.realm.id); // realm id
+      }
+      app.writeUint64(0); // dos response
     }
-    app.writeUint64(0); // dos response
+
     app.append(hash.digest);
     Log.debug('dig: ' + this.toHexString(hash.digest));
     app.append(this.addOnBuffer);
