@@ -1,4 +1,4 @@
-import * as data from './client.json';
+import * as data from './lightshope.json';
 import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
 import Character from './lib/characters/Character';
@@ -122,12 +122,13 @@ class Client implements Session {
 
   public Start() {
     const config = data as any;
+    SetVersion(config.version);
+    this.config.version = config.version;
+    this.config.build =  parseInt(config.build, 10);
     this.auth = new AuthHandler(this);
     this.game = new GameHandler(this);
     this.realm = new RealmsHandler(this);
     this.character = new CharacterHandler(this);
-
-    SetVersion(config.version);
 
     this.auth.connect(config.auth, config.port);
 
