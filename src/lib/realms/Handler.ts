@@ -48,7 +48,6 @@ class RealmsHandler extends EventEmitter {
     const count = ap.readUint16(); // number of realms
 
     this.list.length = 0;
-
     for (let i = 0; i < count; ++i) {
       const realm = new Realm();
 
@@ -69,6 +68,9 @@ class RealmsHandler extends EventEmitter {
         realm.patchVersion = ap.readUint8();
         realm.build = ap.readUint16();
       }
+
+      Log.debug(`Realm id:${realm.id} name:"${realm.name}" addr:${realm.address} ` +
+        `pop:${realm.population.toFixed(2)} char:${realm.characters}`);
 
       this.list.push(realm);
     }
