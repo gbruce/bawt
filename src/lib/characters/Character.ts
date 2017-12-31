@@ -9,9 +9,9 @@ class Character {
   public level: any;
   public zone: any;
   public map: any;
-  public x: any;
-  public y: any;
-  public z: any;
+  public x: number;
+  public y: number;
+  public z: number;
   public guild: any;
   public flags: any;
   public pet: any;
