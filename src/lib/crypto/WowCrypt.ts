@@ -1,5 +1,10 @@
 
-export default class WoWCrypt
+import { Crypt } from '../../interface/Crypt';
+import { NewLogger } from '../utils/Logger';
+
+const Log = NewLogger('crypto/WowCrypt');
+
+export default class WoWCrypt implements Crypt
 {
   private initialised = false;
 
