@@ -9,6 +9,7 @@
     "no-empty": false,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
-    "one-line": false
+    "one-line": false,
+    "member-ordering": false
   }
 }
