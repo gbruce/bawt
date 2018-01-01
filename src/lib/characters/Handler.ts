@@ -107,7 +107,6 @@ export function HandleCharacterList(gp: GamePacket): Character[] {
     character.guild = gp.readUint32();
     character.flags = gp.readUint32();
 
-    gp.readUint32(); // at login flags
     gp.readUint8(); // first login
 
     gp.readUint32(); // pet display id
@@ -127,6 +126,9 @@ export function HandleCharacterList(gp: GamePacket): Character[] {
         gp.readUint32(); // aura id
       }
     }
+
+    gp.readUint32(); // first bag display id
+    gp.readUint8(); // first bag inventory type
 
     Log.debug(`Char guid:${character.guid} name:"${character.name}" level:${character.level} ` +
         `zone:${character.zone} map:${character.map} pos:(${character.x.toFixed(2)}, ` +
