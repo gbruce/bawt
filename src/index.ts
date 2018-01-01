@@ -152,8 +152,6 @@ class Client implements Session {
 
     this.game.on('authenticate', () => {
       this.character.refresh();
-      this.game.NotifyReadyForAccountDataTimes();
-      this.game.RequestRealmSplitState();
     });
 
     this.character.on('refresh', () => {

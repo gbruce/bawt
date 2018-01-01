@@ -1,12 +1,13 @@
 import sha1 = require('jsbn/lib/sha1');
 import RC4 = require('jsbn/lib/rc4');
 import ArrayUtil from '../utils/ArrayUtil';
+import { Crypt } from '../../interface/Crypt';
 import { NewLogger } from '../utils/Logger';
 
 const HMAC = sha1.HMAC;
-const Log = NewLogger('game/Handler');
+const Log = NewLogger('crypto/RC4Crypt');
 
-class Crypt {
+class RC4Crypt implements Crypt {
   private myEncrypt: RC4|null;
   private myDecrypt: RC4|null;
 
@@ -18,24 +19,20 @@ class Crypt {
     this.myDecrypt = null;
   }
 
-  // Encrypts given data through RC4
-  public encrypt(data: any) {
-    if (this.myEncrypt) {
-      this.myEncrypt.encrypt(data);
-    }
-    return this;
-  }
-
-  // Decrypts given data through RC4
-  public decrypt(data: any) {
+  public Decrypt(data: number[]|Uint8Array, Length: number): void {
     if (this.myDecrypt) {
       this.myDecrypt.decrypt(data);
     }
-    return this;
+  }
+
+  public Encrypt(data: number[], Length: number): void {
+    if (this.myEncrypt) {
+      this.myEncrypt.encrypt(data);
+    }
   }
 
   // Sets session key and initializes this crypt
-  set key(key: any) {
+  public Init(key: number[]): void {
     Log.info('initializing crypt');
 
     // Fresh RC4's
@@ -62,4 +59,4 @@ class Crypt {
   }
 }
 
-export default Crypt;
+export default RC4Crypt;

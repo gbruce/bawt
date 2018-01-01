@@ -1,7 +1,9 @@
 import * as ByteBuffer from 'bytebuffer';
 
 import BigNum from '../crypto/BigNum';
-import Crypt from '../crypto/Crypt';
+import { Crypt } from '../../interface/Crypt';
+import WowCrypt from '../crypto/WowCrypt';
+import RC4Crypt from '../crypto/RC4Crypt';
 import GameOpcode from './Opcode';
 import GamePacket from './Packet';
 import GUID from '../game/Guid';
@@ -32,6 +34,7 @@ class GameHandler extends Socket {
   private AddOnHex2 = '56010000789c75ccbd0ec2300c04e0f21ebc0c614095c842c38c4ce2220bc7a98ccb4f9f1e16240673eb777781695940cb693367a326c7be5bd5c77adf7d12be16c08c7124e41249a8c2e495480ac9c53dd8b67a064bf8340f15467367bb38cc7ac7978bbddc26ccfe3042d6e6ca01a8b8908051fcb7a45070b812f33f2641fdb5379019668f';
   private addOnBuffer: ByteBuffer;
   private session: any;
+  private useCrypt = false;
   private crypt: Crypt|null = null;
   private realm: Realm|null = null;
   private pingCount: number = 1;
@@ -76,9 +79,11 @@ class GameHandler extends Socket {
     });
 
     if (GetVersion() === Version.WoW_1_12_1) {
+      this.crypt = new WowCrypt();
       this.addOnBuffer = ByteBuffer.fromHex(this.AddOnHex2);
     }
     else {
+      this.crypt = new RC4Crypt();
       this.addOnBuffer = ByteBuffer.fromHex(this.AddOnHex);
     }
   }
@@ -122,7 +127,7 @@ class GameHandler extends Socket {
     if (this.crypt) {
       packet.offset = 0;
       const array = ReadIntoByteArray(6, packet);
-      this.crypt.encrypt(array);
+      this.crypt.Encrypt(array, array.length);
       packet.offset = 0;
       packet.writeUint8(array[0]);
       packet.writeUint8(array[1]);
@@ -155,6 +160,7 @@ class GameHandler extends Socket {
   }
 
   private HandleCompressedUpdateObject(packet: GamePacket): void {
+    Log.debug('HandleCompressedUpdateObject');
     packet.readUint16(); // size
     packet.readUint16(); // opcode
   }
@@ -171,8 +177,8 @@ class GameHandler extends Socket {
       // Only the packet size and opcode are encrypted.
       // 2 bytes (big endian) for the size
       // 2 bytes (little endian) for the opcode
-      if (this.crypt) {
-        this.crypt.decrypt(header);
+      if (this.crypt && this.useCrypt) {
+        this.crypt.Decrypt(header, header.length);
       }
       const size = buffer.readUInt16BE(offset) + 2;
       const opcode = buffer.readUInt16LE(offset + 2);
@@ -182,7 +188,7 @@ class GameHandler extends Socket {
       packet.append(packetSubarray);
       packet.offset = 0;
 
-      Log.info(`<== [Packet opcode:${packet.opcodeName} size:${size}]`);
+      Log.info(`<== [Packet opcode:${packet.opcodeName} size:${size} offset:${offset}]`);
 
       this.emit('packet:receive', packet);
       if (packet.opcodeName) {
@@ -249,9 +255,10 @@ class GameHandler extends Socket {
     app.append(this.addOnBuffer);
 
     this.send(app);
-
-    this.crypt = new Crypt();
-    this.crypt.key = this.session.key;
+    if (this.crypt) {
+      this.crypt.Init(this.session.key);
+      this.useCrypt = true;
+    }
   }
 
   // Auth response handler (SMSG_AUTH_RESPONSE)
