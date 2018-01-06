@@ -8,7 +8,7 @@ import { default as RealmsHandler } from './lib/realms/Handler';
 import { default as Realm } from './lib/realms/Realm';
 import realm from './lib/realms/Realm';
 import { SetVersion, Version } from './lib/utils/Version';
-
+import { SocketFactory } from './lib/net/SocketFactory';
 /*
 wow client packets prior to login
 S->C: 73.202.11.217 [SMSG_AUTH_CHALLENGE 0x01EC (492)]
@@ -125,7 +125,8 @@ class Client implements Session {
     SetVersion(config.version);
     this.config.version = config.version;
     this.config.build =  parseInt(config.build, 10);
-    this.auth = new AuthHandler(this);
+    const socketFactory = new SocketFactory();
+    this.auth = new AuthHandler(this, socketFactory);
     this.game = new GameHandler(this);
     this.realm = new RealmsHandler(this);
     this.character = new CharacterHandler(this);
