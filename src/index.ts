@@ -127,7 +127,7 @@ class Client implements Session {
     this.config.build =  parseInt(config.build, 10);
     const socketFactory = new SocketFactory();
     this.auth = new AuthHandler(this, socketFactory);
-    this.game = new GameHandler(this);
+    this.game = new GameHandler(this, socketFactory);
     this.realm = new RealmsHandler(this);
     this.character = new CharacterHandler(this);
 
