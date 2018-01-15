@@ -1,7 +1,7 @@
 import ObjectUtil from './ObjectUtil';
 import { NewLogger } from '../utils/Logger';
 
-const Log = NewLogger('utils/Version');
+const log = NewLogger('utils/Version');
 
 export enum Version {
   None = '',
@@ -28,7 +28,7 @@ export function SetVersion(version: string): boolean {
 
     if (currentVersion !== Version.None) {
       initialized = true;
-      Log.info('Version set to ' + currentVersion);
+      log.info('Version set to ' + currentVersion);
       return true;
     }
 

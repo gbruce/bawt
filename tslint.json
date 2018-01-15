@@ -2,6 +2,7 @@
   "extends": "tslint:recommended",
   "defaultSeverity": "error",
   "rules": {
+    "variable-name": [true, "check-format", "allow-leading-underscore"],
     "quotemark": [true, "single"],
     "max-classes-per-file": [false],
     "interface-name": [true, "never-prefix"],

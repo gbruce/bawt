@@ -11,7 +11,9 @@
     "emitDecoratorMetadata": true,
     "types": ["node"],
     "baseUrl": "./src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "exclude": [
     "node_modules"
