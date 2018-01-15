@@ -11,6 +11,6 @@
     "ordered-imports": false,
     "one-line": false,
     "member-ordering": false,
-    "allow-leading-underscore": true,
+    "allow-leading-underscore": true
   }
 }
