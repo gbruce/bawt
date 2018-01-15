@@ -2,7 +2,7 @@
 import { Crypt } from '../../interface/Crypt';
 import { NewLogger } from '../utils/Logger';
 
-const Log = NewLogger('crypto/WowCrypt');
+const log = NewLogger('crypto/WowCrypt');
 
 export default class WoWCrypt implements Crypt
 {
@@ -28,36 +28,36 @@ export default class WoWCrypt implements Crypt
     this.initialised = true;
   }
 
-  public Decrypt(Data: number[]|Uint8Array, Length: number)
+  public Decrypt(data: number[]|Uint8Array, length: number)
   {
     if (!this.initialised) {
       return;
     }
 
-    for (let i = 0; i < Length; ++i)
+    for (let i = 0; i < length; ++i)
     {
       this.mDecIndex %= this.mKey.length;
-      const x = (Data[i] - this.mDecPrev) ^ this.mKey[this.mDecIndex];
+      const x = (data[i] - this.mDecPrev) ^ this.mKey[this.mDecIndex];
       this.mDecIndex++;
-      this.mDecPrev = Data[i];
-      Data[i] = x;
+      this.mDecPrev = data[i];
+      data[i] = x;
     }
   }
 
-  public Encrypt(Data: number[], Length: number)
+  public Encrypt(data: number[], length: number)
   {
     if (!this.initialised) {
       return;
     }
 
-    for (let i = 0; i < Length; ++i)
+    for (let i = 0; i < length; ++i)
     {
-      const tmp: number = Data[i];
+      const tmp: number = data[i];
       this.mEncIndex %= this.mKey.length;
-      const x = (Data[i] ^ this.mKey[this.mEncIndex]) + this.mEncPrev;
+      const x = (data[i] ^ this.mKey[this.mEncIndex]) + this.mEncPrev;
       this.mEncIndex++;
       this.mEncPrev = x;
-      Data[i] = x;
+      data[i] = x;
     }
   }
 }

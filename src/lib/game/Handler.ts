@@ -8,7 +8,6 @@ import GameOpcode from './Opcode';
 import GamePacket from './Packet';
 import GUID from '../game/Guid';
 import SHA1 from '../crypto/hash/SHA1';
-import Socket from '../net/Socket';
 import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
@@ -16,10 +15,14 @@ import Realm from 'lib/realms/Realm';
 import Guid from '../game/Guid';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
+import { Socket, SocketEvent } from '../../interface/Socket';
+import { Session } from '../../interface/Session';
+import { Factory } from '../../interface/Factory';
+import { EventEmitter } from 'events';
 
-const Log = NewLogger('game/Handler');
+const log = NewLogger('game/Handler');
 
-const ReadIntoByteArray = (bytes: number, bb: ByteBuffer) => {
+const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   const result = [];
   for (let i = 0; i < bytes; i++) {
     result.push(bb.readUint8());
@@ -27,28 +30,35 @@ const ReadIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
-class GameHandler extends Socket {
+class GameHandler extends EventEmitter {
   // tslint:disable-next-line:max-line-length
-  private AddOnHex = '9e020000789c75d2c16ac3300cc671ef2976e99becb4b450c2eacbe29e8b627f4b446c39384eb7f63dfabe65b70d94f34f48f047afc69826f2fd4e255cdefdc8b82241eab9352fe97b7732ffbc404897d557cea25a43a54759c63c6f70ad115f8c182c0b279ab52196c032a80bf61421818a4639f5544f79d834879faae001fd3ab89ce3a2e0d1ee47d20b1d6db7962b6e3ac6db3ceab2720c0dc9a46a2bcb0caf1f6c2b5297fd84ba95c7922f59954fe2a082fb2daadf739c60496880d6dbe509fa13b84201ddc4316e310bca5f7b7b1c3e9ee193c88d';
+  private addOnHex = '9e020000789c75d2c16ac3300cc671ef2976e99becb4b450c2eacbe29e8b627f4b446c39384eb7f63dfabe65b70d94f34f48f047afc69826f2fd4e255cdefdc8b82241eab9352fe97b7732ffbc404897d557cea25a43a54759c63c6f70ad115f8c182c0b279ab52196c032a80bf61421818a4639f5544f79d834879faae001fd3ab89ce3a2e0d1ee47d20b1d6db7962b6e3ac6db3ceab2720c0dc9a46a2bcb0caf1f6c2b5297fd84ba95c7922f59954fe2a082fb2daadf739c60496880d6dbe509fa13b84201ddc4316e310bca5f7b7b1c3e9ee193c88d';
   // tslint:disable-next-line:max-line-length
-  private AddOnHex2 = '56010000789c75ccbd0ec2300c04e0f21ebc0c614095c842c38c4ce2220bc7a98ccb4f9f1e16240673eb777781695940cb693367a326c7be5bd5c77adf7d12be16c08c7124e41249a8c2e495480ac9c53dd8b67a064bf8340f15467367bb38cc7ac7978bbddc26ccfe3042d6e6ca01a8b8908051fcb7a45070b812f33f2641fdb5379019668f';
+  private addOnHex2 = '56010000789c75ccbd0ec2300c04e0f21ebc0c614095c842c38c4ce2220bc7a98ccb4f9f1e16240673eb777781695940cb693367a326c7be5bd5c77adf7d12be16c08c7124e41249a8c2e495480ac9c53dd8b67a064bf8340f15467367bb38cc7ac7978bbddc26ccfe3042d6e6ca01a8b8908051fcb7a45070b812f33f2641fdb5379019668f';
   private addOnBuffer: ByteBuffer;
-  private session: any;
+  private session: Session;
   private useCrypt = false;
   private crypt: Crypt|null = null;
   private realm: Realm|null = null;
   private pingCount: number = 1;
+  private socket: Socket;
 
   // Creates a new game handler
-  constructor(session: any) {
+  constructor(session: Session, socketFactory: Factory<Socket>) {
     super();
+
+    this.socket = socketFactory.Create();
 
     // Holds session
     this.session = session;
 
     // Listen for incoming data
-    this.on('data:receive', (packet: Buffer) => {
-      this.dataReceived(packet);
+    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => {
+      this.dataReceived(args[0]);
+    });
+
+    this.socket.on(SocketEvent.OnConnected, () => {
+      this.emit('connect');
     });
 
     // Delegate packets
@@ -75,43 +85,23 @@ class GameHandler extends Socket {
       packet.readUint16(); // size
       packet.readUint16(); // opcode
       const pingCount = packet.readUint32(); // size
-      Log.info(`Pong ${pingCount}`);
+      log.info(`Pong ${pingCount}`);
     });
 
     if (GetVersion() === Version.WoW_1_12_1) {
       this.crypt = new WowCrypt();
-      this.addOnBuffer = ByteBuffer.fromHex(this.AddOnHex2);
+      this.addOnBuffer = ByteBuffer.fromHex(this.addOnHex2);
     }
     else {
       this.crypt = new RC4Crypt();
-      this.addOnBuffer = ByteBuffer.fromHex(this.AddOnHex);
+      this.addOnBuffer = ByteBuffer.fromHex(this.addOnHex);
     }
-  }
-
-  public RequestRealmSplitState() {
-    if (!this.connected) {
-      return false;
-    }
-
-    const packet = new GamePacket(GameOpcode.CMSG_REALM_SPLIT, 10);
-    packet.writeUint32(1);
-    this.send(packet);
-  }
-
-  public NotifyReadyForAccountDataTimes() {
-    if (!this.connected) {
-      return false;
-    }
-
-    return this.send(new GamePacket(GameOpcode.CMSG_READY_FOR_ACCOUNT_DATA_TIMES, 6));
   }
 
   // Connects to given host through given port
   public connectToRealm(realm: Realm) {
-    if (!this.connected) {
-      this.realm = realm;
-      super.connect(realm.host, realm.port);
-    }
+    this.realm = realm;
+    this.socket.connect(realm.host, realm.port);
     return this;
   }
 
@@ -126,7 +116,7 @@ class GameHandler extends Socket {
     // Encrypt header
     if (this.crypt) {
       packet.offset = 0;
-      const array = ReadIntoByteArray(6, packet);
+      const array = readIntoByteArray(6, packet);
       this.crypt.Encrypt(array, array.length);
       packet.offset = 0;
       packet.writeUint8(array[0]);
@@ -137,20 +127,16 @@ class GameHandler extends Socket {
       packet.writeUint8(array[5]);
     }
 
-    return super.send(packet);
+    return this.socket.send(packet);
   }
 
   // Attempts to join game with given character
   public join(character: Character) {
-    if (character) {
-      Log.info('joining game with', character.toString());
+    log.info('joining game with', character.toString());
 
-      const gp = new GamePacket(GameOpcode.CMSG_PLAYER_LOGIN, 14);
-      gp.writeGUID(character.guid);
-      return this.send(gp);
-    }
-
-    return false;
+    const gp = new GamePacket(GameOpcode.CMSG_PLAYER_LOGIN, 14);
+    gp.writeGUID(character.guid);
+    return this.send(gp);
   }
 
   public toHexString(byteArray: any) {
@@ -160,17 +146,13 @@ class GameHandler extends Socket {
   }
 
   private HandleCompressedUpdateObject(packet: GamePacket): void {
-    Log.debug('HandleCompressedUpdateObject');
+    log.debug('HandleCompressedUpdateObject');
     packet.readUint16(); // size
     packet.readUint16(); // opcode
   }
 
   // Data received handler
   private dataReceived(buffer: Buffer) {
-    if (!this.connected) {
-      return;
-    }
-
     let offset = 0;
     while (offset < buffer.byteLength) {
       const header = buffer.subarray(offset, offset + 4);
@@ -188,7 +170,7 @@ class GameHandler extends Socket {
       packet.append(packetSubarray);
       packet.offset = 0;
 
-      Log.info(`<== [Packet opcode:${packet.opcodeName} size:${size} offset:${offset}]`);
+      log.info(`<== [Packet opcode:${packet.opcodeName} size:${size} offset:${offset}]`);
 
       this.emit('packet:receive', packet);
       if (packet.opcodeName) {
@@ -201,7 +183,7 @@ class GameHandler extends Socket {
 
   // Auth challenge handler (SMSG_AUTH_CHALLENGE)
   private handleAuthChallenge(gp: GamePacket) {
-    Log.info('handling auth challenge');
+    log.info('handling auth challenge');
     gp.littleEndian = false;
     gp.readUint16(); // size
     gp.littleEndian = true;
@@ -211,7 +193,7 @@ class GameHandler extends Socket {
       gp.readUint32();
     }
 
-    const salt = ReadIntoByteArray(4, gp);
+    const salt = readIntoByteArray(4, gp);
     const seed = BigNum.fromRand(4);
 
     const hash = new SHA1();
@@ -221,9 +203,9 @@ class GameHandler extends Socket {
     hash.feed(salt);
     hash.feed(this.session.key);
 
-    Log.debug('seed: ' + this.toHexString(seed.toArray()));
-    Log.debug('salt: ' + this.toHexString(salt));
-    Log.debug('key: ' + this.toHexString(this.session.key));
+    log.debug('seed: ' + this.toHexString(seed.toArray()));
+    log.debug('salt: ' + this.toHexString(salt));
+    log.debug('key: ' + this.toHexString(this.session.key));
 
     const build = this.session.config.build;
     const account = this.session.account;
@@ -251,11 +233,11 @@ class GameHandler extends Socket {
     }
 
     app.append(hash.digest);
-    Log.debug('dig: ' + this.toHexString(hash.digest));
+    log.debug('dig: ' + this.toHexString(hash.digest));
     app.append(this.addOnBuffer);
 
     this.send(app);
-    if (this.crypt) {
+    if (this.crypt && this.session.key) {
       this.crypt.Init(this.session.key);
       this.useCrypt = true;
     }
@@ -263,7 +245,7 @@ class GameHandler extends Socket {
 
   // Auth response handler (SMSG_AUTH_RESPONSE)
   private handleAuthResponse(gp: GamePacket) {
-    Log.info('handling auth response');
+    log.info('handling auth response');
 
     gp.readUint16(); // size
     gp.readUint16(); // opcode
@@ -271,19 +253,19 @@ class GameHandler extends Socket {
     // Handle result byte
     const result = gp.readUint8();
     if (result === 0x0D) {
-      Log.warn('server-side auth/realm failure; try again');
+      log.warn('server-side auth/realm failure; try again');
       this.emit('reject');
       return;
     }
 
     if (result === 0x15) {
-      Log.warn('account in use/invalid; aborting');
+      log.warn('account in use/invalid; aborting');
       this.emit('reject');
       return;
     }
 
     if (result !== 12) {
-      Log.warn('auth response error:' + result);
+      log.warn('auth response error:' + result);
       this.emit('reject');
       return;
     }

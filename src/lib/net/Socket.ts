@@ -5,7 +5,7 @@ import { default as Packet } from '../net/Packet';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
 
-const Log = NewLogger('net/Socket');
+const log = NewLogger('net/Socket');
 
 // Base-class for any socket including signals and host/port management
 class Socket extends EventEmitter {
@@ -62,7 +62,7 @@ class Socket extends EventEmitter {
       });
 
       this.socket.on('data', (data: Buffer) => {
-        Log.info('ondata ' + data.byteLength + ' bytes');
+        log.info('ondata ' + data.byteLength + ' bytes');
         const index = this.buffer.offset;
         this.buffer.append(data);
 
@@ -75,10 +75,10 @@ class Socket extends EventEmitter {
 
       this.socket.on('error', (err: Error) => {
         this.socketOpen = false;
-        Log.error(err.message);
+        log.error(err.message);
       });
 
-      Log.info('connecting to game-server @', this.host, ':', this.port);
+      log.info('connecting to game-server @', this.host, ':', this.port);
     }
 
     return this;
@@ -105,7 +105,7 @@ class Socket extends EventEmitter {
     if (this.connected) {
       packet.finalize();
 
-      Log.info(`==> [Packet opcode:${packet.opcodeName} size:${packet.capacity()}]`);
+      log.info(`==> [Packet opcode:${packet.opcodeName} size:${packet.capacity()}]`);
 
       this.socket.write(packet.buffer);
       this.emit('packet:send', packet);

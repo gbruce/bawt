@@ -6,7 +6,7 @@ import GameOpcode from '../game/Opcode';
 import { NewLogger } from '../utils/Logger';
 import { GetVersion, Version } from '../utils/Version';
 
-const Log = NewLogger('game/Handler');
+const log = NewLogger('game/Handler');
 
 enum AtLoginFlags {
   AT_LOGIN_NONE              = 0x000,
@@ -72,7 +72,7 @@ class CharacterHandler extends EventEmitter {
 
   // Requests a fresh list of characters
   public refresh() {
-    Log.info('refreshing character list');
+    log.info('refreshing character list');
 
     const gp = new GamePacket(GameOpcode.CMSG_CHAR_ENUM);
     return this.session.game.send(gp);
@@ -130,7 +130,7 @@ export function HandleCharacterList(gp: GamePacket): Character[] {
     gp.readUint32(); // first bag display id
     gp.readUint8(); // first bag inventory type
 
-    Log.debug(`Char guid:${character.guid} name:"${character.name}" level:${character.level} ` +
+    log.debug(`Char guid:${character.guid} name:"${character.name}" level:${character.level} ` +
         `zone:${character.zone} map:${character.map} pos:(${character.x.toFixed(2)}, ` +
         `${character.y.toFixed(2)}, ${character.z.toFixed(2)})`);
 

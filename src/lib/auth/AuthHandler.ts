@@ -2,15 +2,18 @@
 import * as ByteBuffer from 'bytebuffer';
 import { Session } from '../../interface/Session';
 import SRP from '../crypto/SRP';
-import Socket from '../net/Socket';
 import { NewLogger } from '../utils/Logger';
 import AuthChallengeOpcode from './ChallengeOpcode';
 import AuthOpcode from './Opcode';
 import AuthPacket from './Packet';
+import { Factory } from '../../interface/Factory';
+import { Socket, SocketEvent } from '../../interface/Socket';
+import { EventEmitter } from 'events';
+import Packet from '../net/Packet';
 
-const Log = NewLogger('AuthHandler');
+const log = NewLogger('AuthHandler');
 
-const ReadIntoByteArray = (bytes: number, bb: ByteBuffer) => {
+const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   const result = [];
   for (let i = 0; i < bytes; i++) {
     result.push(bb.readUint8());
@@ -38,21 +41,21 @@ function ToHexString(byteArray: any) {
 
 // LOGON_CHALLENGE
 export function DeserializeLogonChallenge(ap: AuthPacket): Result<LogonChallengeResult> {
-  Log.debug('DeserializeLogonChallenge');
+  log.debug('DeserializeLogonChallenge');
 
   const code = ap.readUint8();
   ap.readUint8();
   const status = ap.readUint8();
 
   if (status === AuthChallengeOpcode.SUCCESS) {
-    Log.debug('auth challenge success');
+    log.debug('auth challenge success');
 
-    const B = ReadIntoByteArray(32, ap);
+    const B = readIntoByteArray(32, ap);
     const glen = ap.readUint8(); // g-length
-    const g = ReadIntoByteArray(glen, ap);
-    const Nlen = ap.readUint8(); // n-length
-    const N = ReadIntoByteArray(Nlen, ap);
-    const salt = ReadIntoByteArray(32, ap);
+    const g = readIntoByteArray(glen, ap);
+    const nlen = ap.readUint8(); // n-length
+    const N = readIntoByteArray(nlen, ap);
+    const salt = readIntoByteArray(32, ap);
 
     return {
       success: true,
@@ -70,9 +73,9 @@ export function NewLogonProofPacket(srp: SRP) {
   const packet = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
   packet.writeUint8(AuthOpcode.LOGON_PROOF);
   packet.append(srp.A.toArray());
-  Log.info(' A: ' + ToHexString(srp.A.toArray()));
+  log.info(' A: ' + ToHexString(srp.A.toArray()));
   if (srp.M1) {
-    Log.info('M1: ' + ToHexString(srp.M1.digest));
+    log.info('M1: ' + ToHexString(srp.M1.digest));
     packet.append(srp.M1.digest);
   }
   packet.append(new Uint8Array(20)); // CRC hash
@@ -82,7 +85,7 @@ export function NewLogonProofPacket(srp: SRP) {
   return packet;
 }
 
-class AuthHandler extends Socket {
+class AuthHandler extends EventEmitter {
   // Default port for the auth-server
   public static PORT = 3724;
 
@@ -90,10 +93,13 @@ class AuthHandler extends Socket {
   private session: Session;
   private password: string|null;
   private srp: SRP|null;
+  private socket: Socket;
 
   // Creates a new authentication handler
-  constructor(session: Session) {
+  constructor(session: Session, socketFactory: Factory<Socket>) {
     super();
+
+    this.socket = socketFactory.Create();
 
     // Holds session
     this.session = session;
@@ -105,7 +111,12 @@ class AuthHandler extends Socket {
     this.srp = null;
 
     // Listen for incoming data
-    this.on('data:receive', this.dataReceived);
+    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => {
+      this.dataReceived(args[0]);
+    });
+    this.socket.on(SocketEvent.OnConnected, () => {
+      this.emit('connect');
+    });
 
     // Delegate packets
     this.on('packet:receive:LOGON_CHALLENGE', this.handleLogonChallenge);
@@ -117,25 +128,23 @@ class AuthHandler extends Socket {
     return this.srp && this.srp.K;
   }
 
+  public send(packet: Packet): boolean {
+    return this.socket.send(packet);
+  }
+
   // Connects to given host through given port
   public connect(host: string, port: number = NaN) {
-    if (!this.connected) {
-      super.connect(host, port || AuthHandler.PORT);
-      Log.info('connecting to auth-server @', this.host, ':', this.port);
-    }
+    this.socket.connect(host, port || AuthHandler.PORT);
+    log.info('connecting to auth-server @', host, ':', port);
     return this;
   }
 
   // Sends authentication request to connected host
   public authenticate(account: any, password: string) {
-    if (!this.connected) {
-      return false;
-    }
-
     this.account = account.toUpperCase();
     this.password = password.toUpperCase();
 
-    Log.info('authenticating ', this.account);
+    log.info('authenticating ', this.account);
 
     // Extract configuration data
     const {
@@ -173,20 +182,16 @@ class AuthHandler extends Socket {
     ap.writeByte(this.account.length); // account length
     ap.WriteString(this.account);      // account
 
-    this.send(ap);
+    this.socket.send(ap);
   }
 
   // Data received handler
   private dataReceived(data: Buffer) {
-    if (!this.connected) {
-      return;
-    }
-
     const ap = new AuthPacket(data.readUInt8(0), data.byteLength, false);
     ap.append(data);
     ap.offset = 0;
 
-    Log.info('<==', ap.toString());
+    log.info('<==', ap.toString());
 
     this.emit('packet:receive', ap);
     if (ap.opcodeName) {
@@ -196,14 +201,14 @@ class AuthHandler extends Socket {
 
   // Logon challenge handler (LOGON_CHALLENGE)
   private handleLogonChallenge(packet: AuthPacket) {
-    Log.info('handleLogonChallenge');
+    log.info('handleLogonChallenge');
 
     const result = DeserializeLogonChallenge(packet);
     if (result.success && result.result) {
       const srpParams = result.result;
       this.srp = new SRP(srpParams.N, srpParams.g);
       this.srp.feed(srpParams.salt, srpParams.B, this.account, this.password);
-      this.send(NewLogonProofPacket(this.srp));
+      this.socket.send(NewLogonProofPacket(this.srp));
     }
     else {
       this.emit('reject');
@@ -212,14 +217,14 @@ class AuthHandler extends Socket {
 
   // Logon proof handler (LOGON_PROOF)
   private handleLogonProof(ap: AuthPacket) {
-    Log.info('handleLogonProof');
+    log.info('handleLogonProof');
 
     const code = ap.readUint8();
     ap.readUint8();
 
-    Log.info('received proof response');
+    log.info('received proof response');
 
-    const M2 = ReadIntoByteArray(20, ap);
+    const M2 = readIntoByteArray(20, ap);
 
     if (this.srp && this.srp.validate(M2)) {
       this.emit('authenticate');
