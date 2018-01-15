@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 import Packet from './Packet';
 import { NewLogger } from '../utils/Logger';
 
-const Log = NewLogger('MySocket');
+const log = NewLogger('MySocket');
 
 enum SocketState {
   Disconnected,
@@ -37,12 +37,12 @@ export class MySocket implements Socket {
     });
 
     this.socket.on('data', (data: Buffer) => {
-      Log.info('ondata ' + data.byteLength + ' bytes');
+      log.info('ondata ' + data.byteLength + ' bytes');
       this.emit(SocketEvent.OnDataReceived, data);
     });
 
     this.socket.on('error', (err: Error) => {
-      Log.error(err.message);
+      log.error(err.message);
     });
   }
 

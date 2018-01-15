@@ -5,7 +5,7 @@ import AuthPacket from '../auth/Packet';
 import Realm from './Realm';
 import { NewLogger } from '../utils/Logger';
 
-const Log = NewLogger('RealmHandler');
+const log = NewLogger('RealmHandler');
 
 class RealmsHandler extends EventEmitter {
   public list: Realm[];
@@ -29,7 +29,7 @@ class RealmsHandler extends EventEmitter {
 
   // Requests a fresh list of realms
   public refresh() {
-    Log.info('refreshing realmlist');
+    log.info('refreshing realmlist');
 
     const ap = new AuthPacket(AuthOpcode.REALM_LIST, 1 + 4);
     ap.writeUint8(AuthOpcode.REALM_LIST);
@@ -88,7 +88,7 @@ class RealmsHandler extends EventEmitter {
         }
       }
 
-      Log.debug(`Realm id:${realm.id} name:"${realm.name}" addr:${realm.address} ` +
+      log.debug(`Realm id:${realm.id} name:"${realm.name}" addr:${realm.address} ` +
         `pop:${realm.population.toFixed(2)} char:${realm.characters}`);
 
       this.list.push(realm);

@@ -138,16 +138,16 @@ class SRP {
     }
 
     // Hash these byte-arrays
-    const S1h = new SHA1();
-    const S2h = new SHA1();
-    S1h.feed(S1).finalize();
-    S2h.feed(S2).finalize();
+    const s1h = new SHA1();
+    const s2h = new SHA1();
+    s1h.feed(S1).finalize();
+    s2h.feed(S2).finalize();
 
     // Shared session key generation by interleaving the previously generated hashes
     this._K = [];
     for (let i = 0; i < 20; ++i) {
-      this._K[i * 2] = S1h.digest[i];
-      this._K[i * 2 + 1] = S2h.digest[i];
+      this._K[i * 2] = s1h.digest[i];
+      this._K[i * 2 + 1] = s2h.digest[i];
     }
 
     // Generate username hash
@@ -155,21 +155,21 @@ class SRP {
     userh.feed(I).finalize();
 
     // Hash both prime and generator
-    const Nh = new SHA1();
+    const nh = new SHA1();
     const gh = new SHA1();
-    Nh.feed(this._N.toArray()).finalize();
+    nh.feed(this._N.toArray()).finalize();
     gh.feed(this.g.toArray()).finalize();
 
     // XOR N-prime and generator
-    const Ngh = [];
+    const ngh = [];
     for (let i = 0; i < 20; ++i) {
-      Ngh[i] = Nh.digest[i] ^ gh.digest[i];
+      ngh[i] = nh.digest[i] ^ gh.digest[i];
     }
 
     // Calculate M1 (client proof)
     // M1 = H( (H(N) ^ H(G)) | H(I) | s | A | B | K )
     this._M1 = new SHA1();
-    this._M1.feed(Ngh);
+    this._M1.feed(ngh);
     this._M1.feed(userh.digest);
     this._M1.feed(this.s.toArray());
     this._M1.feed(this._A.toArray());

@@ -5,7 +5,7 @@ import { Crypt } from '../../interface/Crypt';
 import { NewLogger } from '../utils/Logger';
 
 const HMAC = sha1.HMAC;
-const Log = NewLogger('crypto/RC4Crypt');
+const log = NewLogger('crypto/RC4Crypt');
 
 class RC4Crypt implements Crypt {
   private myEncrypt: RC4|null;
@@ -19,13 +19,13 @@ class RC4Crypt implements Crypt {
     this.myDecrypt = null;
   }
 
-  public Decrypt(data: number[]|Uint8Array, Length: number): void {
+  public Decrypt(data: number[]|Uint8Array, length: number): void {
     if (this.myDecrypt) {
       this.myDecrypt.decrypt(data);
     }
   }
 
-  public Encrypt(data: number[], Length: number): void {
+  public Encrypt(data: number[], length: number): void {
     if (this.myEncrypt) {
       this.myEncrypt.encrypt(data);
     }
@@ -33,7 +33,7 @@ class RC4Crypt implements Crypt {
 
   // Sets session key and initializes this crypt
   public Init(key: number[]): void {
-    Log.info('initializing crypt');
+    log.info('initializing crypt');
 
     // Fresh RC4's
     this.myEncrypt = new RC4();
