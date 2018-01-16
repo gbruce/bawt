@@ -16,34 +16,44 @@ interface Serialization {
   size: SizeFunc;
 }
 
-export const UInt8Prop: Serialization = {
-  serialize: (value: any, buffer: ByteBuffer) => buffer.writeUint8(value),
-  deserialize: (buffer: ByteBuffer): number => buffer.readUint8(),
-  size: (value: any): number => 1,
+export const UInt8Prop = (): Serialization => {
+  return {
+    serialize: (value: any, buffer: ByteBuffer) => buffer.writeUint8(value),
+    deserialize: (buffer: ByteBuffer): number => buffer.readUint8(),
+    size: (value: any): number => 1,
+  };
 };
 
-export const UInt16Prop: Serialization = {
-  serialize: (value: any, buffer: ByteBuffer) => buffer.writeUint16(value),
-  deserialize: (buffer: ByteBuffer): number => buffer.readUint16(),
-  size: (value: any): number => 2,
+export const UInt16Prop = (): Serialization => {
+  return {
+    serialize: (value: any, buffer: ByteBuffer) => buffer.writeUint16(value),
+    deserialize: (buffer: ByteBuffer): number => buffer.readUint16(),
+    size: (value: any): number => 2,
+  };
 };
 
-export const UInt32Prop: Serialization = {
-  serialize: (value: any, buffer: ByteBuffer) => buffer.writeUint32(value),
-  deserialize: (buffer: ByteBuffer): number => buffer.readUint32(),
-  size: (value: any): number => 4,
+export const UInt32Prop = (): Serialization => {
+  return {
+    serialize: (value: any, buffer: ByteBuffer) => buffer.writeUint32(value),
+    deserialize: (buffer: ByteBuffer): number => buffer.readUint32(),
+    size: (value: any): number => 4,
+  };
 };
 
-export const StringProp: Serialization = {
-  serialize: (value: any, buffer: ByteBuffer) => buffer.writeCString(value),
-  deserialize: (buffer: ByteBuffer): string => buffer.readCString(),
-  size: (value: any): number => value.length + 1,
+export const StringProp = (): Serialization => {
+  return {
+    serialize: (value: any, buffer: ByteBuffer) => buffer.writeCString(value),
+    deserialize: (buffer: ByteBuffer): string => buffer.readCString(),
+    size: (value: any): number => value.length + 1,
+  };
 };
 
-export const StringNoNullProp: Serialization = {
-  serialize: (value: any, buffer: ByteBuffer) => buffer.writeString(value),
-  deserialize: (buffer: ByteBuffer): string => { throw new Error('Not implemented'); },
-  size: (value: any): number => value.length,
+export const StringNoNullProp = (): Serialization => {
+  return {
+    serialize: (value: any, buffer: ByteBuffer) => buffer.writeString(value),
+    deserialize: (buffer: ByteBuffer): string => { throw new Error('Not implemented'); },
+    size: (value: any): number => value.length,
+  };
 };
 
 export const ByteArrayProp = (size: number): Serialization => {

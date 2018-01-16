@@ -7,12 +7,9 @@ export class LogonChallenge extends ServerPacket {
     super(Opcode.LOGON_CHALLENGE);
   }
 
-  @Serialize(UInt8Prop)
+  @Serialize(UInt8Prop())
   public readonly Unk1: number;
 
-  @Serialize(UInt8Prop)
+  @Serialize(UInt8Prop())
   public readonly Status: number;
-
-  @Serialize(UInt8Prop)
-  public readonly Unk1: number;
 }

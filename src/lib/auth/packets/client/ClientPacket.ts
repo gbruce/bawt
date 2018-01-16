@@ -9,7 +9,7 @@ export class ClientPacket implements Packet {
     this._name = ObjectUtil.KeyByValue(AuthOpcode, this.Opcode);
   }
 
-  @Serialize(UInt8Prop)
+  @Serialize(UInt8Prop())
   public readonly Opcode: number;
 
   private _name: string;
