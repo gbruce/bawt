@@ -101,10 +101,6 @@ export function DeserializeObjectFromBuffer(target: any, buffer: ByteBuffer) {
   }
 }
 
-export function PrintDebug(target: any) {
-  const f = Reflect.getOwnMetadata('design:type', target);
-}
-
 export function BufferLength(target: any): number {
   let size = 0;
   const keys = Reflect.ownKeys(target);
