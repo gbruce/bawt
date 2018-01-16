@@ -10,6 +10,8 @@ import { Factory } from '../../interface/Factory';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { EventEmitter } from 'events';
 import Packet from '../net/Packet';
+import { LogonChallenge } from './packets/client/LogonChallenge';
+import { SerializeObjectToBuffer } from '../net/Serialization';
 
 const log = NewLogger('AuthHandler');
 
@@ -159,30 +161,22 @@ class AuthHandler extends EventEmitter {
       timezone,
     } = this.session.config;
 
-    const ap = new AuthPacket(AuthOpcode.LOGON_CHALLENGE, 34 + this.account.length);
-    ap.writeUint8(AuthOpcode.LOGON_CHALLENGE);
-    ap.writeUint8(0x08);
-    ap.writeUint16(30 + this.account.length);
-    ap.WriteString(game);         // game string
-    ap.writeUint8(0);
-    ap.writeUint8(majorVersion);    // v1 (major)
-    ap.writeUint8(minorVersion);    // v2 (minor)
-    ap.writeUint8(patchVersion);    // v3 (patch)
-    ap.writeUint16(build);          // build
-    ap.WriteString(platform);      // platform
-    ap.writeUint8(0);
-    ap.WriteString(os);            // os
-    ap.writeUint8(0);
-    ap.WriteString(locale);        // locale
-    ap.writeUint32(timezone); // timezone
-    ap.writeUint8(127);
-    ap.writeUint8(0);
-    ap.writeUint8(0);
-    ap.writeUint8(1);
-    ap.writeByte(this.account.length); // account length
-    ap.WriteString(this.account);      // account
-
-    this.socket.send(ap);
+    const packet = new LogonChallenge();
+    packet.Unk1 = 0x08;
+    packet.Size = 30 + this.account.length;
+    packet.Game = game;
+    packet.Major = majorVersion;
+    packet.Minor = minorVersion;
+    packet.Patch = patchVersion;
+    packet.Build = build;
+    packet.Platform = platform;
+    packet.Os = os;
+    packet.Locale = locale;
+    packet.Timezone = timezone;
+    packet.IPAddress = 0; // FIXME
+    packet.AccountLength = this.account.length;
+    packet.Account = this.account;
+    this.socket.sendPacket(packet);
   }
 
   // Data received handler

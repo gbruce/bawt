@@ -1,10 +1,12 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
-  StringNoNullProp } from '../../net/Serialization';
+  StringNoNullProp } from '../../../net/Serialization';
+import { ClientPacket } from './ClientPacket';
+import Opcode from '../../Opcode';
 
-export class LogonChallenge {
-
-  @Serialize(UInt8Prop)
-  public Opcode: number;
+export class LogonChallenge extends ClientPacket  {
+  constructor() {
+    super(Opcode.LOGON_CHALLENGE);
+  }
 
   @Serialize(UInt8Prop)
   public Unk1: number;

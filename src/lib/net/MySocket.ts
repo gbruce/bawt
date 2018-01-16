@@ -2,7 +2,10 @@ import { Socket, SocketEvent } from '../../interface/Socket';
 import { Socket as NetSocket } from 'net';
 import { EventEmitter } from 'events';
 import Packet from './Packet';
+import { Packet as IPacket } from '../../interface/Packet';
 import { NewLogger } from '../utils/Logger';
+import { SerializeObjectToBuffer, BufferLength } from '../net/Serialization';
+import * as ByteBuffer from 'bytebuffer';
 
 const log = NewLogger('MySocket');
 
@@ -63,6 +66,21 @@ export class MySocket implements Socket {
 
     this.socket.write(packet.buffer);
     this.emit(SocketEvent.OnDataSent, packet);
+    return true;
+  }
+
+  public sendPacket(packet: IPacket): boolean {
+    if (this.state !==  SocketState.Connected) {
+      return false;
+    }
+
+    const buffLength = BufferLength(packet);
+    const b = new ByteBuffer(buffLength).LE();
+    SerializeObjectToBuffer(packet, b);
+    this.socket.write(b.buffer);
+    this.emit(SocketEvent.OnDataSent, packet);
+
+    log.info(`==> opcode:${packet.Name}`);
     return true;
   }
 
