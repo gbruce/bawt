@@ -77,7 +77,6 @@ export function Serialize(serializer: Serialization): (target: any, propertyKey:
 }
 
 export function SerializeObjectToBuffer(target: any, buffer: ByteBuffer) {
-  PrintDebug(target);
   const keys = Reflect.ownKeys(target);
   for (const key of keys) {
     const serialization = Reflect.getMetadata(SerializationIdentifier, target,
