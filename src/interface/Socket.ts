@@ -13,5 +13,6 @@ export interface Socket {
   disconnect(): void;
   send(packet: Packet): boolean;
   sendPacket(packet: IPacket): boolean;
+  sendBuffer(buffer: ArrayBuffer): boolean;
   on(event: SocketEvent, listener: (...args: any[]) => void): void;
 }

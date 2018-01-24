@@ -84,6 +84,16 @@ export class MySocket implements Socket {
     return true;
   }
 
+  public sendBuffer(buffer: ArrayBuffer): boolean {
+    if (this.state !==  SocketState.Connected) {
+      return false;
+    }
+
+    this.socket.write(buffer);
+    this.emit(SocketEvent.OnDataSent, buffer);
+    return true;
+  }
+
   public on(event: SocketEvent, listener: (...args: any[]) => void): void {
     this.emitter.on(event, listener);
   }

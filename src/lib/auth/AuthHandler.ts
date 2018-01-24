@@ -12,6 +12,13 @@ import { EventEmitter } from 'events';
 import Packet from '../net/Packet';
 import { LogonChallenge } from './packets/client/LogonChallenge';
 import { SerializeObjectToBuffer } from '../net/Serialization';
+import { Serializer } from '../net/Serializer';
+import { Deserializer } from '../net/Deserializer';
+import { SLogonChallenge,
+  NewLogonChallenge as NewSLogonChallenge } from './packets/server/LogonChallenge';
+import { SLogonProof,
+  NewLogonProof as NewSLogonProof } from './packets/server/LogonProof';
+import { LogonProof, NewLogonProof } from './packets/client/LogonProof';
 
 const log = NewLogger('AuthHandler');
 
@@ -87,6 +94,11 @@ export function NewLogonProofPacket(srp: SRP) {
   return packet;
 }
 
+const sOpcodeMap = new Map<number, Factory<any>>([
+  [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
+  [AuthOpcode.LOGON_PROOF, new NewSLogonProof()],
+]);
+
 class AuthHandler extends EventEmitter {
   // Default port for the auth-server
   public static PORT = 3724;
@@ -96,12 +108,21 @@ class AuthHandler extends EventEmitter {
   private password: string|null;
   private srp: SRP|null;
   private socket: Socket;
+  private serializer: Serializer;
+  private deserializer: Deserializer;
 
   // Creates a new authentication handler
   constructor(session: Session, socketFactory: Factory<Socket>) {
     super();
 
     this.socket = socketFactory.Create();
+    this.serializer = new Serializer();
+    this.deserializer = new Deserializer(sOpcodeMap);
+    this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
+    this.deserializer.OnObjectDeserialized(AuthOpcode.LOGON_CHALLENGE.toString())
+      .sub((scope: any, obj: any) => this.handleLogonChallenge(obj));
+    this.deserializer.OnObjectDeserialized(AuthOpcode.LOGON_PROOF.toString())
+      .sub((scope: any, obj: any) => this.handleLogonProof(obj));
 
     // Holds session
     this.session = session;
@@ -113,25 +134,13 @@ class AuthHandler extends EventEmitter {
     this.srp = null;
 
     // Listen for incoming data
-    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => {
-      this.dataReceived(args[0]);
-    });
-    this.socket.on(SocketEvent.OnConnected, () => {
-      this.emit('connect');
-    });
-
-    // Delegate packets
-    this.on('packet:receive:LOGON_CHALLENGE', this.handleLogonChallenge);
-    this.on('packet:receive:LOGON_PROOF', this.handleLogonProof);
+    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => this.deserializer.Deserialize(args[0]));
+    this.socket.on(SocketEvent.OnConnected, () => this.emit('connect'));
   }
 
   // Retrieves the session key (if any)
   get key(): number[]|null {
     return this.srp && this.srp.K;
-  }
-
-  public send(packet: Packet): boolean {
-    return this.socket.send(packet);
   }
 
   // Connects to given host through given port
@@ -176,53 +185,33 @@ class AuthHandler extends EventEmitter {
     packet.IPAddress = 0; // FIXME
     packet.AccountLength = this.account.length;
     packet.Account = this.account;
-    this.socket.sendPacket(packet);
+    this.serializer.Serialize(packet);
   }
 
-  // Data received handler
-  private dataReceived(data: Buffer) {
-    const ap = new AuthPacket(data.readUInt8(0), data.byteLength, false);
-    ap.append(data);
-    ap.offset = 0;
-
-    log.info('<==', ap.toString());
-
-    this.emit('packet:receive', ap);
-    if (ap.opcodeName) {
-      this.emit(`packet:receive:${ap.opcodeName}`, ap);
-    }
-  }
-
-  // Logon challenge handler (LOGON_CHALLENGE)
-  private handleLogonChallenge(packet: AuthPacket) {
+  private handleLogonChallenge(packet: SLogonChallenge) {
     log.info('handleLogonChallenge');
 
-    const result = DeserializeLogonChallenge(packet);
-    if (result.success && result.result) {
-      const srpParams = result.result;
-      this.srp = new SRP(srpParams.N, srpParams.g);
-      this.srp.feed(srpParams.salt, srpParams.B, this.account, this.password);
-      this.socket.send(NewLogonProofPacket(this.srp));
+    this.srp = new SRP(packet.N, packet.G);
+    this.srp.feed(packet.Salt, packet.B, this.account, this.password);
+
+    const logonProof = new LogonProof();
+    logonProof.A = this.srp.A.toArray();
+    if (this.srp.M1) {
+      logonProof.M1 = this.srp.M1.digest;
     }
-    else {
-      this.emit('reject');
-    }
+    logonProof.Crc = new Array(20);
+    logonProof.NumberKeys = 0;
+    logonProof.Flags = 0;
+    this.serializer.Serialize(logonProof);
   }
 
-  // Logon proof handler (LOGON_PROOF)
-  private handleLogonProof(ap: AuthPacket) {
+  private handleLogonProof(packet: SLogonProof) {
     log.info('handleLogonProof');
 
-    const code = ap.readUint8();
-    ap.readUint8();
-
-    log.info('received proof response');
-
-    const M2 = readIntoByteArray(20, ap);
-
-    if (this.srp && this.srp.validate(M2)) {
+    if (this.srp && this.srp.validate(packet.M2)) {
       this.emit('authenticate');
-    } else {
+    }
+    else {
       this.emit('reject');
     }
   }

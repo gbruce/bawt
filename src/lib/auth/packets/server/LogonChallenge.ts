@@ -1,33 +1,40 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
+import { Factory } from '../../../../interface/Factory';
 import Opcode from '../../Opcode';
 
-export class LogonChallenge extends ServerPacket {
+export class NewLogonChallenge implements Factory<any> {
+  public Create(...args: any[]) {
+    return new SLogonChallenge();
+  }
+}
+
+export class SLogonChallenge extends ServerPacket {
   constructor() {
     super(Opcode.LOGON_CHALLENGE);
   }
 
   @Serialize(UInt8Prop())
-  public readonly Unk1: number;
+  public Unk1: number = 0;
 
   @Serialize(UInt8Prop())
-  public readonly Status: number;
+  public Status: number = 0;
 
   @Serialize(ByteArrayProp(() => 32))
-  public readonly B: number[];
+  public B: number[] = [];
 
   @Serialize(UInt8Prop())
-  public readonly GLength: number;
+  public GLength: number = 0;
 
-  @Serialize(ByteArrayProp((target: LogonChallenge) => target.GLength))
-  public readonly G: number[];
+  @Serialize(ByteArrayProp((target: SLogonChallenge) => target.GLength))
+  public G: number[] = [];
 
   @Serialize(UInt8Prop())
-  public readonly NLength: number;
+  public NLength: number = 0;
 
-  @Serialize(ByteArrayProp((target: LogonChallenge) => target.NLength))
-  public readonly N: number[];
+  @Serialize(ByteArrayProp((target: SLogonChallenge) => target.NLength))
+  public N: number[] = [];
 
   @Serialize(ByteArrayProp(() => 32))
-  public readonly Salt: number[];
+  public Salt: number[] = [];
 }
