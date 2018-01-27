@@ -1,15 +1,10 @@
-
-import * as ByteBuffer from 'bytebuffer';
 import { Session } from '../../interface/Session';
 import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
-import AuthChallengeOpcode from './ChallengeOpcode';
 import AuthOpcode from './Opcode';
-import AuthPacket from './Packet';
 import { Factory } from '../../interface/Factory';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { EventEmitter } from 'events';
-import Packet from '../net/Packet';
 import { LogonChallenge } from './packets/client/LogonChallenge';
 import { SerializeObjectToBuffer } from '../net/Serialization';
 import { Serializer } from '../net/Serializer';
@@ -22,76 +17,10 @@ import { LogonProof, NewLogonProof } from './packets/client/LogonProof';
 
 const log = NewLogger('AuthHandler');
 
-const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
-  const result = [];
-  for (let i = 0; i < bytes; i++) {
-    result.push(bb.readUint8());
-  }
-  return result;
-};
-
-interface Result<T> {
-  success: boolean;
-  result: T|null;
-}
-
-interface LogonChallengeResult {
-  B: number[];
-  g: number[];
-  N: number[];
-  salt: number[];
-}
-
 function ToHexString(byteArray: any) {
   return Array.from(byteArray, (byte: any) => {
     return ('0' + (byte & 0xFF).toString(16)).slice(-2);
   }).join(':');
-}
-
-// LOGON_CHALLENGE
-export function DeserializeLogonChallenge(ap: AuthPacket): Result<LogonChallengeResult> {
-  log.debug('DeserializeLogonChallenge');
-
-  const code = ap.readUint8();
-  ap.readUint8();
-  const status = ap.readUint8();
-
-  if (status === AuthChallengeOpcode.SUCCESS) {
-    log.debug('auth challenge success');
-
-    const B = readIntoByteArray(32, ap);
-    const glen = ap.readUint8(); // g-length
-    const g = readIntoByteArray(glen, ap);
-    const nlen = ap.readUint8(); // n-length
-    const N = readIntoByteArray(nlen, ap);
-    const salt = readIntoByteArray(32, ap);
-
-    return {
-      success: true,
-      result: { B, g, N, salt },
-    };
-  }
-
-  return {
-    success: false,
-    result: null,
-  };
-}
-
-export function NewLogonProofPacket(srp: SRP) {
-  const packet = new AuthPacket(AuthOpcode.LOGON_PROOF, 1 + 32 + 20 + 20 + 2);
-  packet.writeUint8(AuthOpcode.LOGON_PROOF);
-  packet.append(srp.A.toArray());
-  log.info(' A: ' + ToHexString(srp.A.toArray()));
-  if (srp.M1) {
-    log.info('M1: ' + ToHexString(srp.M1.digest));
-    packet.append(srp.M1.digest);
-  }
-  packet.append(new Uint8Array(20)); // CRC hash
-  packet.writeByte(0x00);      // number of keys
-  packet.writeByte(0x00);      // security flags
-
-  return packet;
 }
 
 const sOpcodeMap = new Map<number, Factory<any>>([
