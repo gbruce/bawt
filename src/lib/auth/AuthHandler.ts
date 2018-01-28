@@ -1,4 +1,3 @@
-import { Session } from '../../interface/Session';
 import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
 import AuthOpcode from './Opcode';
@@ -14,6 +13,7 @@ import { SLogonChallenge,
 import { SLogonProof,
   NewLogonProof as NewSLogonProof } from './packets/server/LogonProof';
 import { LogonProof, NewLogonProof } from './packets/client/LogonProof';
+import { Config as AuthConfig } from './Config';
 
 const log = NewLogger('AuthHandler');
 
@@ -33,7 +33,6 @@ class AuthHandler extends EventEmitter {
   public static PORT = 3724;
 
   public account: string;
-  private session: Session;
   private password: string|null;
   private srp: SRP|null;
   private socket: Socket;
@@ -41,7 +40,7 @@ class AuthHandler extends EventEmitter {
   private deserializer: Deserializer;
 
   // Creates a new authentication handler
-  constructor(session: Session, socketFactory: Factory<Socket>) {
+  constructor(socketFactory: Factory<Socket>) {
     super();
 
     this.socket = socketFactory.Create();
@@ -52,9 +51,6 @@ class AuthHandler extends EventEmitter {
       .sub((scope: any, obj: any) => this.handleLogonChallenge(obj));
     this.deserializer.OnObjectDeserialized(AuthOpcode.LOGON_PROOF.toString())
       .sub((scope: any, obj: any) => this.handleLogonProof(obj));
-
-    // Holds session
-    this.session = session;
 
     // Holds credentials for this session (if any)
     this.password = null;
@@ -80,40 +76,27 @@ class AuthHandler extends EventEmitter {
   }
 
   // Sends authentication request to connected host
-  public authenticate(account: any, password: string) {
-    this.account = account.toUpperCase();
-    this.password = password.toUpperCase();
+  public authenticate(config: AuthConfig) {
+    this.account = config.Account;
+    this.password = config.Password;
 
     log.info('authenticating ', this.account);
 
-    // Extract configuration data
-    const {
-      build,
-      majorVersion,
-      minorVersion,
-      patchVersion,
-      game,
-      raw: {
-        os, locale, platform,
-      },
-      timezone,
-    } = this.session.config;
-
     const packet = new LogonChallenge();
     packet.Unk1 = 0x08;
-    packet.Size = 30 + this.account.length;
-    packet.Game = game;
-    packet.Major = majorVersion;
-    packet.Minor = minorVersion;
-    packet.Patch = patchVersion;
-    packet.Build = build;
-    packet.Platform = platform;
-    packet.Os = os;
-    packet.Locale = locale;
-    packet.Timezone = timezone;
-    packet.IPAddress = 0; // FIXME
-    packet.AccountLength = this.account.length;
-    packet.Account = this.account;
+    packet.Size = 30 + config.Account.length;
+    packet.Game = config.Game;
+    packet.Major = config.Major;
+    packet.Minor = config.Minor;
+    packet.Patch = config.Patch;
+    packet.Build = config.Build;
+    packet.Platform = config.Platform;
+    packet.Os = config.Os;
+    packet.Locale = config.Locale;
+    packet.Timezone = config.Timezone;
+    packet.IPAddress = config.IPAddress;
+    packet.AccountLength = config.Account.length;
+    packet.Account = config.Account;
     this.serializer.Serialize(packet);
   }
 

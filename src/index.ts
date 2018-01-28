@@ -7,8 +7,9 @@ import { default as GameHandler } from './lib/game/Handler';
 import { default as RealmsHandler } from './lib/realms/Handler';
 import { default as Realm } from './lib/realms/Realm';
 import realm from './lib/realms/Realm';
-import { SetVersion, Version } from './lib/utils/Version';
+import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
+import { ConfigFactory } from './lib/auth/Config';
 /*
 wow client packets prior to login
 S->C: 73.202.11.217 [SMSG_AUTH_CHALLENGE 0x01EC (492)]
@@ -111,6 +112,7 @@ class Client implements Session {
   private game: GameHandler;
   private selectedRealm: Realm|undefined;
   private selectedChar: Character|undefined;
+  private configFactory: ConfigFactory;
 
   get key() {
     return this.auth.key;
@@ -126,7 +128,8 @@ class Client implements Session {
     this.config.version = config.version;
     this.config.build =  parseInt(config.build, 10);
     const socketFactory = new SocketFactory();
-    this.auth = new AuthHandler(this, socketFactory);
+    this.configFactory = new ConfigFactory();
+    this.auth = new AuthHandler(socketFactory);
     this.game = new GameHandler(this, socketFactory);
     this.realm = new RealmsHandler(this);
     this.character = new CharacterHandler(this);
@@ -134,7 +137,9 @@ class Client implements Session {
     this.auth.connect(config.auth, config.port);
 
     this.auth.on('connect', () => {
-      this.auth.authenticate(config.username, config.password);
+      const authConfig = this.configFactory.Create(config.username,
+        config.password, GetVersion());
+      this.auth.authenticate(authConfig);
     });
 
     this.auth.on('authenticate', () => {
