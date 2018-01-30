@@ -227,7 +227,7 @@ class GameHandler extends EventEmitter {
       app.writeUint32(0); // region id
       app.writeUint32(0); // battlegroup id
       if (this.realm) {
-        app.writeUint32(this.realm.id); // realm id
+        app.writeUint32(this.realm.Id); // realm id
       }
       app.writeUint64(0); // dos response
     }

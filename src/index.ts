@@ -5,7 +5,7 @@ import Character from './lib/characters/Character';
 import { default as CharacterHandler } from './lib/characters/Handler';
 import { default as GameHandler } from './lib/game/Handler';
 import { default as RealmsHandler } from './lib/realms/Handler';
-import { default as Realm } from './lib/realms/Realm';
+import { Realm } from './lib/auth/packets/server/RealmList';
 import realm from './lib/realms/Realm';
 import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
@@ -155,16 +155,6 @@ class Client implements Session {
 
       if (selectedRealm) {
         this.game.connectToRealm(selectedRealm);
-      }
-    });
-
-    this.realm.on('refresh', () => {
-      this.selectedRealm = this.realm.list.find((realmItem): boolean => {
-        return realmItem.name === config.realm;
-      });
-
-      if (this.selectedRealm) {
-        this.game.connectToRealm(this.selectedRealm);
       }
     });
 
