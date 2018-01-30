@@ -56,7 +56,7 @@ export const StringProp = (): Serialization => {
 
 export const StringNoNullProp = (): Serialization => {
   return {
-    serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeString(value),
+    serialize: (target: any, value: any, buffer: ByteBuffer) => (buffer as any).writeString(value),
     deserialize: (target: any, buffer: ByteBuffer): string => { throw new Error('Not implemented'); },
     size: (target: any, value: any): number => value.length,
   };
@@ -156,7 +156,3 @@ export function BufferLength(target: any): number {
 
   return size;
 }
-
-export const AuthClient = () => {
-
-};
