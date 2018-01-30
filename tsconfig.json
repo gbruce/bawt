@@ -7,11 +7,11 @@
     "typeRoots": ["./src", "./node_modules/@types", "typings"],                       /* List of folders to include type definitions from. */
     "sourceMap": true,
     "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "types": ["node"],
     "baseUrl": "./src",
-    "outDir": "dist",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "outDir": "dist"
   },
   "exclude": [
     "node_modules"
