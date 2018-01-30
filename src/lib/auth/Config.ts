@@ -30,7 +30,7 @@ export class ConfigFactory implements Factory<Config> {
           Major: 1,
           Minor: 12,
           Patch: 1,
-          Build: 12340,
+          Build: 5875,
           Platform: this.reverse('x86'),
           Os: this.reverse('OSX'),
           Locale: this.reverse('enUS'),

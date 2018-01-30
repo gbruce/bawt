@@ -10,6 +10,8 @@ import realm from './lib/realms/Realm';
 import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
 import { ConfigFactory } from './lib/auth/Config';
+import { RealmList } from './lib/auth/packets/server/RealmList';
+
 /*
 wow client packets prior to login
 S->C: 73.202.11.217 [SMSG_AUTH_CHALLENGE 0x01EC (492)]
@@ -143,7 +145,17 @@ class Client implements Session {
     });
 
     this.auth.on('authenticate', () => {
-      this.realm.refresh();
+      this.auth.requestRealmList();
+    });
+
+    this.auth.on('realmList', (realmList: RealmList) => {
+      const selectedRealm = realmList.Realms.find((realmItem): boolean => {
+        return realmItem.Name === config.realm;
+      });
+
+      if (selectedRealm) {
+        this.game.connectToRealm(selectedRealm);
+      }
     });
 
     this.realm.on('refresh', () => {

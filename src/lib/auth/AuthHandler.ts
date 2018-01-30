@@ -5,7 +5,7 @@ import { Factory } from '../../interface/Factory';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
-import { SerializeObjectToBuffer } from '../net/Serialization';
+import { Serializable, SerializeObjectToBuffer } from '../net/Serialization';
 import { Serializer } from '../net/Serializer';
 import { Deserializer } from '../net/Deserializer';
 import { SLogonChallenge,
@@ -13,6 +13,9 @@ import { SLogonChallenge,
 import { SLogonProof,
   NewLogonProof as NewSLogonProof } from './packets/server/LogonProof';
 import { LogonProof, NewLogonProof } from './packets/client/LogonProof';
+import { RealmList as CRealmList } from './packets/client/RealmList';
+import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
+  RealmListFactory } from './packets/server/RealmList';
 import { Config as AuthConfig } from './Config';
 
 const log = NewLogger('AuthHandler');
@@ -23,9 +26,10 @@ function ToHexString(byteArray: any) {
   }).join(':');
 }
 
-const sOpcodeMap = new Map<number, Factory<any>>([
+const sOpcodeMap = new Map<number, Factory<Serializable>>([
   [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
   [AuthOpcode.LOGON_PROOF, new NewSLogonProof()],
+  [AuthOpcode.REALM_LIST, new RealmListFactory()],
 ]);
 
 class AuthHandler extends EventEmitter {
@@ -51,6 +55,8 @@ class AuthHandler extends EventEmitter {
       .sub((scope: any, obj: any) => this.handleLogonChallenge(obj));
     this.deserializer.OnObjectDeserialized(AuthOpcode.LOGON_PROOF.toString())
       .sub((scope: any, obj: any) => this.handleLogonProof(obj));
+    this.deserializer.OnObjectDeserialized(AuthOpcode.REALM_LIST.toString())
+      .sub((scope: any, obj: any) => this.handleRealmList(obj));
 
     // Holds credentials for this session (if any)
     this.password = null;
@@ -100,6 +106,11 @@ class AuthHandler extends EventEmitter {
     this.serializer.Serialize(packet);
   }
 
+  public requestRealmList() {
+    const packet = new CRealmList();
+    this.serializer.Serialize(packet);
+  }
+
   private handleLogonChallenge(packet: SLogonChallenge) {
     log.info('handleLogonChallenge');
 
@@ -128,6 +139,11 @@ class AuthHandler extends EventEmitter {
     }
   }
 
+  private handleRealmList(packet: SRealmList) {
+    log.info('handleRealmList');
+
+    this.emit('realmList', packet);
+  }
 }
 
 export default AuthHandler;

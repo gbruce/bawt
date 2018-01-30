@@ -11,7 +11,7 @@ import SHA1 from '../crypto/hash/SHA1';
 import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
-import Realm from 'lib/realms/Realm';
+import { Realm } from '../auth/packets/server/RealmList';
 import Guid from '../game/Guid';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
@@ -101,7 +101,7 @@ class GameHandler extends EventEmitter {
   // Connects to given host through given port
   public connectToRealm(realm: Realm) {
     this.realm = realm;
-    this.socket.connect(realm.host, realm.port);
+    this.socket.connect(realm.Host, realm.Port);
     return this;
   }
 

@@ -1,12 +1,12 @@
 import { EventList, IEvent } from 'strongly-typed-events';
-import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
+import { Serializable, DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
 import { Factory } from '../../interface/Factory';
 import * as ByteBuffer from 'bytebuffer';
 
 export class Deserializer {
   private events: EventList<Deserializer, any> = new EventList<Deserializer, any>();
 
-  constructor(private map: Map<number, Factory<any>>) {}
+  constructor(private map: Map<number, Factory<Serializable>>) {}
 
   public Deserialize(buffer: Buffer) {
     const opcode = buffer.readUInt8(0);
