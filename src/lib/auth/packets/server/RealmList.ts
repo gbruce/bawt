@@ -3,6 +3,9 @@ import { Serializable, Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
 import Opcode from '../../Opcode';
+import { NewLogger } from '../../../utils/Logger';
+
+const log = NewLogger('RealmList');
 
 export class RealmListFactory implements Factory<Serializable> {
   public Create(...args: any[]) {
@@ -42,10 +45,13 @@ export class Realm implements Serializable {
     const parts = this.Address.split(':');
     this.Host = parts[0];
     this.Port = parseInt(parts[1], 10);
+
+    log.debug(`Realm id:${this.Id} name:"${this.Name}" addr:${this.Address} ` +
+      `pop:${this.Population.toFixed(2)} char:${this.CharacterCount}`);
   }
 }
 
-export class RealmList extends ServerPacket {
+export class RealmList extends ServerPacket implements Serializable {
   constructor() {
     super(Opcode.REALM_LIST);
   }
