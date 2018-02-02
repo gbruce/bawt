@@ -4,9 +4,7 @@ import { default as AuthHandler } from './lib/auth/AuthHandler';
 import Character from './lib/characters/Character';
 import { default as CharacterHandler } from './lib/characters/Handler';
 import { default as GameHandler } from './lib/game/Handler';
-import { default as RealmsHandler } from './lib/realms/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
-import realm from './lib/realms/Realm';
 import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
 import { ConfigFactory } from './lib/auth/Config';
@@ -109,7 +107,6 @@ class Config {
 class Client implements Session {
   public config: Config = new Config();
   private auth: AuthHandler;
-  private realm: RealmsHandler;
   private character: CharacterHandler;
   private game: GameHandler;
   private selectedRealm: Realm|undefined;
@@ -121,10 +118,10 @@ class Client implements Session {
   }
 
   get account() {
-    return this.auth.account;
+    return '';
   }
 
-  public Start() {
+  public async Start() {
     const config = data as any;
     SetVersion(config.version);
     this.config.version = config.version;
@@ -133,13 +130,17 @@ class Client implements Session {
     this.configFactory = new ConfigFactory();
     this.auth = new AuthHandler(socketFactory);
     this.game = new GameHandler(this, socketFactory);
-    this.realm = new RealmsHandler(this);
     this.character = new CharacterHandler(this);
 
-    this.auth.connect(config.auth, config.port);
+    const authConfig = this.configFactory.Create(config.username,
+      config.password, GetVersion());
+    const session = await this.auth.connect2(config.auth, config.port, authConfig);
+    const realms = await session.GetRealms();
+//    this.auth.connect(config.auth, config.port);
 
+/*
     this.auth.on('connect', () => {
-      const authConfig = this.configFactory.Create(config.username,
+      const authConfig2 = this.configFactory.Create(config.username,
         config.password, GetVersion());
       this.auth.authenticate(authConfig);
     });
@@ -173,6 +174,7 @@ class Client implements Session {
         }
       }
     });
+    */
   }
 }
 

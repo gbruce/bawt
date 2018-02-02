@@ -2,6 +2,7 @@ import { Serializable, Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop
   ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
+import { Realm as RealmInterface } from '../../../../interface/Realm';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 
@@ -13,7 +14,7 @@ export class RealmListFactory implements Factory<Serializable> {
   }
 }
 
-export class Realm implements Serializable {
+export class Realm implements Serializable, RealmInterface {
   @Serialize(UInt32Prop())
   public Type: number = 0;
 
