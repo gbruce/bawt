@@ -1,17 +1,29 @@
-import { Serialize, UInt8Prop } from '../../../net/Serialization';
+import { Serialize, UInt16Prop, UInt32Prop } from '../../../net/Serialization';
 import { default as ObjectUtil } from '../../../utils/ObjectUtil';
 import AuthOpcode from '../../Opcode';
 import { Packet } from '../../../../interface/Packet';
+import * as ByteBuffer from 'bytebuffer';
 
-export class ServerPacket implements Packet {
+export class ClientPacket implements Packet {
   constructor(opcode: number) {
     this.Opcode = opcode;
     this._name = ObjectUtil.KeyByValue(AuthOpcode, this.Opcode);
   }
+
   private _name: string;
   public get Name() {
     return this._name;
   }
 
+  public readonly Size: number = 0;
+
   public readonly Opcode: number;
+
+  public OnSerialized(buffer: ByteBuffer): void {
+    const size = buffer.offset;
+
+    buffer.BE();
+    buffer.offset = 0;
+    buffer.writeUint16(size - 2);
+  }
 }

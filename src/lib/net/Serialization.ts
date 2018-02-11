@@ -1,13 +1,9 @@
 import { NewLogger } from '../utils/Logger';
+import { Serializable } from '../../interface/Serializable';
 import * as ByteBuffer from 'bytebuffer';
 import 'reflect-metadata';
 
 const Log = NewLogger('net/Socket');
-
-export interface Serializable {
-  readonly Name: string;
-  OnDeserialized?(): void;
-}
 
 const SerializationIdentifier = 'serialization';
 const DeserializeCallbackId = 'serialization:callback';
@@ -30,10 +26,10 @@ export const UInt8Prop = (): Serialization => {
   };
 };
 
-export const UInt16Prop = (): Serialization => {
+export const UInt16Prop = (bigEndian: boolean = false): Serialization => {
   return {
-    serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeUint16(value),
-    deserialize: (target: any, buffer: ByteBuffer): number => buffer.readUint16(),
+    serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.BE(bigEndian).writeUint16(value),
+    deserialize: (target: any, buffer: ByteBuffer): number => buffer.BE(bigEndian).readUint16(),
     size: (target: any, value: any): number => 2,
   };
 };
@@ -74,6 +70,18 @@ export const ByteArrayProp = (sizeFunc: (target: any) => number): Serialization 
       return result;
     },
     size: (target: any, value: any): number => sizeFunc(target),
+  };
+};
+
+export const ConstByteBufferProp = (): Serialization => {
+  return {
+    serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.append(value),
+    deserialize: (target: any, buffer: ByteBuffer): ByteBuffer => {
+      const newBuff = new ByteBuffer();
+      newBuff.append(buffer);
+      return newBuff;
+    },
+    size: (target: any, value: any): number => (value as ByteBuffer).capacity(),
   };
 };
 
@@ -123,6 +131,10 @@ export function SerializeObjectToBuffer(target: Serializable, buffer: ByteBuffer
       const value = Reflect.get(target, key.toString());
       serialization.serialize(target, value, buffer);
     }
+  }
+
+  if (target.OnSerialized) {
+    target.OnSerialized(buffer);
   }
 }
 

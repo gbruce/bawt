@@ -11,15 +11,21 @@ import SHA1 from '../crypto/hash/SHA1';
 import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
-import { Realm } from '../auth/packets/server/RealmList';
+import { Realm } from '../../interface/Realm';
 import Guid from '../game/Guid';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { Session } from '../../interface/Session';
 import { Factory } from '../../interface/Factory';
+import { Packet } from '../../interface/Packet';
 import { EventEmitter } from 'events';
-
+import { GameSession } from './GameSession';
+import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
+import { SerializeObjectToBuffer } from '../net/Serialization';
+import { Serializer, GameHeaderSerializer } from '../net/Serializer';
+import { Deserializer, GameHeaderDeserializer } from '../net/Deserializer';
+import { AuthProof } from './packets/client/AuthProof';
 const log = NewLogger('game/Handler');
 
 const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
@@ -29,6 +35,10 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   }
   return result;
 };
+
+const sOpcodeMap = new Map<number, Factory<Packet>>([
+  [GameOpcode.SMSG_AUTH_CHALLENGE, new NewSAuthChallenge()],
+]);
 
 class GameHandler extends EventEmitter {
   // tslint:disable-next-line:max-line-length
@@ -42,29 +52,37 @@ class GameHandler extends EventEmitter {
   private realm: Realm|null = null;
   private pingCount: number = 1;
   private socket: Socket;
+  private serializer: Serializer;
+  private deserializer: Deserializer;
 
   // Creates a new game handler
   constructor(session: Session, socketFactory: Factory<Socket>) {
     super();
 
     this.socket = socketFactory.Create();
+    this.serializer = new Serializer(GameHeaderSerializer);
+    this.deserializer = new Deserializer(GameHeaderDeserializer, sOpcodeMap);
+    this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
+
+    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => this.deserializer.Deserialize(args[0]));
 
     // Holds session
     this.session = session;
 
     // Listen for incoming data
-    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => {
-      this.dataReceived(args[0]);
-    });
+    // this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => {
+      // this.dataReceived(args[0]);
+   // });
 
-    this.socket.on(SocketEvent.OnConnected, () => {
-      this.emit('connect');
-    });
+    this.deserializer.OnObjectDeserialized(GameOpcode.SMSG_AUTH_CHALLENGE.toString())
+      .one((scope: any, packet: SAuthChallenge) => {
+        this.handleAuthChallenge(packet);
+      });
 
     // Delegate packets
-    this.on('packet:receive:SMSG_AUTH_CHALLENGE', (packet: any) => {
-      this.handleAuthChallenge(packet);
-    });
+    // this.on('packet:receive:SMSG_AUTH_CHALLENGE', (packet: any) => {
+    //   this.handleAuthChallenge(packet);
+    // });
 
     this.on('packet:receive:SMSG_AUTH_RESPONSE', (packet: any) => {
       this.handleAuthResponse(packet);
@@ -96,6 +114,15 @@ class GameHandler extends EventEmitter {
       this.crypt = new RC4Crypt();
       this.addOnBuffer = ByteBuffer.fromHex(this.addOnHex);
     }
+  }
+
+  private ConnectInternal(realm: Realm): Promise<GameSession> {
+    return new Promise((resolve, reject) => {
+      this.socket.on(SocketEvent.OnConnected, () => {
+        resolve();
+      });
+      this.socket.connect(realm.Host, realm.Port);
+    });
   }
 
   // Connects to given host through given port
@@ -182,18 +209,18 @@ class GameHandler extends EventEmitter {
   }
 
   // Auth challenge handler (SMSG_AUTH_CHALLENGE)
-  private handleAuthChallenge(gp: GamePacket) {
+  private handleAuthChallenge(gp: SAuthChallenge) {
     log.info('handling auth challenge');
-    gp.littleEndian = false;
-    gp.readUint16(); // size
-    gp.littleEndian = true;
-    gp.readUint16(); // opcode
+    // gp.littleEndian = false;
+    // gp.readUint16(); // size
+    // gp.littleEndian = true;
+    // gp.readUint16(); // opcode
 
-    if (GetVersion() === Version.WoW_3_3_5) {
-      gp.readUint32();
-    }
+    // if (GetVersion() === Version.WoW_3_3_5) {
+      // gp.readUint32();
+    // }
 
-    const salt = readIntoByteArray(4, gp);
+    const salt = gp.Salt;
     const seed = BigNum.fromRand(4);
 
     const hash = new SHA1();
@@ -209,6 +236,14 @@ class GameHandler extends EventEmitter {
 
     const build = this.session.config.build;
     const account = this.session.account;
+
+    const authProof = new AuthProof();
+    authProof.Build = build;
+    authProof.LoginServerId = 0;
+    authProof.Account = account;
+    authProof.Seed = seed.toArray();
+    authProof.Digest = hash.digest;
+    this.serializer.Serialize(authProof);
 
     // const size = GamePacket.HEADER_SIZE_OUTGOING + 8 + this.session.account.length + 1 + 4 + 4 + 20 + 20 + 4;
     const size = 0;
@@ -237,6 +272,7 @@ class GameHandler extends EventEmitter {
     app.append(this.addOnBuffer);
 
     this.send(app);
+
     if (this.crypt && this.session.key) {
       this.crypt.Init(this.session.key);
       this.useCrypt = true;

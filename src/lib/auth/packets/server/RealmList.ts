@@ -1,14 +1,16 @@
-import { Serializable, Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
+import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Realm as RealmInterface } from '../../../../interface/Realm';
+import { Serializable } from '../../../../interface/Serializable';
+import { Packet } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 
 const log = NewLogger('RealmList');
 
-export class RealmListFactory implements Factory<Serializable> {
+export class RealmListFactory implements Factory<Packet> {
   public Create(...args: any[]) {
     return new RealmList();
   }
@@ -39,8 +41,8 @@ export class Realm implements Serializable, RealmInterface {
   @Serialize(UInt8Prop())
   public Id: number = 0;
 
-  public Host: string;
-  public Port: number;
+  public Host: string = '';
+  public Port: number = 0;
 
   public OnDeserialized() {
     const parts = this.Address.split(':');
@@ -52,7 +54,7 @@ export class Realm implements Serializable, RealmInterface {
   }
 }
 
-export class RealmList extends ServerPacket implements Serializable {
+export class RealmList extends ServerPacket {
   constructor() {
     super(Opcode.REALM_LIST);
   }

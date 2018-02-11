@@ -5,20 +5,20 @@ import { Factory } from '../../interface/Factory';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
-import { Serializable, SerializeObjectToBuffer } from '../net/Serialization';
-import { Serializer } from '../net/Serializer';
-import { Deserializer } from '../net/Deserializer';
+import { SerializeObjectToBuffer } from '../net/Serialization';
+import { Serializer, AuthHeaderSerializer } from '../net/Serializer';
+import { Deserializer, AuthHeaderDeserializer } from '../net/Deserializer';
 import { SLogonChallenge,
   NewLogonChallenge as NewSLogonChallenge } from './packets/server/LogonChallenge';
-import { SLogonProof,
-  NewLogonProof as NewSLogonProof } from './packets/server/LogonProof';
-import { LogonProof, NewLogonProof } from './packets/client/LogonProof';
+import { SLogonProof, NewLogonProof } from './packets/server/LogonProof';
+import { LogonProof } from './packets/client/LogonProof';
 import { RealmList as CRealmList } from './packets/client/RealmList';
 import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
   RealmListFactory } from './packets/server/RealmList';
 import { Config as AuthConfig } from './Config';
 import { AuthSession } from './AuthSession';
 import { Realm } from '../../interface/Realm';
+import { Packet } from '../../interface/Packet';
 
 const log = NewLogger('AuthHandler');
 
@@ -28,9 +28,9 @@ function ToHexString(byteArray: any) {
   }).join(':');
 }
 
-const sOpcodeMap = new Map<number, Factory<Serializable>>([
+const sOpcodeMap = new Map<number, Factory<Packet>>([
   [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
-  [AuthOpcode.LOGON_PROOF, new NewSLogonProof()],
+  [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
   [AuthOpcode.REALM_LIST, new RealmListFactory()],
 ]);
 
@@ -45,8 +45,8 @@ class AuthHandler extends EventEmitter {
     super();
 
     this.socket = socketFactory.Create();
-    this.serializer = new Serializer();
-    this.deserializer = new Deserializer(sOpcodeMap);
+    this.serializer = new Serializer(AuthHeaderSerializer);
+    this.deserializer = new Deserializer(AuthHeaderDeserializer, sOpcodeMap);
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     // Holds Secure Remote Password implementation
@@ -131,6 +131,7 @@ class AuthHandler extends EventEmitter {
   private async authenticate(config: AuthConfig) {
     const srp = await this.challenge(config);
     await this.logonProof(srp);
+    this.srp = srp;
   }
 
   public async connect2(host: string, port: number, config: AuthConfig): Promise<AuthSession> {
@@ -141,7 +142,8 @@ class AuthHandler extends EventEmitter {
 
   public async GetRealms(): Promise<Realm[]> {
     return new Promise<Realm[]>((resolve, reject) => {
-      this.serializer.Serialize(new CRealmList());
+      const request = new CRealmList();
+      this.serializer.Serialize(request);
 
       this.deserializer.OnObjectDeserialized(AuthOpcode.REALM_LIST.toString())
         .one((scope: any, packet: SRealmList) => {

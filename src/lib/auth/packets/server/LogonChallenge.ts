@@ -1,15 +1,16 @@
-import { Serializable, Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from '../../../net/Serialization';
+import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
+import { Packet } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 
-export class NewLogonChallenge implements Factory<Serializable> {
+export class NewLogonChallenge implements Factory<Packet> {
   public Create(...args: any[]) {
     return new SLogonChallenge();
   }
 }
 
-export class SLogonChallenge extends ServerPacket implements Serializable {
+export class SLogonChallenge extends ServerPacket {
   constructor() {
     super(Opcode.LOGON_CHALLENGE);
   }

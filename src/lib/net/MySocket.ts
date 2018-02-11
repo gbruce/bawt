@@ -18,8 +18,8 @@ enum SocketState {
 export class MySocket implements Socket {
   private socket: NetSocket = new NetSocket();
   private emitter: EventEmitter = new EventEmitter();
-  private host: string;
-  private port: number;
+  private host: string = '';
+  private port: number = 0;
   private state: SocketState = SocketState.Disconnected;
 
   public connect(host: string, port: number): void {

@@ -112,13 +112,15 @@ class Client implements Session {
   private selectedRealm: Realm|undefined;
   private selectedChar: Character|undefined;
   private configFactory: ConfigFactory;
+  private _account: string;
+  private _key: number[];
 
   get key() {
-    return this.auth.key;
+    return this._key;
   }
 
   get account() {
-    return '';
+    return this._account;
   }
 
   public async Start() {
@@ -134,8 +136,19 @@ class Client implements Session {
 
     const authConfig = this.configFactory.Create(config.username,
       config.password, GetVersion());
+    this._account = authConfig.Account;
     const session = await this.auth.connect2(config.auth, config.port, authConfig);
+    if (this.auth.key) {
+      this._key = this.auth.key;
+    }
     const realms = await session.GetRealms();
+    const selectedRealm = realms.find((realmItem): boolean => {
+      return realmItem.Name === config.realm;
+    });
+
+    if (selectedRealm) {
+      this.game.connectToRealm(selectedRealm);
+    }
 //    this.auth.connect(config.auth, config.port);
 
 /*
@@ -158,7 +171,7 @@ class Client implements Session {
         this.game.connectToRealm(selectedRealm);
       }
     });
-
+*/
     this.game.on('authenticate', () => {
       this.character.refresh();
     });
@@ -174,7 +187,6 @@ class Client implements Session {
         }
       }
     });
-    */
   }
 }
 
