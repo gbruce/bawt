@@ -1,5 +1,5 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from '../../../net/Serialization';
-import { ServerPacket } from './ServerPacket';
+import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Packet } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
@@ -10,7 +10,7 @@ export class NewLogonChallenge implements Factory<Packet> {
   }
 }
 
-export class SLogonChallenge extends ServerPacket {
+export class SLogonChallenge extends AuthPacket {
   constructor() {
     super(Opcode.LOGON_CHALLENGE);
   }

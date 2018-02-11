@@ -1,6 +1,6 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from '../../../net/Serialization';
-import { ServerPacket } from './ServerPacket';
+import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Realm as RealmInterface } from '../../../../interface/Realm';
 import { Serializable } from '../../../../interface/Serializable';
@@ -54,7 +54,7 @@ export class Realm implements Serializable, RealmInterface {
   }
 }
 
-export class RealmList extends ServerPacket {
+export class RealmList extends AuthPacket {
   constructor() {
     super(Opcode.REALM_LIST);
   }

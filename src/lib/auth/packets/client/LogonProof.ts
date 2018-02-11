@@ -1,10 +1,10 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   StringNoNullProp, ByteArrayProp } from '../../../net/Serialization';
-import { ClientPacket } from './ClientPacket';
+import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
 import Opcode from '../../Opcode';
 
-export class LogonProof extends ClientPacket {
+export class LogonProof extends AuthPacket {
   constructor() {
     super(Opcode.LOGON_PROOF);
   }

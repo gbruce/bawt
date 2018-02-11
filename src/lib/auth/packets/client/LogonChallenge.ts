@@ -1,11 +1,11 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   StringNoNullProp } from '../../../net/Serialization';
-import { ClientPacket } from './ClientPacket';
+import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Packet } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 
-export class LogonChallenge extends ClientPacket {
+export class LogonChallenge extends AuthPacket {
   constructor() {
     super(Opcode.LOGON_CHALLENGE);
   }
