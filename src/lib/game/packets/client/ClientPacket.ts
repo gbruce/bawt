@@ -18,12 +18,4 @@ export class ClientPacket implements Packet {
   public readonly Size: number = 0;
 
   public readonly Opcode: number;
-
-  public OnSerialized(buffer: ByteBuffer): void {
-    const size = buffer.offset;
-
-    buffer.BE();
-    buffer.offset = 0;
-    buffer.writeUint16(size - 2);
-  }
 }

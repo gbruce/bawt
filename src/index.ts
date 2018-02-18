@@ -9,6 +9,7 @@ import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
 import { ConfigFactory } from './lib/auth/Config';
 import { RealmList } from './lib/auth/packets/server/RealmList';
+import Socket from 'lib/net/Socket';
 
 /*
 wow client packets prior to login
@@ -84,9 +85,9 @@ class Config {
   public os: string = 'OSX';
   public platform: string = 'x86';
   public raw: Raw = new Raw(this);
-  public majorVersion: number;
-  public minorVersion: number;
-  public patchVersion: number;
+  public majorVersion: number = 0;
+  public minorVersion: number = 0;
+  public patchVersion: number = 0;
 
   constructor() {
     this.version = '3.3.5';
@@ -106,6 +107,8 @@ class Config {
 
 class Client implements Session {
   public config: Config = new Config();
+  private configFile: any;
+  private socketFactory: SocketFactory;
   private auth: AuthHandler;
   private character: CharacterHandler;
   private game: GameHandler;
@@ -115,6 +118,18 @@ class Client implements Session {
   private _account: string;
   private _key: number[];
 
+  constructor() {
+    this.configFile = data as any;
+    SetVersion(this.configFile.version);
+    this.config.version = this.configFile.version;
+    this.config.build =  parseInt(this.configFile.build, 10);
+    this.socketFactory = new SocketFactory();
+    this.configFactory = new ConfigFactory();
+    this.auth = new AuthHandler(this.socketFactory);
+    this.game = new GameHandler(this, this.socketFactory);
+    this.character = new CharacterHandler(this);
+  }
+  
   get key() {
     return this._key;
   }
@@ -124,31 +139,23 @@ class Client implements Session {
   }
 
   public async Start() {
-    const config = data as any;
-    SetVersion(config.version);
-    this.config.version = config.version;
-    this.config.build =  parseInt(config.build, 10);
-    const socketFactory = new SocketFactory();
-    this.configFactory = new ConfigFactory();
-    this.auth = new AuthHandler(socketFactory);
-    this.game = new GameHandler(this, socketFactory);
-    this.character = new CharacterHandler(this);
-
-    const authConfig = this.configFactory.Create(config.username,
-      config.password, GetVersion());
+    const authConfig = this.configFactory.Create(this.configFile.username,
+      this.configFile.password, GetVersion());
     this._account = authConfig.Account;
-    const session = await this.auth.connect2(config.auth, config.port, authConfig);
+    const session = await this.auth.connect2(this.configFile.auth, this.configFile.port, authConfig);
     if (this.auth.key) {
       this._key = this.auth.key;
     }
     const realms = await session.GetRealms();
     const selectedRealm = realms.find((realmItem): boolean => {
-      return realmItem.Name === config.realm;
+      return realmItem.Name === this.configFile.realm;
     });
 
     if (selectedRealm) {
-      this.game.connectToRealm(selectedRealm);
+      await this.game.connectToRealm(selectedRealm);
     }
+
+    const characters = await this.game.getChars();
 //    this.auth.connect(config.auth, config.port);
 
 /*

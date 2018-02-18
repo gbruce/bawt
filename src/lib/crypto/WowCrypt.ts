@@ -9,14 +9,14 @@ export default class WoWCrypt implements Crypt
   private initialised = false;
 
   // Encryption state
-  private mEncPrev: number;
-  public mEncIndex: number;
+  private mEncPrev: number = 0;
+  public mEncIndex: number = 0;
 
   // Decryption state
-  public mDecPrev: number;
-  public mDecIndex: number;
+  public mDecPrev: number = 0;
+  public mDecIndex: number = 0;
 
-  public mKey: number[];
+  public mKey: number[] = [];
 
   public Init(key: number[])
   {

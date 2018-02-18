@@ -22,6 +22,9 @@ import { Packet } from '../../interface/Packet';
 import { EventEmitter } from 'events';
 import { GameSession } from './GameSession';
 import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
+import { SAuthResponse, NewSAuthResponse } from './packets/server/AuthResponse';
+import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
+import { SMsgCharEnum, NewSMsgCharEnum } from './packets/server/SMsgCharEnum';
 import { SerializeObjectToBuffer } from '../net/Serialization';
 import { Serializer, GameHeaderSerializer } from '../net/Serializer';
 import { Deserializer, GameHeaderDeserializer } from '../net/Deserializer';
@@ -38,6 +41,8 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
 
 const sOpcodeMap = new Map<number, Factory<Packet>>([
   [GameOpcode.SMSG_AUTH_CHALLENGE, new NewSAuthChallenge()],
+  [GameOpcode.SMSG_AUTH_RESPONSE, new NewSAuthResponse()],
+  [GameOpcode.SMSG_CHAR_ENUM, new NewSMsgCharEnum()],
 ]);
 
 class GameHandler extends EventEmitter {
@@ -74,10 +79,12 @@ class GameHandler extends EventEmitter {
       // this.dataReceived(args[0]);
    // });
 
+   /*
     this.deserializer.OnObjectDeserialized(GameOpcode.SMSG_AUTH_CHALLENGE.toString())
       .one((scope: any, packet: SAuthChallenge) => {
         this.handleAuthChallenge(packet);
       });
+      */
 
     // Delegate packets
     // this.on('packet:receive:SMSG_AUTH_CHALLENGE', (packet: any) => {
@@ -85,15 +92,15 @@ class GameHandler extends EventEmitter {
     // });
 
     this.on('packet:receive:SMSG_AUTH_RESPONSE', (packet: any) => {
-      this.handleAuthResponse(packet);
+      // this.handleAuthResponse(packet);
     });
 
     this.on('packet:receive:SMSG_LOGIN_VERIFY_WORLD', (packet: any) => {
-      this.handleWorldLogin(packet);
+      // this.handleWorldLogin(packet);
     });
 
     this.on('packet:receive:SMSG_COMPRESSED_UPDATE_OBJECT', (packet: any) => {
-      this.HandleCompressedUpdateObject(packet);
+      // this.HandleCompressedUpdateObject(packet);
     });
 
     this.on('packet:receive:SMSG_ACCOUNT_DATA_TIMES', (packet: any) => {
@@ -116,7 +123,74 @@ class GameHandler extends EventEmitter {
     }
   }
 
-  private ConnectInternal(realm: Realm): Promise<GameSession> {
+  private async waitForOpcode<T>(opcode: GameOpcode): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      log.info('waitForOpcode ', opcode);
+
+      this.deserializer.OnObjectDeserialized(opcode.toString())
+        .one((scope: any, packet: T) => {
+          resolve(packet);
+        });
+    });
+  }
+
+  private handleChallenge(challenge: SAuthChallenge) {
+    return new Promise((resolve, reject) => {
+      const salt = challenge.Salt;
+      const seed = BigNum.fromRand(4);
+
+      const hash = new SHA1();
+      hash.feed(this.session.account);
+      hash.feed([0, 0, 0, 0]);
+      hash.feed(seed.toArray());
+      hash.feed(salt);
+      hash.feed(this.session.key);
+
+      log.debug('seed: ' + this.toHexString(seed.toArray()));
+      log.debug('salt: ' + this.toHexString(salt));
+      log.debug('key: ' + this.toHexString(this.session.key));
+
+      const build = this.session.config.build;
+      const account = this.session.account;
+
+      const authProof = new AuthProof();
+      authProof.Build = build;
+      authProof.LoginServerId = 0;
+      authProof.Account = account;
+      authProof.Seed = seed.toArray();
+      authProof.Digest = hash.digest;
+      this.serializer.Serialize(authProof);
+
+      if (this.crypt && this.session.key) {
+        this.crypt.Init(this.session.key);
+        this.deserializer.Encryption = this.crypt;
+        this.serializer.Encryption = this.crypt;
+      }
+
+      resolve();
+    });
+  }
+
+  private HandleAuthResponse(authResponse: SAuthResponse) {
+    return new Promise((resolve, reject) => {
+      if (authResponse.Result === 0x0D) {
+        // log.warn('server-side auth/realm failure; try again');
+        reject('server-side auth/realm failure; try again');
+      }
+      else if (authResponse.Result === 0x15) {
+        // log.warn('account in use/invalid; aborting');
+        reject('account in use/invalid; aborting');
+      }
+      else if (authResponse.Result !== 12) {
+        // log.warn('auth response error:' + authResponse.Result);
+        reject('auth response error:' + authResponse.Result);
+      }
+
+      resolve();
+    });
+  }
+
+  private connectInternal(realm: Realm): Promise<GameSession> {
     return new Promise((resolve, reject) => {
       this.socket.on(SocketEvent.OnConnected, () => {
         resolve();
@@ -126,10 +200,25 @@ class GameHandler extends EventEmitter {
   }
 
   // Connects to given host through given port
-  public connectToRealm(realm: Realm) {
+  public async connectToRealm(realm: Realm) {
     this.realm = realm;
-    this.socket.connect(realm.Host, realm.Port);
+
+    await this.connectInternal(realm);
+    const challenge = await this.waitForOpcode<SAuthChallenge>(GameOpcode.SMSG_AUTH_CHALLENGE);
+    await this.handleChallenge(challenge);
+    const response = await this.waitForOpcode<SAuthResponse>(GameOpcode.SMSG_AUTH_RESPONSE);
+    await this.HandleAuthResponse(response);
+
     return this;
+  }
+
+  public async getChars() {
+    const charEnum = new CMsgCharEnum();
+    this.serializer.Serialize(charEnum);
+
+    const characters = await this.waitForOpcode<SMsgCharEnum>(GameOpcode.SMSG_CHAR_ENUM);
+
+    return characters.Characters;
   }
 
   // Finalizes and sends given packet
