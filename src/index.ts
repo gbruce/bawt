@@ -1,7 +1,7 @@
 import * as data from './lightshope.json';
 import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
-import Character from './lib/characters/Character';
+// import Character from './lib/characters/Character';
 import { default as CharacterHandler } from './lib/characters/Handler';
 import { default as GameHandler } from './lib/game/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
@@ -113,10 +113,9 @@ class Client implements Session {
   private character: CharacterHandler;
   private game: GameHandler;
   private selectedRealm: Realm|undefined;
-  private selectedChar: Character|undefined;
   private configFactory: ConfigFactory;
-  private _account: string;
-  private _key: number[];
+  private _account: string = '';
+  private _key: number[] = [];
 
   constructor() {
     this.configFile = data as any;
@@ -156,6 +155,14 @@ class Client implements Session {
     }
 
     const characters = await this.game.getChars();
+    const selectedChar = characters.find((character) => {
+      return character.Name === this.configFile.character;
+    });
+
+    if(selectedChar) {
+      await this.game.join(selectedChar);
+    }
+
 //    this.auth.connect(config.auth, config.port);
 
 /*
@@ -178,7 +185,7 @@ class Client implements Session {
         this.game.connectToRealm(selectedRealm);
       }
     });
-*/
+
     this.game.on('authenticate', () => {
       this.character.refresh();
     });
@@ -194,6 +201,7 @@ class Client implements Session {
         }
       }
     });
+    */
   }
 }
 

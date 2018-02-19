@@ -1,11 +1,12 @@
 
-import { Serialize, UInt8Prop, StringProp, UInt32Prop, Float32Prop, ArrayProp } from '../../../net/Serialization';
+import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop, ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Packet } from '../../../../interface/Packet';
 import { Serializable } from '../../../../interface/Serializable';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
+import * as Long from 'long';
 
 const log = NewLogger('SMsgCharEnum');
 
@@ -65,11 +66,9 @@ export class EquipmentSlot implements Serializable {
 }
 
 export class Character implements Serializable {
-  @Serialize(UInt32Prop())
-  public LowGuid: number = 0;
 
-  @Serialize(UInt32Prop())
-  public HighGuid: number = 0;
+  @Serialize(UInt64Prop())
+  public Guid: Long = new Long(0);
 
   @Serialize(StringProp())
   public Name: string = '';
@@ -145,7 +144,9 @@ export class Character implements Serializable {
   public FirstBagInventoryType: number = 0;
 
   public OnDeserialized() {
-    log.debug(`Character lowGuid:${this.LowGuid} highGuid:${this.HighGuid} name:"${this.Name}" level:${this.Level} ` +
+    const guidLo = this.Guid.and(0xffffffffffff).toString(16);
+    const guidHi = this.Guid.shiftRight(48).and(0x0000FFFF).toString(16);
+    log.debug(`Character Guidlow:${guidLo} GuidHi:${guidHi} name:"${this.Name}" level:${this.Level} ` +
       `x:${this.X.toFixed(3)} y:${this.Y.toFixed(3)} z:${this.Z.toFixed(3)} zone:${this.Zone} map:${this.Map}`);
   }
 }

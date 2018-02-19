@@ -12,7 +12,7 @@ const log = NewLogger('net/Deserializer');
 export interface HeaderDesc {
   headerBytes: number;
   opcode: number;
-  packetBytes?: number;
+  packetBytes: number;
 }
 
 export interface HeaderDeserializer {
@@ -25,6 +25,7 @@ export const AuthHeaderDeserializer = {
     return {
       headerBytes: 1,
       opcode: buffer.readUInt8(0),
+      packetBytes: buffer.length,
     };
   },
   decrypt: (buffer: Buffer, offset: number, crypt: Crypt): void => {
@@ -67,27 +68,25 @@ export class Deserializer {
       }
 
       const headerDesc = this.headerDeserializer.deserialize(buffer, offset);
-      if (headerDesc.packetBytes) {
-        offset += headerDesc.packetBytes;
-      }
-      else {
-        offset += buffer.length;
-      }
+      log.info(`headerBytes:${headerDesc.headerBytes} opcode:0x${headerDesc.opcode.toString(16)} packetBytes:${headerDesc.packetBytes}`);
+
+      offset += headerDesc.packetBytes;
 
       const factory = this.map.get(headerDesc.opcode);
       if (!factory) {
-        log.warn('Unknown opcode: ', headerDesc.opcode);
+        log.error(`Unknown opcode:0x${headerDesc.opcode.toString(16)}`);
         continue;
       }
 
-      const obj = factory.Create();
+      const obj = factory.Create(headerDesc.opcode);
       const byteBuffer = new ByteBuffer();
       const packet = buffer.subarray(headerDesc.headerBytes);
       byteBuffer.append(packet);
       byteBuffer.offset = 0;
+      byteBuffer.LE();
       DeserializeObjectFromBuffer(obj, byteBuffer);
 
-      log.info(`${buffer.byteLength} bytes ==> ${obj.Name}`);
+      log.info(`${headerDesc.packetBytes} bytes ==> ${obj.Name} buff:${BufferLength(obj)}`);
 
       if (obj) {
         this.events.get(headerDesc.opcode.toString()).dispatch(this, obj);

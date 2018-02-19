@@ -8,7 +8,6 @@ import GameOpcode from './Opcode';
 import GamePacket from './Packet';
 import GUID from '../game/Guid';
 import SHA1 from '../crypto/hash/SHA1';
-import Character from '../characters/Character';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
 import { Realm } from '../../interface/Realm';
@@ -23,8 +22,10 @@ import { EventEmitter } from 'events';
 import { GameSession } from './GameSession';
 import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse, NewSAuthResponse } from './packets/server/AuthResponse';
+import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
+import { NewServerPacket, ServerPacket } from './packets/server/ServerPacket';
 import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
-import { SMsgCharEnum, NewSMsgCharEnum } from './packets/server/SMsgCharEnum';
+import { SMsgCharEnum, NewSMsgCharEnum, Character } from './packets/server/SMsgCharEnum';
 import { SerializeObjectToBuffer } from '../net/Serialization';
 import { Serializer, GameHeaderSerializer } from '../net/Serializer';
 import { Deserializer, GameHeaderDeserializer } from '../net/Deserializer';
@@ -43,6 +44,9 @@ const sOpcodeMap = new Map<number, Factory<Packet>>([
   [GameOpcode.SMSG_AUTH_CHALLENGE, new NewSAuthChallenge()],
   [GameOpcode.SMSG_AUTH_RESPONSE, new NewSAuthResponse()],
   [GameOpcode.SMSG_CHAR_ENUM, new NewSMsgCharEnum()],
+  [GameOpcode.SMSG_WARDEN_DATA, new NewServerPacket()],
+  [GameOpcode.SMSG_ADDON_INFO, new NewServerPacket()],
+  [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewServerPacket()],
 ]);
 
 class GameHandler extends EventEmitter {
@@ -91,14 +95,6 @@ class GameHandler extends EventEmitter {
     //   this.handleAuthChallenge(packet);
     // });
 
-    this.on('packet:receive:SMSG_AUTH_RESPONSE', (packet: any) => {
-      // this.handleAuthResponse(packet);
-    });
-
-    this.on('packet:receive:SMSG_LOGIN_VERIFY_WORLD', (packet: any) => {
-      // this.handleWorldLogin(packet);
-    });
-
     this.on('packet:receive:SMSG_COMPRESSED_UPDATE_OBJECT', (packet: any) => {
       // this.HandleCompressedUpdateObject(packet);
     });
@@ -123,9 +119,9 @@ class GameHandler extends EventEmitter {
     }
   }
 
-  private async waitForOpcode<T>(opcode: GameOpcode): Promise<T> {
+  private async waitForOpcode<T>(opcode: number): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      log.info('waitForOpcode ', opcode);
+      log.info(`waitForOpcode 0x${opcode.toString(16)}`);
 
       this.deserializer.OnObjectDeserialized(opcode.toString())
         .one((scope: any, packet: T) => {
@@ -221,6 +217,18 @@ class GameHandler extends EventEmitter {
     return characters.Characters;
   }
 
+  public async join(character: Character) {
+    log.info('joining game with', character.toString());
+
+    const login = new CMsgPlayerLogin();
+    login.Guid = character.Guid;
+
+    this.serializer.Serialize(login);
+
+    const loginVerify = await this.waitForOpcode<ServerPacket>(GameOpcode.SMSG_LOGIN_VERIFY_WORLD);
+
+  }
+
   // Finalizes and sends given packet
   public send(packet: GamePacket) {
     const size = packet.offset;
@@ -244,15 +252,6 @@ class GameHandler extends EventEmitter {
     }
 
     return this.socket.send(packet);
-  }
-
-  // Attempts to join game with given character
-  public join(character: Character) {
-    log.info('joining game with', character.toString());
-
-    const gp = new GamePacket(GameOpcode.CMSG_PLAYER_LOGIN, 14);
-    gp.writeGUID(character.guid);
-    return this.send(gp);
   }
 
   public toHexString(byteArray: any) {

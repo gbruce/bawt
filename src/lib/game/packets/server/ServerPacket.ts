@@ -1,7 +1,14 @@
 import { Serialize, UInt16Prop } from '../../../net/Serialization';
 import { default as ObjectUtil } from '../../../utils/ObjectUtil';
+import { Factory } from '../../../../interface/Factory';
 import GameOpcode from '../../Opcode';
 import { Packet } from '../../../../interface/Packet';
+
+export class NewServerPacket implements Factory<Packet> {
+  public Create(...args: any[]) {
+    return new ServerPacket(args[0]);
+  }
+}
 
 export class ServerPacket implements Packet {
   constructor(opcode: number) {
