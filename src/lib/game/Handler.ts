@@ -22,6 +22,9 @@ import { EventEmitter } from 'events';
 import { GameSession } from './GameSession';
 import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse, NewSAuthResponse } from './packets/server/AuthResponse';
+import { SMsgLoginVerifyWorld, NewSMsgLoginVerifyWorld } from './packets/server/SMsgLoginVerifyWorld';
+import { SMsgSetProficiency, NewSMsgSetProficiency } from './packets/server/SMsgSetProficiency';
+import { SMsgSpellOGMiss, NewSMsgSpellOGMiss } from './packets/server/SMsgSpellOGMiss';
 import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
 import { NewServerPacket, ServerPacket } from './packets/server/ServerPacket';
 import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
@@ -47,6 +50,10 @@ const sOpcodeMap = new Map<number, Factory<Packet>>([
   [GameOpcode.SMSG_WARDEN_DATA, new NewServerPacket()],
   [GameOpcode.SMSG_ADDON_INFO, new NewServerPacket()],
   [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewServerPacket()],
+  [GameOpcode.SMSG_FORCE_MOVE_UNROOT, new NewServerPacket()],
+  [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewSMsgLoginVerifyWorld()],
+  [GameOpcode.SMSG_SET_PROFICIENCY, new NewSMsgSetProficiency()],
+  [GameOpcode.SMSG_SPELLLOGMISS, new NewSMsgSpellOGMiss()],
 ]);
 
 class GameHandler extends EventEmitter {

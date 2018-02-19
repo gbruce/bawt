@@ -65,6 +65,7 @@ class GameOpcode {
   public static SMSG_UPDATE_OBJECT                 = 0x00A9;
   public static SMSG_MONSTER_MOVE                  = 0x00DD;
   public static SMSG_TUTORIAL_FLAGS                = 0x00FD;
+  public static SMSG_FORCE_MOVE_UNROOT             = 0x00EA;
   public static SMSG_INITIALIZE_FACTIONS           = 0x0122;
   public static SMSG_SET_PROFICIENCY               = 0x0127;
   public static SMSG_ACTION_BUTTONS                = 0x0129;
@@ -81,6 +82,7 @@ class GameOpcode {
   public static SMSG_COMPRESSED_UPDATE_OBJECT      = 0x01F6;
   public static SMSG_ACCOUNT_DATA_TIMES            = 0x0209;
   public static SMSG_LOGIN_VERIFY_WORLD            = 0x0236;
+  public static SMSG_SPELLLOGMISS                  = 0x024B;
   public static SMSG_SPELL_NON_MELEE_DAMAGE_LOG    = 0x0250;
   public static SMSG_INIT_WORLD_STATES             = 0x02C2;
   public static SMSG_UPDATE_WORLD_STATE            = 0x02C3;
