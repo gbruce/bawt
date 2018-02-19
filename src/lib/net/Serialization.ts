@@ -42,6 +42,16 @@ export const UInt32Prop = (): Serialization => {
   };
 };
 
+export const UInt64Prop = (): Serialization => {
+  return {
+    serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeUint64(value),
+    deserialize: (target: any, buffer: ByteBuffer): Long => {
+      return buffer.readUint64()
+    },
+    size: (target: any, value: any): number => 8,
+  };
+};
+
 export const StringProp = (): Serialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeCString(value),
