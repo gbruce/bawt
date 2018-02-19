@@ -33,7 +33,7 @@ export const GameHeaderSerializer = {
     buffer.BE().writeUint16(buffer.capacity() - 2);
     buffer.LE().writeUint32(opcode);
 
-    if(crypt) {
+    if (crypt) {
       buffer.offset = 0;
       const array = readIntoByteArray(6, buffer);
       crypt.Encrypt(array, array.length);

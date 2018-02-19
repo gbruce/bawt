@@ -1,5 +1,6 @@
 
-import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop, ArrayProp } from '../../../net/Serialization';
+import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
+  ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Packet } from '../../../../interface/Packet';

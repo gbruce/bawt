@@ -68,7 +68,8 @@ export class Deserializer {
       }
 
       const headerDesc = this.headerDeserializer.deserialize(buffer, offset);
-      log.info(`headerBytes:${headerDesc.headerBytes} opcode:0x${headerDesc.opcode.toString(16)} packetBytes:${headerDesc.packetBytes}`);
+      log.info(`headerBytes:${headerDesc.headerBytes} opcode:0x${headerDesc.opcode.toString(16)}` +
+        `packetBytes:${headerDesc.packetBytes}`);
 
       offset += headerDesc.packetBytes;
 

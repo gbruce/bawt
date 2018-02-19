@@ -128,7 +128,7 @@ class Client implements Session {
     this.game = new GameHandler(this, this.socketFactory);
     this.character = new CharacterHandler(this);
   }
-  
+
   get key() {
     return this._key;
   }
@@ -159,7 +159,7 @@ class Client implements Session {
       return character.Name === this.configFile.character;
     });
 
-    if(selectedChar) {
+    if (selectedChar) {
       await this.game.join(selectedChar);
     }
 
