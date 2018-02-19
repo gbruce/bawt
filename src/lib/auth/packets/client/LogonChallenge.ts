@@ -1,59 +1,54 @@
-import { Serializable, Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
+import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   StringNoNullProp } from '../../../net/Serialization';
-import { ClientPacket } from './ClientPacket';
+import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
+import { Packet } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 
-export class NewLogonChallenge implements Factory<Serializable> {
-  public Create(...args: any[]) {
-    return new LogonChallenge();
-  }
-}
-
-export class LogonChallenge extends ClientPacket implements Serializable  {
+export class LogonChallenge extends AuthPacket {
   constructor() {
     super(Opcode.LOGON_CHALLENGE);
   }
 
   @Serialize(UInt8Prop())
-  public Unk1: number;
+  public Unk1: number = 0;
 
   @Serialize(UInt16Prop())
-  public Size: number;
+  public Size: number = 0;
 
   @Serialize(StringProp())
-  public Game: string;
+  public Game: string = '';
 
   @Serialize(UInt8Prop())
-  public Major: number;
+  public Major: number = 0;
 
   @Serialize(UInt8Prop())
-  public Minor: number;
+  public Minor: number = 0;
 
   @Serialize(UInt8Prop())
-  public Patch: number;
+  public Patch: number = 0;
 
   @Serialize(UInt16Prop())
-  public Build: number;
+  public Build: number = 0;
 
   @Serialize(StringProp())
-  public Platform: string;
+  public Platform: string = '';
 
   @Serialize(StringProp())
-  public Os: string;
+  public Os: string = '';
 
   @Serialize(StringNoNullProp())
-  public Locale: string;
+  public Locale: string = '';
 
   @Serialize(UInt32Prop())
-  public Timezone: number;
+  public Timezone: number = 0;
 
   @Serialize(UInt32Prop())
-  public IPAddress: number;
+  public IPAddress: number = 0;
 
   @Serialize(UInt8Prop())
-  public AccountLength: number;
+  public AccountLength: number = 0;
 
   @Serialize(StringNoNullProp())
-  public Account: string;
+  public Account: string = '';
 }

@@ -1,16 +1,10 @@
-import { Serializable, Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
+import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   StringNoNullProp, ByteArrayProp } from '../../../net/Serialization';
-import { ClientPacket } from './ClientPacket';
+import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
 import Opcode from '../../Opcode';
 
-export class NewLogonProof implements Factory<Serializable> {
-  public Create(...args: any[]) {
-    return new LogonProof();
-  }
-}
-
-export class LogonProof extends ClientPacket implements Serializable {
+export class LogonProof extends AuthPacket {
   constructor() {
     super(Opcode.LOGON_PROOF);
   }
@@ -25,8 +19,8 @@ export class LogonProof extends ClientPacket implements Serializable {
   public Crc: number[] = [];
 
   @Serialize(UInt8Prop())
-  public NumberKeys: number;
+  public NumberKeys: number = 0;
 
   @Serialize(UInt8Prop())
-  public Flags: number;
+  public Flags: number = 0;
 }

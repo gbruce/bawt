@@ -1,16 +1,15 @@
 import * as data from './lightshope.json';
 import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
-import Character from './lib/characters/Character';
+// import Character from './lib/characters/Character';
 import { default as CharacterHandler } from './lib/characters/Handler';
 import { default as GameHandler } from './lib/game/Handler';
-import { default as RealmsHandler } from './lib/realms/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
-import realm from './lib/realms/Realm';
 import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
 import { ConfigFactory } from './lib/auth/Config';
 import { RealmList } from './lib/auth/packets/server/RealmList';
+import Socket from 'lib/net/Socket';
 
 /*
 wow client packets prior to login
@@ -86,9 +85,9 @@ class Config {
   public os: string = 'OSX';
   public platform: string = 'x86';
   public raw: Raw = new Raw(this);
-  public majorVersion: number;
-  public minorVersion: number;
-  public patchVersion: number;
+  public majorVersion: number = 0;
+  public minorVersion: number = 0;
+  public patchVersion: number = 0;
 
   constructor() {
     this.version = '3.3.5';
@@ -108,38 +107,67 @@ class Config {
 
 class Client implements Session {
   public config: Config = new Config();
+  private configFile: any;
+  private socketFactory: SocketFactory;
   private auth: AuthHandler;
-  private realm: RealmsHandler;
   private character: CharacterHandler;
   private game: GameHandler;
   private selectedRealm: Realm|undefined;
-  private selectedChar: Character|undefined;
   private configFactory: ConfigFactory;
+  private _account: string = '';
+  private _key: number[] = [];
+
+  constructor() {
+    this.configFile = data as any;
+    SetVersion(this.configFile.version);
+    this.config.version = this.configFile.version;
+    this.config.build =  parseInt(this.configFile.build, 10);
+    this.socketFactory = new SocketFactory();
+    this.configFactory = new ConfigFactory();
+    this.auth = new AuthHandler(this.socketFactory);
+    this.game = new GameHandler(this, this.socketFactory);
+    this.character = new CharacterHandler(this);
+  }
 
   get key() {
-    return this.auth.key;
+    return this._key;
   }
 
   get account() {
-    return this.auth.account;
+    return this._account;
   }
 
-  public Start() {
-    const config = data as any;
-    SetVersion(config.version);
-    this.config.version = config.version;
-    this.config.build =  parseInt(config.build, 10);
-    const socketFactory = new SocketFactory();
-    this.configFactory = new ConfigFactory();
-    this.auth = new AuthHandler(socketFactory);
-    this.game = new GameHandler(this, socketFactory);
-    this.realm = new RealmsHandler(this);
-    this.character = new CharacterHandler(this);
+  public async Start() {
+    const authConfig = this.configFactory.Create(this.configFile.username,
+      this.configFile.password, GetVersion());
+    this._account = authConfig.Account;
+    const session = await this.auth.connect2(this.configFile.auth, this.configFile.port, authConfig);
+    if (this.auth.key) {
+      this._key = this.auth.key;
+    }
+    const realms = await session.GetRealms();
+    const selectedRealm = realms.find((realmItem): boolean => {
+      return realmItem.Name === this.configFile.realm;
+    });
 
-    this.auth.connect(config.auth, config.port);
+    if (selectedRealm) {
+      await this.game.connectToRealm(selectedRealm);
+    }
 
+    const characters = await this.game.getChars();
+    const selectedChar = characters.find((character) => {
+      return character.Name === this.configFile.character;
+    });
+
+    if (selectedChar) {
+      await this.game.join(selectedChar);
+    }
+
+//    this.auth.connect(config.auth, config.port);
+
+/*
     this.auth.on('connect', () => {
-      const authConfig = this.configFactory.Create(config.username,
+      const authConfig2 = this.configFactory.Create(config.username,
         config.password, GetVersion());
       this.auth.authenticate(authConfig);
     });
@@ -173,6 +201,7 @@ class Client implements Session {
         }
       }
     });
+    */
   }
 }
 

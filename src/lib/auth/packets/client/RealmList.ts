@@ -1,8 +1,8 @@
 import { Serialize, UInt32Prop } from '../../../net/Serialization';
-import { ClientPacket } from './ClientPacket';
+import { AuthPacket } from '../AuthPacket';
 import Opcode from '../../Opcode';
 
-export class RealmList extends ClientPacket {
+export class RealmList extends AuthPacket {
   constructor() {
     super(Opcode.REALM_LIST);
   }
