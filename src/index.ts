@@ -1,8 +1,6 @@
 import * as data from './lightshope.json';
 import { Session } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
-// import Character from './lib/characters/Character';
-import { default as CharacterHandler } from './lib/characters/Handler';
 import { default as GameHandler } from './lib/game/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
 import { SetVersion, Version, GetVersion } from './lib/utils/Version';
@@ -110,7 +108,6 @@ class Client implements Session {
   private configFile: any;
   private socketFactory: SocketFactory;
   private auth: AuthHandler;
-  private character: CharacterHandler;
   private game: GameHandler;
   private selectedRealm: Realm|undefined;
   private configFactory: ConfigFactory;
@@ -126,7 +123,6 @@ class Client implements Session {
     this.configFactory = new ConfigFactory();
     this.auth = new AuthHandler(this.socketFactory);
     this.game = new GameHandler(this, this.socketFactory);
-    this.character = new CharacterHandler(this);
   }
 
   get key() {
