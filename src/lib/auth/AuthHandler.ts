@@ -22,12 +22,6 @@ import { Packet } from '../../interface/Packet';
 
 const log = NewLogger('AuthHandler');
 
-function ToHexString(byteArray: any) {
-  return Array.from(byteArray, (byte: any) => {
-    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-  }).join(':');
-}
-
 const sOpcodeMap = new Map<number, Factory<Packet>>([
   [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
   [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
