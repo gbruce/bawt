@@ -158,46 +158,6 @@ class Client implements Session {
     if (selectedChar) {
       await this.game.join(selectedChar);
     }
-
-//    this.auth.connect(config.auth, config.port);
-
-/*
-    this.auth.on('connect', () => {
-      const authConfig2 = this.configFactory.Create(config.username,
-        config.password, GetVersion());
-      this.auth.authenticate(authConfig);
-    });
-
-    this.auth.on('authenticate', () => {
-      this.auth.requestRealmList();
-    });
-
-    this.auth.on('realmList', (realmList: RealmList) => {
-      const selectedRealm = realmList.Realms.find((realmItem): boolean => {
-        return realmItem.Name === config.realm;
-      });
-
-      if (selectedRealm) {
-        this.game.connectToRealm(selectedRealm);
-      }
-    });
-
-    this.game.on('authenticate', () => {
-      this.character.refresh();
-    });
-
-    this.character.on('refresh', () => {
-      this.selectedChar = this.character.list.find((character) => {
-        return character.name === config.character;
-      });
-
-      if (this.selectedRealm) {
-        if (this.selectedChar) {
-          this.game.join(this.selectedChar);
-        }
-      }
-    });
-    */
   }
 }
 
