@@ -11,7 +11,7 @@ import { NewLogger } from '../utils/Logger';
 import { IRealm } from '../../interface/IRealm';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
-import { ISocket, SocketEvent } from '../../interface/Socket';
+import { ISocket, SocketEvent } from '../../interface/ISocket';
 import { ISession } from '../../interface/ISession';
 import { IFactory } from '../../interface/IFactory';
 import { IPacket } from '../../interface/IPacket';

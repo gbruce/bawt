@@ -2,7 +2,7 @@ import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
 import AuthOpcode from './Opcode';
 import { IFactory } from '../../interface/IFactory';
-import { ISocket, SocketEvent } from '../../interface/Socket';
+import { ISocket, SocketEvent } from '../../interface/ISocket';
 import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
 import { SerializeObjectToBuffer } from '../net/Serialization';
