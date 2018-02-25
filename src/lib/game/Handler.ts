@@ -165,15 +165,11 @@ class GameHandler extends EventEmitter {
     });
   }
 
-  private connectInternal(realm: IRealm) {
-    return this.socket.connect2(realm.Host, realm.Port);
-  }
-
   // Connects to given host through given port
   public async connectToRealm(realm: IRealm) {
     this.realm = realm;
 
-    await this.connectInternal(realm);
+    await this.socket.connect2(realm.Host, realm.Port);
     const challenge = await this.waitForOpcode<SAuthChallenge>(GameOpcode.SMSG_AUTH_CHALLENGE);
     await this.handleChallenge(challenge);
     const response = await this.waitForOpcode<SAuthResponse>(GameOpcode.SMSG_AUTH_RESPONSE);

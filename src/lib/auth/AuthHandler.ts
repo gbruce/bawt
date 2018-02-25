@@ -55,10 +55,6 @@ class AuthHandler extends EventEmitter {
     return this.srp && this.srp.K;
   }
 
-  private async connectInternal(host: string, port: number) {
-    return this.socket.connect2(host, port);
-  }
-
   private async logonProof(srp: SRP) {
     return new Promise((resolve, reject) => {
       const logonProof = new LogonProof();
@@ -124,7 +120,7 @@ class AuthHandler extends EventEmitter {
   }
 
   public async connect2(host: string, port: number, config: AuthConfig): Promise<IAuthSession> {
-    await this.connectInternal(host, port);
+    await this.socket.connect2(host, port);
     await this.authenticate(config);
     return this;
   }
