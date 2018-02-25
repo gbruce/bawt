@@ -2,7 +2,7 @@ import { EventList, IEvent } from 'strongly-typed-events';
 import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
 import { IFactory } from '../../interface/IFactory';
 import { ISerializable } from '../../interface/Serializable';
-import { IPacket } from '../../interface/Packet';
+import { IPacket } from '../../interface/IPacket';
 import { ICrypt } from '../../interface/ICrypt';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';

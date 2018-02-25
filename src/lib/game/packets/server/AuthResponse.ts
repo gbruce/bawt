@@ -2,7 +2,7 @@
 import { Serialize, UInt8Prop } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/IPacket';
 import Opcode from '../../Opcode';
 
 export class NewSAuthResponse implements IFactory<IPacket> {

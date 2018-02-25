@@ -14,7 +14,7 @@ import { GetVersion, Version } from '../utils/Version';
 import { ISocket, SocketEvent } from '../../interface/Socket';
 import { ISession } from '../../interface/Session';
 import { IFactory } from '../../interface/IFactory';
-import { IPacket } from '../../interface/Packet';
+import { IPacket } from '../../interface/IPacket';
 import { EventEmitter } from 'events';
 import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse, NewSAuthResponse } from './packets/server/AuthResponse';

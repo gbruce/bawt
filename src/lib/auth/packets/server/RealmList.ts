@@ -4,7 +4,7 @@ import { AuthPacket } from '../AuthPacket';
 import { IFactory } from '../../../../interface/IFactory';
 import { IRealm as RealmInterface } from '../../../../interface/Realm';
 import { ISerializable } from '../../../../interface/Serializable';
-import { IPacket } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/IPacket';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 

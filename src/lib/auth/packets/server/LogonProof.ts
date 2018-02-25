@@ -1,7 +1,7 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from '../../../net/Serialization';
 import { AuthPacket } from '../AuthPacket';
 import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/IPacket';
 import Opcode from '../../Opcode';
 
 export class NewLogonProof implements IFactory<IPacket> {

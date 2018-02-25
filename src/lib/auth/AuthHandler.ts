@@ -18,7 +18,7 @@ import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
 import { IConfig as AuthConfig } from './Config';
 import { IAuthSession } from './AuthSession';
 import { IRealm } from '../../interface/Realm';
-import { IPacket } from '../../interface/Packet';
+import { IPacket } from '../../interface/IPacket';
 
 const log = NewLogger('AuthHandler');
 

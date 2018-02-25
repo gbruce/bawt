@@ -1,7 +1,7 @@
 import { Serialize, UInt16Prop, UInt32Prop } from '../../../net/Serialization';
 import { default as ObjectUtil } from '../../../utils/ObjectUtil';
 import AuthOpcode from '../../Opcode';
-import { IPacket } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/IPacket';
 import * as ByteBuffer from 'bytebuffer';
 
 export class ClientPacket implements IPacket {

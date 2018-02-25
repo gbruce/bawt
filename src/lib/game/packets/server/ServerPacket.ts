@@ -2,7 +2,7 @@ import { Serialize, UInt16Prop } from '../../../net/Serialization';
 import { default as ObjectUtil } from '../../../utils/ObjectUtil';
 import { IFactory } from '../../../../interface/IFactory';
 import GameOpcode from '../../Opcode';
-import { IPacket } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/IPacket';
 
 export class NewServerPacket implements IFactory<IPacket> {
   public Create(...args: any[]) {
