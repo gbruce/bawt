@@ -1,4 +1,4 @@
-import { Socket, SocketEvent } from '../../interface/Socket';
+import { ISocket, SocketEvent } from '../../interface/Socket';
 import { Socket as NetSocket } from 'net';
 import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { NewLogger } from '../utils/Logger';
@@ -11,7 +11,7 @@ enum SocketState {
   Connected,
 }
 
-export class SocketImpl implements Socket {
+export class SocketImpl implements ISocket {
   private onDataReceivedEvent: SimpleEventDispatcher<Buffer> = new SimpleEventDispatcher<Buffer>();
   private onPacketSentEvent: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
   private socket: NetSocket = new NetSocket();

@@ -2,7 +2,7 @@ import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
 import AuthOpcode from './Opcode';
 import { IFactory } from '../../interface/Factory';
-import { Socket, SocketEvent } from '../../interface/Socket';
+import { ISocket, SocketEvent } from '../../interface/Socket';
 import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
 import { SerializeObjectToBuffer } from '../net/Serialization';
@@ -30,12 +30,12 @@ const sOpcodeMap = new Map<number, IFactory<IPacket>>([
 
 class AuthHandler extends EventEmitter {
   private srp: SRP|null;
-  private socket: Socket;
+  private socket: ISocket;
   private serializer: Serializer;
   private deserializer: Deserializer;
 
   // Creates a new authentication handler
-  constructor(socketFactory: IFactory<Socket>) {
+  constructor(socketFactory: IFactory<ISocket>) {
     super();
 
     this.socket = socketFactory.Create();

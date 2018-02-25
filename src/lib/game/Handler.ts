@@ -11,7 +11,7 @@ import { NewLogger } from '../utils/Logger';
 import { IRealm } from '../../interface/Realm';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
-import { Socket, SocketEvent } from '../../interface/Socket';
+import { ISocket, SocketEvent } from '../../interface/Socket';
 import { ISession } from '../../interface/Session';
 import { IFactory } from '../../interface/Factory';
 import { IPacket } from '../../interface/Packet';
@@ -59,12 +59,12 @@ class GameHandler extends EventEmitter {
   private crypt: ICrypt|null = null;
   private realm: IRealm|null = null;
   private pingCount: number = 1;
-  private socket: Socket;
+  private socket: ISocket;
   private serializer: Serializer;
   private deserializer: Deserializer;
 
   // Creates a new game handler
-  constructor(session: ISession, socketFactory: IFactory<Socket>) {
+  constructor(session: ISession, socketFactory: IFactory<ISocket>) {
     super();
 
     this.socket = socketFactory.Create();

@@ -7,7 +7,7 @@ export enum SocketEvent {
   OnDataSent = 'OnDataSent',
 }
 
-export interface Socket {
+export interface ISocket {
   connect2(host: string, port: number): Promise<void>;
   disconnect(): void;
   sendBuffer(buffer: ArrayBuffer): boolean;
