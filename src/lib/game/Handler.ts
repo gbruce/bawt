@@ -8,7 +8,7 @@ import GameOpcode from './Opcode';
 import SHA1 from '../crypto/hash/SHA1';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
-import { IRealm } from '../../interface/Realm';
+import { IRealm } from '../../interface/IRealm';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
 import { ISocket, SocketEvent } from '../../interface/Socket';
