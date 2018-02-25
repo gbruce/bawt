@@ -5,7 +5,6 @@ import { Crypt } from '../../interface/Crypt';
 import WowCrypt from '../crypto/WowCrypt';
 import RC4Crypt from '../crypto/RC4Crypt';
 import GameOpcode from './Opcode';
-import GamePacket from './Packet';
 import GUID from '../game/Guid';
 import SHA1 from '../crypto/hash/SHA1';
 import * as process from 'process';
@@ -87,7 +86,7 @@ class GameHandler extends EventEmitter {
     this.on('packet:receive:SMSG_ACCOUNT_DATA_TIMES', (packet: any) => {
     });
 
-    this.on('packet:receive:SMSG_PONG', (packet: GamePacket) => {
+    this.on('packet:receive:SMSG_PONG', (packet: any) => {
       packet.readUint16(); // size
       packet.readUint16(); // opcode
       const pingCount = packet.readUint32(); // size
@@ -213,7 +212,7 @@ class GameHandler extends EventEmitter {
     }).join(':');
   }
 
-  private HandleCompressedUpdateObject(packet: GamePacket): void {
+  private HandleCompressedUpdateObject(packet: any): void {
     log.debug('HandleCompressedUpdateObject');
     packet.readUint16(); // size
     packet.readUint16(); // opcode

@@ -1,5 +1,3 @@
-import Packet from '../lib/net/Packet';
-import { Packet as IPacket } from '../interface/Packet';
 import { ISimpleEvent } from 'strongly-typed-events';
 
 export enum SocketEvent {
