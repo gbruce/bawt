@@ -1,5 +1,5 @@
 import * as data from './lightshope.json';
-import { ISession } from './interface/Session';
+import { ISession } from './interface/ISession';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
 import { default as GameHandler } from './lib/game/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
