@@ -1,5 +1,5 @@
-import { Realm } from '../../interface/Realm';
+import { IRealm } from '../../interface/Realm';
 
 export interface AuthSession {
-  GetRealms(): Promise<Realm[]>;
+  GetRealms(): Promise<IRealm[]>;
 }

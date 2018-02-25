@@ -8,7 +8,7 @@ import GameOpcode from './Opcode';
 import SHA1 from '../crypto/hash/SHA1';
 import * as process from 'process';
 import { NewLogger } from '../utils/Logger';
-import { Realm } from '../../interface/Realm';
+import { IRealm } from '../../interface/Realm';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
 import { Socket, SocketEvent } from '../../interface/Socket';
@@ -57,7 +57,7 @@ class GameHandler extends EventEmitter {
   private session: Session;
   private useCrypt = false;
   private crypt: ICrypt|null = null;
-  private realm: Realm|null = null;
+  private realm: IRealm|null = null;
   private pingCount: number = 1;
   private socket: Socket;
   private serializer: Serializer;
@@ -166,12 +166,12 @@ class GameHandler extends EventEmitter {
     });
   }
 
-  private connectInternal(realm: Realm) {
+  private connectInternal(realm: IRealm) {
     return this.socket.connect2(realm.Host, realm.Port);
   }
 
   // Connects to given host through given port
-  public async connectToRealm(realm: Realm) {
+  public async connectToRealm(realm: IRealm) {
     this.realm = realm;
 
     await this.connectInternal(realm);

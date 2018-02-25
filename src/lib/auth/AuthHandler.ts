@@ -17,7 +17,7 @@ import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
   RealmListFactory } from './packets/server/RealmList';
 import { Config as AuthConfig } from './Config';
 import { AuthSession } from './AuthSession';
-import { Realm } from '../../interface/Realm';
+import { IRealm } from '../../interface/Realm';
 import { IPacket } from '../../interface/Packet';
 
 const log = NewLogger('AuthHandler');
@@ -129,8 +129,8 @@ class AuthHandler extends EventEmitter {
     return this;
   }
 
-  public async GetRealms(): Promise<Realm[]> {
-    return new Promise<Realm[]>((resolve, reject) => {
+  public async GetRealms(): Promise<IRealm[]> {
+    return new Promise<IRealm[]>((resolve, reject) => {
       const request = new CRealmList();
       this.serializer.Serialize(request);
 
