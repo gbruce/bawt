@@ -120,7 +120,7 @@ class AuthHandler extends EventEmitter {
   }
 
   public async connect2(host: string, port: number, config: AuthConfig): Promise<IAuthSession> {
-    await this.socket.connect2(host, port);
+    await this.socket.connect(host, port);
     await this.authenticate(config);
     return this;
   }

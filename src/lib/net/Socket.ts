@@ -34,7 +34,7 @@ export class Socket implements ISocket {
     });
   }
 
-  public connect2(host: string, port: number): Promise<void> {
+  public connect(host: string, port: number): Promise<void> {
     this.disconnect();
 
     this.host = host;

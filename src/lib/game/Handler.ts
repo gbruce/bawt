@@ -169,7 +169,7 @@ class GameHandler extends EventEmitter {
   public async connectToRealm(realm: IRealm) {
     this.realm = realm;
 
-    await this.socket.connect2(realm.Host, realm.Port);
+    await this.socket.connect(realm.Host, realm.Port);
     const challenge = await this.waitForOpcode<SAuthChallenge>(GameOpcode.SMSG_AUTH_CHALLENGE);
     await this.handleChallenge(challenge);
     const response = await this.waitForOpcode<SAuthResponse>(GameOpcode.SMSG_AUTH_RESPONSE);

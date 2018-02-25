@@ -8,7 +8,7 @@ export enum SocketEvent {
 }
 
 export interface ISocket {
-  connect2(host: string, port: number): Promise<void>;
+  connect(host: string, port: number): Promise<void>;
   disconnect(): void;
   sendBuffer(buffer: ArrayBuffer): boolean;
   OnDataReceived: ISimpleEvent<Buffer>;
