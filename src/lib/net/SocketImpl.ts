@@ -11,7 +11,7 @@ enum SocketState {
   Connected,
 }
 
-export class MySocket implements Socket {
+export class SocketImpl implements Socket {
   private onDataReceivedEvent: SimpleEventDispatcher<Buffer> = new SimpleEventDispatcher<Buffer>();
   private onPacketSentEvent: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
   private socket: NetSocket = new NetSocket();
