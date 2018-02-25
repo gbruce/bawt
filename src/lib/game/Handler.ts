@@ -75,7 +75,7 @@ class GameHandler extends EventEmitter {
     this.deserializer = new Deserializer(GameHeaderDeserializer, sOpcodeMap);
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
-    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => this.deserializer.Deserialize(args[0]));
+    this.socket.OnDataReceived.sub((arrayBuffer) => this.deserializer.Deserialize(arrayBuffer));
 
     // Holds session
     this.session = session;
@@ -169,13 +169,8 @@ class GameHandler extends EventEmitter {
     });
   }
 
-  private connectInternal(realm: Realm): Promise<GameSession> {
-    return new Promise((resolve, reject) => {
-      this.socket.on(SocketEvent.OnConnected, () => {
-        resolve();
-      });
-      this.socket.connect(realm.Host, realm.Port);
-    });
+  private connectInternal(realm: Realm) {
+    return this.socket.connect2(realm.Host, realm.Port);
   }
 
   // Connects to given host through given port
@@ -212,31 +207,6 @@ class GameHandler extends EventEmitter {
 
   }
 
-  // Finalizes and sends given packet
-  public send(packet: GamePacket) {
-    const size = packet.offset;
-
-    packet.BE();
-    packet.offset = 0;
-    packet.writeUint16(size - 2);
-
-    // Encrypt header
-    if (this.crypt) {
-      packet.offset = 0;
-      const array = readIntoByteArray(6, packet);
-      this.crypt.Encrypt(array, array.length);
-      packet.offset = 0;
-      packet.writeUint8(array[0]);
-      packet.writeUint8(array[1]);
-      packet.writeUint8(array[2]);
-      packet.writeUint8(array[3]);
-      packet.writeUint8(array[4]);
-      packet.writeUint8(array[5]);
-    }
-
-    return this.socket.send(packet);
-  }
-
   public toHexString(byteArray: any) {
     return Array.from(byteArray, (byte: any) => {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
@@ -247,19 +217,6 @@ class GameHandler extends EventEmitter {
     log.debug('HandleCompressedUpdateObject');
     packet.readUint16(); // size
     packet.readUint16(); // opcode
-  }
-
-  private ping() {
-    const gp = new GamePacket(GameOpcode.CMSG_PING, 14);
-    gp.writeUint32(this.pingCount); // ping
-    gp.writeUint32(50); // latency
-
-    this.pingCount++;
-    return this.send(gp);
-  }
-
-  private handlePong(gp: GamePacket) {
-
   }
 }
 

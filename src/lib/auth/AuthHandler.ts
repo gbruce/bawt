@@ -47,7 +47,7 @@ class AuthHandler extends EventEmitter {
     this.srp = null;
 
     // Listen for incoming data
-    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => this.deserializer.Deserialize(args[0]));
+    this.socket.OnDataReceived.sub((buffer) => this.deserializer.Deserialize(buffer));
   }
 
   // Retrieves the session key (if any)
@@ -56,12 +56,7 @@ class AuthHandler extends EventEmitter {
   }
 
   private async connectInternal(host: string, port: number) {
-    return new Promise((resolve, reject) => {
-      this.socket.connect(host, port);
-      this.socket.on(SocketEvent.OnConnected, () => {
-        resolve();
-      });
-    });
+    return this.socket.connect2(host, port);
   }
 
   private async logonProof(srp: SRP) {

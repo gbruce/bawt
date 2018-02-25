@@ -1,5 +1,6 @@
 import Packet from '../lib/net/Packet';
 import { Packet as IPacket } from '../interface/Packet';
+import { ISimpleEvent } from 'strongly-typed-events';
 
 export enum SocketEvent {
   OnConnected = 'OnConnected',
@@ -9,10 +10,9 @@ export enum SocketEvent {
 }
 
 export interface Socket {
-  connect(host: string, port: number): void;
+  connect2(host: string, port: number): Promise<void>;
   disconnect(): void;
-  send(packet: Packet): boolean;
-  sendPacket(packet: IPacket): boolean;
   sendBuffer(buffer: ArrayBuffer): boolean;
-  on(event: SocketEvent, listener: (...args: any[]) => void): void;
+  OnDataReceived: ISimpleEvent<Buffer>;
+  OnPacketSent: ISimpleEvent<ArrayBuffer>;
 }

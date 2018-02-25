@@ -7,7 +7,6 @@ import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
 import { ConfigFactory } from './lib/auth/Config';
 import { RealmList } from './lib/auth/packets/server/RealmList';
-import Socket from 'lib/net/Socket';
 
 /*
 wow client packets prior to login
