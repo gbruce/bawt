@@ -1,6 +1,6 @@
 import { IFactory } from '../../interface/IFactory';
 import { ISocket } from '../../interface/ISocket';
-import { Socket } from './SocketImpl';
+import { Socket } from './Socket';
 
 export class SocketFactory implements IFactory<ISocket> {
   public Create(): ISocket {
