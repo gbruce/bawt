@@ -1,13 +1,13 @@
 import sha1 = require('jsbn/lib/sha1');
 import RC4 = require('jsbn/lib/rc4');
 import ArrayUtil from '../utils/ArrayUtil';
-import { Crypt } from '../../interface/Crypt';
+import { ICrypt } from '../../interface/Crypt';
 import { NewLogger } from '../utils/Logger';
 
 const HMAC = sha1.HMAC;
 const log = NewLogger('crypto/RC4Crypt');
 
-class RC4Crypt implements Crypt {
+class RC4Crypt implements ICrypt {
   private myEncrypt: RC4|null;
   private myDecrypt: RC4|null;
 

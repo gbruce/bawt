@@ -3,7 +3,7 @@ import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization'
 import { Factory } from '../../interface/Factory';
 import { Serializable } from '../../interface/Serializable';
 import { IPacket } from '../../interface/Packet';
-import { Crypt } from '../../interface/Crypt';
+import { ICrypt } from '../../interface/Crypt';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
 
@@ -17,7 +17,7 @@ export interface HeaderDesc {
 
 export interface HeaderDeserializer {
   deserialize(buffer: Buffer, offset: number): HeaderDesc;
-  decrypt(buffer: Buffer, offset: number, crypt: Crypt): void;
+  decrypt(buffer: Buffer, offset: number, crypt: ICrypt): void;
 }
 
 export const AuthHeaderDeserializer = {
@@ -28,7 +28,7 @@ export const AuthHeaderDeserializer = {
       packetBytes: buffer.length,
     };
   },
-  decrypt: (buffer: Buffer, offset: number, crypt: Crypt): void => {
+  decrypt: (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(0, 1);
     crypt.Decrypt(header, 1);
   },
@@ -44,7 +44,7 @@ export const GameHeaderDeserializer = {
       packetBytes: size,
     };
   },
-  decrypt: (buffer: Buffer, offset: number, crypt: Crypt): void => {
+  decrypt: (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(offset, offset + 4);
     crypt.Decrypt(header, 4);
   },
@@ -55,8 +55,8 @@ export class Deserializer {
 
   constructor(private headerDeserializer: HeaderDeserializer, private map: Map<number, Factory<IPacket>>) {}
 
-  private _crypt: Crypt|null = null;
-  public set Encryption(crypt: Crypt) {
+  private _crypt: ICrypt|null = null;
+  public set Encryption(crypt: ICrypt) {
     this._crypt = crypt;
   }
 

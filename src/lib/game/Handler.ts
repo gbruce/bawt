@@ -1,7 +1,7 @@
 import * as ByteBuffer from 'bytebuffer';
 
 import BigNum from '../crypto/BigNum';
-import { Crypt } from '../../interface/Crypt';
+import { ICrypt } from '../../interface/Crypt';
 import WowCrypt from '../crypto/WowCrypt';
 import RC4Crypt from '../crypto/RC4Crypt';
 import GameOpcode from './Opcode';
@@ -56,7 +56,7 @@ const sOpcodeMap = new Map<number, Factory<IPacket>>([
 class GameHandler extends EventEmitter {
   private session: Session;
   private useCrypt = false;
-  private crypt: Crypt|null = null;
+  private crypt: ICrypt|null = null;
   private realm: Realm|null = null;
   private pingCount: number = 1;
   private socket: Socket;
