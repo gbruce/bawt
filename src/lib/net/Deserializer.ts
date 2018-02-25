@@ -9,19 +9,19 @@ import { NewLogger } from '../utils/Logger';
 
 const log = NewLogger('net/Deserializer');
 
-export interface HeaderDesc {
+export interface IHeaderDesc {
   headerBytes: number;
   opcode: number;
   packetBytes: number;
 }
 
-export interface HeaderDeserializer {
-  deserialize(buffer: Buffer, offset: number): HeaderDesc;
+export interface IHeaderDeserializer {
+  deserialize(buffer: Buffer, offset: number): IHeaderDesc;
   decrypt(buffer: Buffer, offset: number, crypt: ICrypt): void;
 }
 
 export const AuthHeaderDeserializer = {
-  deserialize: (buffer: Buffer, offset: number): HeaderDesc => {
+  deserialize: (buffer: Buffer, offset: number): IHeaderDesc => {
     return {
       headerBytes: 1,
       opcode: buffer.readUInt8(0),
@@ -35,7 +35,7 @@ export const AuthHeaderDeserializer = {
 };
 
 export const GameHeaderDeserializer = {
-  deserialize: (buffer: Buffer, offset: number): HeaderDesc => {
+  deserialize: (buffer: Buffer, offset: number): IHeaderDesc => {
     const size = buffer.readUInt16BE(offset) + 2;
     const opcode = buffer.readUInt16LE(offset + 2);
     return {
@@ -53,7 +53,7 @@ export const GameHeaderDeserializer = {
 export class Deserializer {
   private events: EventList<Deserializer, IPacket> = new EventList<Deserializer, IPacket>();
 
-  constructor(private headerDeserializer: HeaderDeserializer, private map: Map<number, IFactory<IPacket>>) {}
+  constructor(private headerDeserializer: IHeaderDeserializer, private map: Map<number, IFactory<IPacket>>) {}
 
   private _crypt: ICrypt|null = null;
   public set Encryption(crypt: ICrypt) {
