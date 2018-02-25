@@ -16,7 +16,6 @@ import { ISession } from '../../interface/Session';
 import { IFactory } from '../../interface/Factory';
 import { IPacket } from '../../interface/Packet';
 import { EventEmitter } from 'events';
-import { GameSession } from './GameSession';
 import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse, NewSAuthResponse } from './packets/server/AuthResponse';
 import { SMsgLoginVerifyWorld, NewSMsgLoginVerifyWorld } from './packets/server/SMsgLoginVerifyWorld';
