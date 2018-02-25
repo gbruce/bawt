@@ -2,15 +2,15 @@ import { Serialize, UInt16Prop } from '../../../net/Serialization';
 import { default as ObjectUtil } from '../../../utils/ObjectUtil';
 import { Factory } from '../../../../interface/Factory';
 import GameOpcode from '../../Opcode';
-import { Packet } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/Packet';
 
-export class NewServerPacket implements Factory<Packet> {
+export class NewServerPacket implements Factory<IPacket> {
   public Create(...args: any[]) {
     return new ServerPacket(args[0]);
   }
 }
 
-export class ServerPacket implements Packet {
+export class ServerPacket implements IPacket {
   constructor(opcode: number) {
     this.Opcode = opcode;
     this._name = ObjectUtil.KeyByValue(GameOpcode, this.Opcode);

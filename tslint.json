@@ -5,7 +5,7 @@
     "variable-name": [true, "check-format", "allow-leading-underscore", "allow-pascal-case"],
     "quotemark": [true, "single"],
     "max-classes-per-file": [false],
-    "interface-name": [true, "never-prefix"],
+    "interface-name": [true, "always-prefix"],
     "no-bitwise": false,
     "no-empty": false,
     "object-literal-sort-keys": false,

@@ -2,11 +2,11 @@
 import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
-import { Packet } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/Packet';
 import * as Long from 'long';
 import Opcode from '../../Opcode';
 
-export class NewSMsgSetProficiency implements Factory<Packet> {
+export class NewSMsgSetProficiency implements Factory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgSetProficiency();
   }

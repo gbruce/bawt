@@ -1,6 +1,6 @@
 import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { SerializeObjectToBuffer, BufferLength } from '../net/Serialization';
-import { Packet } from '../../interface/Packet';
+import { IPacket } from '../../interface/Packet';
 import { Crypt } from '../../interface/Crypt';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
@@ -58,7 +58,7 @@ export class Serializer {
     this._crypt = crypt;
   }
 
-  public Serialize(packet: Packet) {
+  public Serialize(packet: IPacket) {
     const buffLength = this.headerSerializer.bytes + BufferLength(packet);
 
     const b = new ByteBuffer(buffLength).LE();

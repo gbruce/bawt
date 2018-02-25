@@ -14,7 +14,7 @@ import { GetVersion, Version } from '../utils/Version';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { Session } from '../../interface/Session';
 import { Factory } from '../../interface/Factory';
-import { Packet } from '../../interface/Packet';
+import { IPacket } from '../../interface/Packet';
 import { EventEmitter } from 'events';
 import { GameSession } from './GameSession';
 import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
@@ -40,7 +40,7 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
-const sOpcodeMap = new Map<number, Factory<Packet>>([
+const sOpcodeMap = new Map<number, Factory<IPacket>>([
   [GameOpcode.SMSG_AUTH_CHALLENGE, new NewSAuthChallenge()],
   [GameOpcode.SMSG_AUTH_RESPONSE, new NewSAuthResponse()],
   [GameOpcode.SMSG_CHAR_ENUM, new NewSMsgCharEnum()],

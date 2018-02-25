@@ -4,13 +4,13 @@ import { AuthPacket } from '../AuthPacket';
 import { Factory } from '../../../../interface/Factory';
 import { Realm as RealmInterface } from '../../../../interface/Realm';
 import { Serializable } from '../../../../interface/Serializable';
-import { Packet } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 
 const log = NewLogger('RealmList');
 
-export class RealmListFactory implements Factory<Packet> {
+export class RealmListFactory implements Factory<IPacket> {
   public Create(...args: any[]) {
     return new RealmList();
   }

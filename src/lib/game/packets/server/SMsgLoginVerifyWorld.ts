@@ -2,10 +2,10 @@
 import { Serialize, UInt32Prop, Float32Prop } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
 import { Factory } from '../../../../interface/Factory';
-import { Packet } from '../../../../interface/Packet';
+import { IPacket } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 
-export class NewSMsgLoginVerifyWorld implements Factory<Packet> {
+export class NewSMsgLoginVerifyWorld implements Factory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgLoginVerifyWorld();
   }

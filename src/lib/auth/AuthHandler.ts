@@ -18,11 +18,11 @@ import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
 import { Config as AuthConfig } from './Config';
 import { AuthSession } from './AuthSession';
 import { Realm } from '../../interface/Realm';
-import { Packet } from '../../interface/Packet';
+import { IPacket } from '../../interface/Packet';
 
 const log = NewLogger('AuthHandler');
 
-const sOpcodeMap = new Map<number, Factory<Packet>>([
+const sOpcodeMap = new Map<number, Factory<IPacket>>([
   [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
   [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
   [AuthOpcode.REALM_LIST, new RealmListFactory()],
