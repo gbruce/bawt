@@ -1,4 +1,4 @@
-import { ISerializable } from './Serializable';
+import { ISerializable } from './ISerializable';
 
 export interface IPacket extends ISerializable {
    readonly Opcode: number;

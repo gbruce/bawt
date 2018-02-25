@@ -4,7 +4,7 @@ import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from '../../../../interface/IFactory';
 import { IPacket } from '../../../../interface/IPacket';
-import { ISerializable } from '../../../../interface/Serializable';
+import { ISerializable } from '../../../../interface/ISerializable';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 import * as Long from 'long';

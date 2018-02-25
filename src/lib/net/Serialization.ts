@@ -1,5 +1,5 @@
 import { NewLogger } from '../utils/Logger';
-import { ISerializable } from '../../interface/Serializable';
+import { ISerializable } from '../../interface/ISerializable';
 import * as ByteBuffer from 'bytebuffer';
 import 'reflect-metadata';
 
