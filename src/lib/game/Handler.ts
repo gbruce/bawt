@@ -1,7 +1,7 @@
 import * as ByteBuffer from 'bytebuffer';
 
 import BigNum from '../crypto/BigNum';
-import { ICrypt } from '../../interface/Crypt';
+import { ICrypt } from '../../interface/ICrypt';
 import WowCrypt from '../crypto/WowCrypt';
 import RC4Crypt from '../crypto/RC4Crypt';
 import GameOpcode from './Opcode';

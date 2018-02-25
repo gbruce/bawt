@@ -1,7 +1,7 @@
 import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { SerializeObjectToBuffer, BufferLength } from '../net/Serialization';
 import { IPacket } from '../../interface/Packet';
-import { ICrypt } from '../../interface/Crypt';
+import { ICrypt } from '../../interface/ICrypt';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
 
