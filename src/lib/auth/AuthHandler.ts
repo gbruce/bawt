@@ -15,7 +15,7 @@ import { LogonProof } from './packets/client/LogonProof';
 import { RealmList as CRealmList } from './packets/client/RealmList';
 import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
   RealmListFactory } from './packets/server/RealmList';
-import { Config as AuthConfig } from './Config';
+import { IConfig as AuthConfig } from './Config';
 import { IAuthSession } from './AuthSession';
 import { IRealm } from '../../interface/Realm';
 import { IPacket } from '../../interface/Packet';

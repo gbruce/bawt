@@ -1,7 +1,7 @@
 import { IFactory } from '../../interface/Factory';
 import { Version } from '../utils/Version';
 
-export interface Config {
+export interface IConfig {
   readonly Account: string;
   readonly Password: string;
   readonly Game: string;
@@ -16,11 +16,11 @@ export interface Config {
   readonly IPAddress: number;
 }
 
-export class ConfigFactory implements IFactory<Config> {
+export class ConfigFactory implements IFactory<IConfig> {
   private reverse(value: string) {
     return value.split('').reverse().join('');
   }
-  public Create(account: string, password: string, version: Version): Config {
+  public Create(account: string, password: string, version: Version): IConfig {
     switch (version) {
       case Version.WoW_1_12_1:
         return {
