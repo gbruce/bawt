@@ -16,7 +16,7 @@ import { RealmList as CRealmList } from './packets/client/RealmList';
 import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
   RealmListFactory } from './packets/server/RealmList';
 import { Config as AuthConfig } from './Config';
-import { AuthSession } from './AuthSession';
+import { IAuthSession } from './AuthSession';
 import { IRealm } from '../../interface/Realm';
 import { IPacket } from '../../interface/Packet';
 
@@ -123,7 +123,7 @@ class AuthHandler extends EventEmitter {
     this.srp = srp;
   }
 
-  public async connect2(host: string, port: number, config: AuthConfig): Promise<AuthSession> {
+  public async connect2(host: string, port: number, config: AuthConfig): Promise<IAuthSession> {
     await this.connectInternal(host, port);
     await this.authenticate(config);
     return this;
