@@ -1,7 +1,7 @@
 import { EventList, IEvent } from 'strongly-typed-events';
 import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
 import { IFactory } from '../../interface/Factory';
-import { Serializable } from '../../interface/Serializable';
+import { ISerializable } from '../../interface/Serializable';
 import { IPacket } from '../../interface/Packet';
 import { ICrypt } from '../../interface/Crypt';
 import * as ByteBuffer from 'bytebuffer';

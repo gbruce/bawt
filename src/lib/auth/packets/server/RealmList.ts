@@ -3,7 +3,7 @@ import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
 import { AuthPacket } from '../AuthPacket';
 import { IFactory } from '../../../../interface/Factory';
 import { IRealm as RealmInterface } from '../../../../interface/Realm';
-import { Serializable } from '../../../../interface/Serializable';
+import { ISerializable } from '../../../../interface/Serializable';
 import { IPacket } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
@@ -16,7 +16,7 @@ export class RealmListFactory implements IFactory<IPacket> {
   }
 }
 
-export class Realm implements Serializable, RealmInterface {
+export class Realm implements ISerializable, RealmInterface {
   @Serialize(UInt32Prop())
   public Type: number = 0;
 

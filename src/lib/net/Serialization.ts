@@ -1,5 +1,5 @@
 import { NewLogger } from '../utils/Logger';
-import { Serializable } from '../../interface/Serializable';
+import { ISerializable } from '../../interface/Serializable';
 import * as ByteBuffer from 'bytebuffer';
 import 'reflect-metadata';
 
@@ -130,7 +130,7 @@ export function Serialize(serializer: Serialization): (target: any, propertyKey:
   };
 }
 
-export function SerializeObjectToBuffer(target: Serializable, buffer: ByteBuffer) {
+export function SerializeObjectToBuffer(target: ISerializable, buffer: ByteBuffer) {
   const keys = Reflect.ownKeys(target);
   for (const key of keys) {
     const serialization = Reflect.getMetadata(SerializationIdentifier, target,
@@ -146,7 +146,7 @@ export function SerializeObjectToBuffer(target: Serializable, buffer: ByteBuffer
   }
 }
 
-export function DeserializeObjectFromBuffer(target: Serializable, buffer: ByteBuffer) {
+export function DeserializeObjectFromBuffer(target: ISerializable, buffer: ByteBuffer) {
   const keys = Reflect.ownKeys(target);
   for (const key of keys) {
     const serialization = Reflect.getMetadata(SerializationIdentifier, target,
