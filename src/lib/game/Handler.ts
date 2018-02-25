@@ -12,7 +12,7 @@ import { IRealm } from '../../interface/Realm';
 import { setInterval } from 'timers';
 import { GetVersion, Version } from '../utils/Version';
 import { Socket, SocketEvent } from '../../interface/Socket';
-import { Session } from '../../interface/Session';
+import { ISession } from '../../interface/Session';
 import { IFactory } from '../../interface/Factory';
 import { IPacket } from '../../interface/Packet';
 import { EventEmitter } from 'events';
@@ -54,7 +54,7 @@ const sOpcodeMap = new Map<number, IFactory<IPacket>>([
 ]);
 
 class GameHandler extends EventEmitter {
-  private session: Session;
+  private session: ISession;
   private useCrypt = false;
   private crypt: ICrypt|null = null;
   private realm: IRealm|null = null;
@@ -64,7 +64,7 @@ class GameHandler extends EventEmitter {
   private deserializer: Deserializer;
 
   // Creates a new game handler
-  constructor(session: Session, socketFactory: IFactory<Socket>) {
+  constructor(session: ISession, socketFactory: IFactory<Socket>) {
     super();
 
     this.socket = socketFactory.Create();

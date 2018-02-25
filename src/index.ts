@@ -1,5 +1,5 @@
 import * as data from './lightshope.json';
-import { Session } from './interface/Session';
+import { ISession } from './interface/Session';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
 import { default as GameHandler } from './lib/game/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
@@ -102,7 +102,7 @@ class Config {
 
 }
 
-class Client implements Session {
+class Client implements ISession {
   public config: Config = new Config();
   private configFile: any;
   private socketFactory: SocketFactory;
