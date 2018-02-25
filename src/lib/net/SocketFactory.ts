@@ -1,4 +1,4 @@
-import { IFactory } from '../../interface/Factory';
+import { IFactory } from '../../interface/IFactory';
 import { ISocket } from '../../interface/Socket';
 import { SocketImpl } from './SocketImpl';
 

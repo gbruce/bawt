@@ -2,7 +2,7 @@ import * as ByteBuffer from 'bytebuffer';
 import { Serialize, UInt64Prop, StringProp,
   StringNoNullProp, ByteArrayProp, ConstByteBufferProp } from '../../../net/Serialization';
 import { ClientPacket } from './ClientPacket';
-import { IFactory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/IFactory';
 import * as Long from 'long';
 import Opcode from '../../Opcode';
 

@@ -1,7 +1,7 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from '../../../net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { IFactory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/IFactory';
 import { IRealm as RealmInterface } from '../../../../interface/Realm';
 import { ISerializable } from '../../../../interface/Serializable';
 import { IPacket } from '../../../../interface/Packet';

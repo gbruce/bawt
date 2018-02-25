@@ -1,7 +1,7 @@
 
 import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { IFactory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/IFactory';
 import { IPacket } from '../../../../interface/Packet';
 import * as Long from 'long';
 import Opcode from '../../Opcode';

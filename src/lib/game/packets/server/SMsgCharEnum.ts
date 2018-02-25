@@ -2,7 +2,7 @@
 import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
   ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { IFactory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/IFactory';
 import { IPacket } from '../../../../interface/Packet';
 import { ISerializable } from '../../../../interface/Serializable';
 import Opcode from '../../Opcode';
