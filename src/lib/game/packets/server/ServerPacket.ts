@@ -1,10 +1,10 @@
 import { Serialize, UInt16Prop } from '../../../net/Serialization';
 import { default as ObjectUtil } from '../../../utils/ObjectUtil';
-import { Factory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/Factory';
 import GameOpcode from '../../Opcode';
 import { IPacket } from '../../../../interface/Packet';
 
-export class NewServerPacket implements Factory<IPacket> {
+export class NewServerPacket implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new ServerPacket(args[0]);
   }

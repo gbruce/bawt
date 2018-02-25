@@ -1,7 +1,7 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   StringNoNullProp } from '../../../net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { Factory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/Factory';
 import { IPacket } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 

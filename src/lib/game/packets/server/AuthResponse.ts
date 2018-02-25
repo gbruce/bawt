@@ -1,11 +1,11 @@
 
 import { Serialize, UInt8Prop } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { Factory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/Factory';
 import { IPacket } from '../../../../interface/Packet';
 import Opcode from '../../Opcode';
 
-export class NewSAuthResponse implements Factory<IPacket> {
+export class NewSAuthResponse implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SAuthResponse();
   }

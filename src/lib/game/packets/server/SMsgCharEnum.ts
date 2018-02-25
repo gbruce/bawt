@@ -2,7 +2,7 @@
 import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
   ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { Factory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/Factory';
 import { IPacket } from '../../../../interface/Packet';
 import { Serializable } from '../../../../interface/Serializable';
 import Opcode from '../../Opcode';
@@ -37,7 +37,7 @@ enum EquipmentSlots
     EQUIPMENT_SLOT_END          = 19,
 }
 
-export class NewSMsgCharEnum implements Factory<IPacket> {
+export class NewSMsgCharEnum implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgCharEnum();
   }

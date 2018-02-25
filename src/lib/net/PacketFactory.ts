@@ -1,4 +1,4 @@
 
-import { Factory } from '../../interface/Factory';
+import { IFactory } from '../../interface/Factory';
 
-export const PacketMap = new Map<number, Factory<any>>();
+export const PacketMap = new Map<number, IFactory<any>>();

@@ -1,6 +1,6 @@
 import { EventList, IEvent } from 'strongly-typed-events';
 import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
-import { Factory } from '../../interface/Factory';
+import { IFactory } from '../../interface/Factory';
 import { Serializable } from '../../interface/Serializable';
 import { IPacket } from '../../interface/Packet';
 import { ICrypt } from '../../interface/Crypt';
@@ -53,7 +53,7 @@ export const GameHeaderDeserializer = {
 export class Deserializer {
   private events: EventList<Deserializer, IPacket> = new EventList<Deserializer, IPacket>();
 
-  constructor(private headerDeserializer: HeaderDeserializer, private map: Map<number, Factory<IPacket>>) {}
+  constructor(private headerDeserializer: HeaderDeserializer, private map: Map<number, IFactory<IPacket>>) {}
 
   private _crypt: ICrypt|null = null;
   public set Encryption(crypt: ICrypt) {

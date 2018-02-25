@@ -1,7 +1,7 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from '../../../net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { Factory } from '../../../../interface/Factory';
+import { IFactory } from '../../../../interface/Factory';
 import { Realm as RealmInterface } from '../../../../interface/Realm';
 import { Serializable } from '../../../../interface/Serializable';
 import { IPacket } from '../../../../interface/Packet';
@@ -10,7 +10,7 @@ import { NewLogger } from '../../../utils/Logger';
 
 const log = NewLogger('RealmList');
 
-export class RealmListFactory implements Factory<IPacket> {
+export class RealmListFactory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new RealmList();
   }

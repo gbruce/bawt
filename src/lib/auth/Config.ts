@@ -1,4 +1,4 @@
-import { Factory } from '../../interface/Factory';
+import { IFactory } from '../../interface/Factory';
 import { Version } from '../utils/Version';
 
 export interface Config {
@@ -16,7 +16,7 @@ export interface Config {
   readonly IPAddress: number;
 }
 
-export class ConfigFactory implements Factory<Config> {
+export class ConfigFactory implements IFactory<Config> {
   private reverse(value: string) {
     return value.split('').reverse().join('');
   }

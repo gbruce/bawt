@@ -1,7 +1,7 @@
 import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
 import AuthOpcode from './Opcode';
-import { Factory } from '../../interface/Factory';
+import { IFactory } from '../../interface/Factory';
 import { Socket, SocketEvent } from '../../interface/Socket';
 import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
@@ -22,7 +22,7 @@ import { IPacket } from '../../interface/Packet';
 
 const log = NewLogger('AuthHandler');
 
-const sOpcodeMap = new Map<number, Factory<IPacket>>([
+const sOpcodeMap = new Map<number, IFactory<IPacket>>([
   [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
   [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
   [AuthOpcode.REALM_LIST, new RealmListFactory()],
@@ -35,7 +35,7 @@ class AuthHandler extends EventEmitter {
   private deserializer: Deserializer;
 
   // Creates a new authentication handler
-  constructor(socketFactory: Factory<Socket>) {
+  constructor(socketFactory: IFactory<Socket>) {
     super();
 
     this.socket = socketFactory.Create();
