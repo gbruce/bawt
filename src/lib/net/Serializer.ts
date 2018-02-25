@@ -15,7 +15,7 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
-export interface HeaderSerializer {
+export interface IHeaderSerializer {
   bytes: number;
   serialize(opcode: number, buffer: ByteBuffer, crypt: ICrypt|null): void;
 }
@@ -51,7 +51,7 @@ export const GameHeaderSerializer = {
 export class Serializer {
   private event: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
 
-  constructor(private headerSerializer: HeaderSerializer) {}
+  constructor(private headerSerializer: IHeaderSerializer) {}
 
   private _crypt: ICrypt|null = null;
   public set Encryption(crypt: ICrypt) {
