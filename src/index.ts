@@ -136,7 +136,7 @@ class Client implements ISession {
     const authConfig = this.configFactory.Create(this.configFile.username,
       this.configFile.password, GetVersion());
     this._account = authConfig.Account;
-    const session = await this.auth.connect2(this.configFile.auth, this.configFile.port, authConfig);
+    const session = await this.auth.connect(this.configFile.auth, this.configFile.port, authConfig);
     if (this.auth.key) {
       this._key = this.auth.key;
     }
