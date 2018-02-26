@@ -1,22 +1,22 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from '../../../net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { Factory } from '../../../../interface/Factory';
-import { Realm as RealmInterface } from '../../../../interface/Realm';
-import { Serializable } from '../../../../interface/Serializable';
-import { Packet } from '../../../../interface/Packet';
+import { IFactory } from '../../../../interface/IFactory';
+import { IRealm as RealmInterface } from '../../../../interface/IRealm';
+import { ISerializable } from '../../../../interface/ISerializable';
+import { IPacket } from '../../../../interface/IPacket';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 
 const log = NewLogger('RealmList');
 
-export class RealmListFactory implements Factory<Packet> {
+export class RealmListFactory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new RealmList();
   }
 }
 
-export class Realm implements Serializable, RealmInterface {
+export class Realm implements ISerializable, RealmInterface {
   @Serialize(UInt32Prop())
   public Type: number = 0;
 

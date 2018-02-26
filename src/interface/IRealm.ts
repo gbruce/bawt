@@ -1,5 +1,5 @@
 
-export interface Realm {
+export interface IRealm {
   readonly Type: number;
   readonly Flags: number;
   readonly Name: string;

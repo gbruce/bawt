@@ -1,8 +1,8 @@
 import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
 import AuthOpcode from './Opcode';
-import { Factory } from '../../interface/Factory';
-import { Socket, SocketEvent } from '../../interface/Socket';
+import { IFactory } from '../../interface/IFactory';
+import { ISocket, SocketEvent } from '../../interface/ISocket';
 import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
 import { SerializeObjectToBuffer } from '../net/Serialization';
@@ -15,20 +15,14 @@ import { LogonProof } from './packets/client/LogonProof';
 import { RealmList as CRealmList } from './packets/client/RealmList';
 import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
   RealmListFactory } from './packets/server/RealmList';
-import { Config as AuthConfig } from './Config';
-import { AuthSession } from './AuthSession';
-import { Realm } from '../../interface/Realm';
-import { Packet } from '../../interface/Packet';
+import { IConfig as AuthConfig } from './Config';
+import { IAuthSession } from './AuthSession';
+import { IRealm } from '../../interface/IRealm';
+import { IPacket } from '../../interface/IPacket';
 
 const log = NewLogger('AuthHandler');
 
-function ToHexString(byteArray: any) {
-  return Array.from(byteArray, (byte: any) => {
-    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-  }).join(':');
-}
-
-const sOpcodeMap = new Map<number, Factory<Packet>>([
+const sOpcodeMap = new Map<number, IFactory<IPacket>>([
   [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
   [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
   [AuthOpcode.REALM_LIST, new RealmListFactory()],
@@ -36,12 +30,12 @@ const sOpcodeMap = new Map<number, Factory<Packet>>([
 
 class AuthHandler extends EventEmitter {
   private srp: SRP|null;
-  private socket: Socket;
+  private socket: ISocket;
   private serializer: Serializer;
   private deserializer: Deserializer;
 
   // Creates a new authentication handler
-  constructor(socketFactory: Factory<Socket>) {
+  constructor(socketFactory: IFactory<ISocket>) {
     super();
 
     this.socket = socketFactory.Create();
@@ -53,21 +47,12 @@ class AuthHandler extends EventEmitter {
     this.srp = null;
 
     // Listen for incoming data
-    this.socket.on(SocketEvent.OnDataReceived, (args: any[]) => this.deserializer.Deserialize(args[0]));
+    this.socket.OnDataReceived.sub((buffer) => this.deserializer.Deserialize(buffer));
   }
 
   // Retrieves the session key (if any)
   get key(): number[]|null {
     return this.srp && this.srp.K;
-  }
-
-  private async connectInternal(host: string, port: number) {
-    return new Promise((resolve, reject) => {
-      this.socket.connect(host, port);
-      this.socket.on(SocketEvent.OnConnected, () => {
-        resolve();
-      });
-    });
   }
 
   private async logonProof(srp: SRP) {
@@ -134,14 +119,14 @@ class AuthHandler extends EventEmitter {
     this.srp = srp;
   }
 
-  public async connect2(host: string, port: number, config: AuthConfig): Promise<AuthSession> {
-    await this.connectInternal(host, port);
+  public async connect(host: string, port: number, config: AuthConfig): Promise<IAuthSession> {
+    await this.socket.connect(host, port);
     await this.authenticate(config);
     return this;
   }
 
-  public async GetRealms(): Promise<Realm[]> {
-    return new Promise<Realm[]>((resolve, reject) => {
+  public async GetRealms(): Promise<IRealm[]> {
+    return new Promise<IRealm[]>((resolve, reject) => {
       const request = new CRealmList();
       this.serializer.Serialize(request);
 

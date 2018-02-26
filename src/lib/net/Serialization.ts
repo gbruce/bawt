@@ -1,5 +1,5 @@
 import { NewLogger } from '../utils/Logger';
-import { Serializable } from '../../interface/Serializable';
+import { ISerializable } from '../../interface/ISerializable';
 import * as ByteBuffer from 'bytebuffer';
 import 'reflect-metadata';
 
@@ -12,13 +12,13 @@ export type SerializeFunc = (target: any, value: any, buffer: ByteBuffer) => voi
 export type DeserializeFunc = (target: any, buffer: ByteBuffer) => any;
 export type SizeFunc = (target: any, value: any) => number;
 
-interface Serialization {
+interface ISerialization {
   serialize: SerializeFunc;
   deserialize: DeserializeFunc;
   size: SizeFunc;
 }
 
-export const UInt8Prop = (): Serialization => {
+export const UInt8Prop = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeUint8(value),
     deserialize: (target: any, buffer: ByteBuffer): number => buffer.readUint8(),
@@ -26,7 +26,7 @@ export const UInt8Prop = (): Serialization => {
   };
 };
 
-export const UInt16Prop = (bigEndian: boolean = false): Serialization => {
+export const UInt16Prop = (bigEndian: boolean = false): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.BE(bigEndian).writeUint16(value),
     deserialize: (target: any, buffer: ByteBuffer): number => buffer.BE(bigEndian).readUint16(),
@@ -34,7 +34,7 @@ export const UInt16Prop = (bigEndian: boolean = false): Serialization => {
   };
 };
 
-export const UInt32Prop = (): Serialization => {
+export const UInt32Prop = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeUint32(value),
     deserialize: (target: any, buffer: ByteBuffer): number => buffer.readUint32(),
@@ -42,7 +42,7 @@ export const UInt32Prop = (): Serialization => {
   };
 };
 
-export const UInt64Prop = (): Serialization => {
+export const UInt64Prop = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeUint64(value),
     deserialize: (target: any, buffer: ByteBuffer): Long => buffer.readUint64(),
@@ -50,7 +50,7 @@ export const UInt64Prop = (): Serialization => {
   };
 };
 
-export const StringProp = (): Serialization => {
+export const StringProp = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeCString(value),
     deserialize: (target: any, buffer: ByteBuffer): string => buffer.readCString(),
@@ -58,7 +58,7 @@ export const StringProp = (): Serialization => {
   };
 };
 
-export const StringNoNullProp = (): Serialization => {
+export const StringNoNullProp = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => (buffer as any).writeString(value),
     deserialize: (target: any, buffer: ByteBuffer): string => { throw new Error('Not implemented'); },
@@ -66,7 +66,7 @@ export const StringNoNullProp = (): Serialization => {
   };
 };
 
-export const ByteArrayProp = (sizeFunc: (target: any) => number): Serialization => {
+export const ByteArrayProp = (sizeFunc: (target: any) => number): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.append(value),
     deserialize: (target: any, buffer: ByteBuffer): number[] => {
@@ -81,7 +81,7 @@ export const ByteArrayProp = (sizeFunc: (target: any) => number): Serialization 
   };
 };
 
-export const ConstByteBufferProp = (): Serialization => {
+export const ConstByteBufferProp = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.append(value),
     deserialize: (target: any, buffer: ByteBuffer): ByteBuffer => {
@@ -93,7 +93,7 @@ export const ConstByteBufferProp = (): Serialization => {
   };
 };
 
-export const Float32Prop = (): Serialization => {
+export const Float32Prop = (): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => buffer.writeFloat32(value),
     deserialize: (target: any, buffer: ByteBuffer): number => buffer.readFloat32(),
@@ -102,7 +102,7 @@ export const Float32Prop = (): Serialization => {
 };
 
 export const ArrayProp = (sizeFunc: (target: any) => number,
-                          factoryFunc: () => any): Serialization => {
+                          factoryFunc: () => any): ISerialization => {
   return {
     serialize: (target: any, value: any, buffer: ByteBuffer) => {
       const array = value as any[];
@@ -124,17 +124,17 @@ export const ArrayProp = (sizeFunc: (target: any) => number,
   };
 };
 
-export function Serialize(serializer: Serialization): (target: any, propertyKey: string) => void {
+export function Serialize(serializer: ISerialization): (target: any, propertyKey: string) => void {
   return (target: any, propertyKey: string) => {
       Reflect.defineMetadata(SerializationIdentifier, serializer, target, propertyKey);
   };
 }
 
-export function SerializeObjectToBuffer(target: Serializable, buffer: ByteBuffer) {
+export function SerializeObjectToBuffer(target: ISerializable, buffer: ByteBuffer) {
   const keys = Reflect.ownKeys(target);
   for (const key of keys) {
     const serialization = Reflect.getMetadata(SerializationIdentifier, target,
-      key.toString()) as Serialization;
+      key.toString()) as ISerialization;
     if (serialization) {
       const value = Reflect.get(target, key.toString());
       serialization.serialize(target, value, buffer);
@@ -146,11 +146,11 @@ export function SerializeObjectToBuffer(target: Serializable, buffer: ByteBuffer
   }
 }
 
-export function DeserializeObjectFromBuffer(target: Serializable, buffer: ByteBuffer) {
+export function DeserializeObjectFromBuffer(target: ISerializable, buffer: ByteBuffer) {
   const keys = Reflect.ownKeys(target);
   for (const key of keys) {
     const serialization = Reflect.getMetadata(SerializationIdentifier, target,
-      key.toString()) as Serialization;
+      key.toString()) as ISerialization;
     if (serialization) {
       const value = serialization.deserialize(target, buffer);
       Reflect.set(target, key, value);
@@ -167,7 +167,7 @@ export function BufferLength(target: any): number {
   const keys = Reflect.ownKeys(target);
   for (const key of keys) {
     const serialization = Reflect.getMetadata(SerializationIdentifier, target,
-      key.toString()) as Serialization;
+      key.toString()) as ISerialization;
     if (serialization) {
       const value = Reflect.get(target, key.toString());
       size += serialization.size(target, value);

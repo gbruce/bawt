@@ -1,15 +1,12 @@
 import * as data from './lightshope.json';
-import { Session } from './interface/Session';
+import { ISession } from './interface/ISession';
 import { default as AuthHandler } from './lib/auth/AuthHandler';
-// import Character from './lib/characters/Character';
-import { default as CharacterHandler } from './lib/characters/Handler';
 import { default as GameHandler } from './lib/game/Handler';
 import { Realm } from './lib/auth/packets/server/RealmList';
 import { SetVersion, Version, GetVersion } from './lib/utils/Version';
 import { SocketFactory } from './lib/net/SocketFactory';
 import { ConfigFactory } from './lib/auth/Config';
 import { RealmList } from './lib/auth/packets/server/RealmList';
-import Socket from 'lib/net/Socket';
 
 /*
 wow client packets prior to login
@@ -105,12 +102,11 @@ class Config {
 
 }
 
-class Client implements Session {
+class Client implements ISession {
   public config: Config = new Config();
   private configFile: any;
   private socketFactory: SocketFactory;
   private auth: AuthHandler;
-  private character: CharacterHandler;
   private game: GameHandler;
   private selectedRealm: Realm|undefined;
   private configFactory: ConfigFactory;
@@ -126,7 +122,6 @@ class Client implements Session {
     this.configFactory = new ConfigFactory();
     this.auth = new AuthHandler(this.socketFactory);
     this.game = new GameHandler(this, this.socketFactory);
-    this.character = new CharacterHandler(this);
   }
 
   get key() {
@@ -141,7 +136,7 @@ class Client implements Session {
     const authConfig = this.configFactory.Create(this.configFile.username,
       this.configFile.password, GetVersion());
     this._account = authConfig.Account;
-    const session = await this.auth.connect2(this.configFile.auth, this.configFile.port, authConfig);
+    const session = await this.auth.connect(this.configFile.auth, this.configFile.port, authConfig);
     if (this.auth.key) {
       this._key = this.auth.key;
     }
@@ -162,46 +157,6 @@ class Client implements Session {
     if (selectedChar) {
       await this.game.join(selectedChar);
     }
-
-//    this.auth.connect(config.auth, config.port);
-
-/*
-    this.auth.on('connect', () => {
-      const authConfig2 = this.configFactory.Create(config.username,
-        config.password, GetVersion());
-      this.auth.authenticate(authConfig);
-    });
-
-    this.auth.on('authenticate', () => {
-      this.auth.requestRealmList();
-    });
-
-    this.auth.on('realmList', (realmList: RealmList) => {
-      const selectedRealm = realmList.Realms.find((realmItem): boolean => {
-        return realmItem.Name === config.realm;
-      });
-
-      if (selectedRealm) {
-        this.game.connectToRealm(selectedRealm);
-      }
-    });
-
-    this.game.on('authenticate', () => {
-      this.character.refresh();
-    });
-
-    this.character.on('refresh', () => {
-      this.selectedChar = this.character.list.find((character) => {
-        return character.name === config.character;
-      });
-
-      if (this.selectedRealm) {
-        if (this.selectedChar) {
-          this.game.join(this.selectedChar);
-        }
-      }
-    });
-    */
   }
 }
 

@@ -1,41 +1,41 @@
 import { EventList, IEvent } from 'strongly-typed-events';
 import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
-import { Factory } from '../../interface/Factory';
-import { Serializable } from '../../interface/Serializable';
-import { Packet } from '../../interface/Packet';
-import { Crypt } from '../../interface/Crypt';
+import { IFactory } from '../../interface/IFactory';
+import { ISerializable } from '../../interface/ISerializable';
+import { IPacket } from '../../interface/IPacket';
+import { ICrypt } from '../../interface/ICrypt';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
 
 const log = NewLogger('net/Deserializer');
 
-export interface HeaderDesc {
+export interface IHeaderDesc {
   headerBytes: number;
   opcode: number;
   packetBytes: number;
 }
 
-export interface HeaderDeserializer {
-  deserialize(buffer: Buffer, offset: number): HeaderDesc;
-  decrypt(buffer: Buffer, offset: number, crypt: Crypt): void;
+export interface IHeaderDeserializer {
+  deserialize(buffer: Buffer, offset: number): IHeaderDesc;
+  decrypt(buffer: Buffer, offset: number, crypt: ICrypt): void;
 }
 
 export const AuthHeaderDeserializer = {
-  deserialize: (buffer: Buffer, offset: number): HeaderDesc => {
+  deserialize: (buffer: Buffer, offset: number): IHeaderDesc => {
     return {
       headerBytes: 1,
       opcode: buffer.readUInt8(0),
       packetBytes: buffer.length,
     };
   },
-  decrypt: (buffer: Buffer, offset: number, crypt: Crypt): void => {
+  decrypt: (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(0, 1);
     crypt.Decrypt(header, 1);
   },
 };
 
 export const GameHeaderDeserializer = {
-  deserialize: (buffer: Buffer, offset: number): HeaderDesc => {
+  deserialize: (buffer: Buffer, offset: number): IHeaderDesc => {
     const size = buffer.readUInt16BE(offset) + 2;
     const opcode = buffer.readUInt16LE(offset + 2);
     return {
@@ -44,19 +44,19 @@ export const GameHeaderDeserializer = {
       packetBytes: size,
     };
   },
-  decrypt: (buffer: Buffer, offset: number, crypt: Crypt): void => {
+  decrypt: (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(offset, offset + 4);
     crypt.Decrypt(header, 4);
   },
 };
 
 export class Deserializer {
-  private events: EventList<Deserializer, Packet> = new EventList<Deserializer, Packet>();
+  private events: EventList<Deserializer, IPacket> = new EventList<Deserializer, IPacket>();
 
-  constructor(private headerDeserializer: HeaderDeserializer, private map: Map<number, Factory<Packet>>) {}
+  constructor(private headerDeserializer: IHeaderDeserializer, private map: Map<number, IFactory<IPacket>>) {}
 
-  private _crypt: Crypt|null = null;
-  public set Encryption(crypt: Crypt) {
+  private _crypt: ICrypt|null = null;
+  public set Encryption(crypt: ICrypt) {
     this._crypt = crypt;
   }
 

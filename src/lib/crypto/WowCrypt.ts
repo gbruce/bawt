@@ -1,10 +1,10 @@
 
-import { Crypt } from '../../interface/Crypt';
+import { ICrypt } from '../../interface/ICrypt';
 import { NewLogger } from '../utils/Logger';
 
 const log = NewLogger('crypto/WowCrypt');
 
-export default class WoWCrypt implements Crypt
+export default class WoWCrypt implements ICrypt
 {
   private initialised = false;
 

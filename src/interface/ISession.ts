@@ -1,5 +1,5 @@
 
-export interface Session {
+export interface ISession {
   config: any;
   key: number[]|null;
   account: string;

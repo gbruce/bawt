@@ -2,9 +2,9 @@
 import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
   ArrayProp } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { Factory } from '../../../../interface/Factory';
-import { Packet } from '../../../../interface/Packet';
-import { Serializable } from '../../../../interface/Serializable';
+import { IFactory } from '../../../../interface/IFactory';
+import { IPacket } from '../../../../interface/IPacket';
+import { ISerializable } from '../../../../interface/ISerializable';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 import * as Long from 'long';
@@ -37,7 +37,7 @@ enum EquipmentSlots
     EQUIPMENT_SLOT_END          = 19,
 }
 
-export class NewSMsgCharEnum implements Factory<Packet> {
+export class NewSMsgCharEnum implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgCharEnum();
   }
@@ -56,7 +56,7 @@ export class SMsgCharEnum extends ServerPacket {
   public Characters: Character[] = [];
 }
 
-export class EquipmentSlot implements Serializable {
+export class EquipmentSlot implements ISerializable {
   public Name = 'Equipment';
 
   @Serialize(UInt32Prop())
@@ -66,7 +66,7 @@ export class EquipmentSlot implements Serializable {
   public InventoryType: number = 0;
 }
 
-export class Character implements Serializable {
+export class Character implements ISerializable {
 
   @Serialize(UInt64Prop())
   public Guid: Long = new Long(0);

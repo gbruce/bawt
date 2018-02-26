@@ -1,9 +1,9 @@
 import { Serialize, UInt8Prop } from '../../net/Serialization';
 import { default as ObjectUtil } from '../../utils/ObjectUtil';
 import AuthOpcode from '../Opcode';
-import { Packet } from '../../../interface/Packet';
+import { IPacket } from '../../../interface/IPacket';
 
-export class AuthPacket implements Packet {
+export class AuthPacket implements IPacket {
   constructor(private _opcode: number) {
     this._name = ObjectUtil.KeyByValue(AuthOpcode, _opcode);
   }

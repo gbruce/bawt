@@ -1,119 +1,77 @@
-import * as ByteBuffer from 'bytebuffer';
-import { EventEmitter } from 'events';
+import { ISocket, SocketEvent } from '../../interface/ISocket';
 import { Socket as NetSocket } from 'net';
-import { default as Packet } from '../net/Packet';
-import * as process from 'process';
+import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { NewLogger } from '../utils/Logger';
 
-const log = NewLogger('net/Socket');
+const log = NewLogger('MySocket');
 
-// Base-class for any socket including signals and host/port management
-class Socket extends EventEmitter {
-  // Maximum buffer capacity
-  // TODO: Arbitrarily chosen, determine this cap properly
-  public static BUFFER_CAP: number = 2048;
-
-  protected host: string|null;
-  protected port: any;
-  protected buffer: ByteBuffer;
-  private uri: any;
-  private socket: NetSocket;
-  private remaining: boolean;
-  private socketOpen: boolean = false;
-
-  // Creates a new socket
-  constructor() {
-    super();
-
-    // Holds the host, port and uri currently connected to (if any)
-    this.host = null;
-    this.port = NaN;
-    this.uri = null;
-
-    // Holds buffered data
-    this.buffer = new ByteBuffer(0, ByteBuffer.LITTLE_ENDIAN, false);
-
-    // Holds incoming packet's remaining size in bytes (false if no packet is being handled)
-    this.remaining = false;
-  }
-
-  // Whether this socket is currently connected
-  get connected() {
-    return this.socketOpen;
-  }
-
-  // Connects to given host through given port (if any; default port is implementation specific)
-  public connect(host: string, port: number = NaN) {
-    if (!this.connected) {
-      this.host = host;
-      this.port = port;
-      this.uri = this.host + ':' + this.port;
-      this.remaining = false;
-
-      this.socket = new NetSocket();
-      this.socket.connect(this.port, this.host, () => {
-        this.socketOpen = true;
-        this.emit('connect');
-      });
-
-      this.socket.on('close', () => {
-        this.socketOpen = false;
-        this.emit('disconnect');
-      });
-
-      this.socket.on('data', (data: Buffer) => {
-        log.info('ondata ' + data.byteLength + ' bytes');
-        const index = this.buffer.offset;
-        this.buffer.append(data);
-
-        this.emit('data:receive', data);
-
-        if (this.buffer.remaining() === 0 && this.buffer.capacity() > Socket.BUFFER_CAP) {
-           this.buffer.reset();
-        }
-      });
-
-      this.socket.on('error', (err: Error) => {
-        this.socketOpen = false;
-        log.error(err.message);
-      });
-
-      log.info('connecting to game-server @', this.host, ':', this.port);
-    }
-
-    return this;
-  }
-
-  // Attempts to reconnect to cached host and port
-  public reconnect() {
-    if (!this.connected && this.host && this.port) {
-      this.connect(this.host, this.port);
-    }
-    return this;
-  }
-
-  // Disconnects this socket
-  public disconnect() {
-    if (this.connected) {
-      this.socket.end();
-    }
-    return this;
-  }
-
-  // Finalizes and sends given packet
-  public send(packet: Packet) {
-    if (this.connected) {
-      packet.finalize();
-
-      log.info(`==> [Packet opcode:${packet.opcodeName} size:${packet.capacity()}]`);
-
-      this.socket.write(packet.buffer);
-      this.emit('packet:send', packet);
-      return true;
-    }
-
-    return false;
-  }
+enum SocketState {
+  Disconnected,
+  Connecting,
+  Connected,
 }
 
-export default Socket;
+export class Socket implements ISocket {
+  private onDataReceivedEvent: SimpleEventDispatcher<Buffer> = new SimpleEventDispatcher<Buffer>();
+  private onPacketSentEvent: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
+  private socket: NetSocket = new NetSocket();
+  private host: string = '';
+  private port: number = 0;
+  private state: SocketState = SocketState.Disconnected;
+
+  constructor() {
+    this.socket.on('close', () => {
+      this.state = SocketState.Disconnected;
+    });
+
+    this.socket.on('data', (data: Buffer) => {
+      log.info('ondata ' + data.byteLength + ' bytes');
+      this.onDataReceivedEvent.dispatch(data);
+    });
+
+    this.socket.on('error', (err: Error) => {
+      log.error(err.message);
+    });
+  }
+
+  public connect(host: string, port: number): Promise<void> {
+    this.disconnect();
+
+    this.host = host;
+    this.port = port;
+    this.state = SocketState.Connecting;
+
+    return new Promise((resolve, reject) => {
+      this.socket.connect(this.port, this.host, () => {
+        this.state = SocketState.Connected;
+        resolve();
+      });
+    });
+  }
+
+  public disconnect(): void {
+    if (this.state !== SocketState.Disconnected) {
+      this.socket.end();
+    }
+  }
+
+  public sendBuffer(buffer: ArrayBuffer): boolean {
+    if (this.state !==  SocketState.Connected) {
+      return false;
+    }
+
+    this.socket.write(buffer);
+    this.onPacketSentEvent.dispatch(buffer);
+    return true;
+  }
+
+  public get OnDataReceived(): ISimpleEvent<Buffer>
+  {
+    return this.onDataReceivedEvent.asEvent();
+  }
+
+  public get OnPacketSent(): ISimpleEvent<ArrayBuffer>
+  {
+    return this.onPacketSentEvent.asEvent();
+  }
+}

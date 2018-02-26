@@ -1,9 +1,9 @@
-import { Factory } from '../../interface/Factory';
-import { Socket } from '../../interface/Socket';
-import { MySocket } from './MySocket';
+import { IFactory } from '../../interface/IFactory';
+import { ISocket } from '../../interface/ISocket';
+import { Socket } from './Socket';
 
-export class SocketFactory implements Factory<Socket> {
-  public Create(): Socket {
-    return new MySocket();
+export class SocketFactory implements IFactory<ISocket> {
+  public Create(): ISocket {
+    return new Socket();
   }
 }

@@ -1,7 +1,7 @@
 import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { SerializeObjectToBuffer, BufferLength } from '../net/Serialization';
-import { Packet } from '../../interface/Packet';
-import { Crypt } from '../../interface/Crypt';
+import { IPacket } from '../../interface/IPacket';
+import { ICrypt } from '../../interface/ICrypt';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
 
@@ -15,21 +15,21 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
-export interface HeaderSerializer {
+export interface IHeaderSerializer {
   bytes: number;
-  serialize(opcode: number, buffer: ByteBuffer, crypt: Crypt|null): void;
+  serialize(opcode: number, buffer: ByteBuffer, crypt: ICrypt|null): void;
 }
 
 export const AuthHeaderSerializer = {
   bytes: 1,
-  serialize: (opcode: number, buffer: ByteBuffer, crypt: Crypt|null) => {
+  serialize: (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
     buffer.writeUint8(opcode);
   },
 };
 
 export const GameHeaderSerializer = {
   bytes: 6,
-  serialize: (opcode: number, buffer: ByteBuffer, crypt: Crypt|null) => {
+  serialize: (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
     buffer.BE().writeUint16(buffer.capacity() - 2);
     buffer.LE().writeUint32(opcode);
 
@@ -51,14 +51,14 @@ export const GameHeaderSerializer = {
 export class Serializer {
   private event: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
 
-  constructor(private headerSerializer: HeaderSerializer) {}
+  constructor(private headerSerializer: IHeaderSerializer) {}
 
-  private _crypt: Crypt|null = null;
-  public set Encryption(crypt: Crypt) {
+  private _crypt: ICrypt|null = null;
+  public set Encryption(crypt: ICrypt) {
     this._crypt = crypt;
   }
 
-  public Serialize(packet: Packet) {
+  public Serialize(packet: IPacket) {
     const buffLength = this.headerSerializer.bytes + BufferLength(packet);
 
     const b = new ByteBuffer(buffLength).LE();

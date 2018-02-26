@@ -1,15 +1,15 @@
 
 import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from '../../../net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { Factory } from '../../../../interface/Factory';
-import { Packet } from '../../../../interface/Packet';
+import { IFactory } from '../../../../interface/IFactory';
+import { IPacket } from '../../../../interface/IPacket';
 import * as Long from 'long';
 import Opcode from '../../Opcode';
 import { NewLogger } from '../../../utils/Logger';
 
 const log = NewLogger('SMsgSpellOGMiss');
 
-export class NewSMsgSpellOGMiss implements Factory<Packet> {
+export class NewSMsgSpellOGMiss implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgSpellOGMiss();
   }
