@@ -1,6 +1,9 @@
 
 export interface ISession {
-  config: any;
+  // config: any;
   key: number[]|null;
   account: string;
+  build: number;
+
+  Start(): void;
 }

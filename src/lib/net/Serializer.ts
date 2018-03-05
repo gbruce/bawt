@@ -2,8 +2,10 @@ import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { SerializeObjectToBuffer, BufferLength } from '../net/Serialization';
 import { IPacket } from '../../interface/IPacket';
 import { ICrypt } from '../../interface/ICrypt';
+import { ISerializer } from '../../interface/ISerializer';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
+import { injectable, inject } from "inversify";
 
 const log = NewLogger('net/Serializer');
 
@@ -15,21 +17,25 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
+type serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => void;
+
 export interface IHeaderSerializer {
   bytes: number;
-  serialize(opcode: number, buffer: ByteBuffer, crypt: ICrypt|null): void;
+  serialize: serializeFunc;
 }
 
-export const AuthHeaderSerializer = {
-  bytes: 1,
-  serialize: (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
+@injectable()
+export class AuthHeaderSerializer implements IHeaderSerializer {
+  bytes: number = 1;
+  serialize: serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
     buffer.writeUint8(opcode);
-  },
-};
+  };
+}
 
-export const GameHeaderSerializer = {
-  bytes: 6,
-  serialize: (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
+@injectable()
+export class GameHeaderSerializer implements IHeaderSerializer {
+  bytes: number = 6;
+  serialize: serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
     buffer.BE().writeUint16(buffer.capacity() - 2);
     buffer.LE().writeUint32(opcode);
 
@@ -45,13 +51,14 @@ export const GameHeaderSerializer = {
       buffer.writeUint8(array[4]);
       buffer.writeUint8(array[5]);
     }
-  },
-};
+  };
+}
 
-export class Serializer {
+@injectable()
+export class Serializer implements ISerializer {
   private event: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
 
-  constructor(private headerSerializer: IHeaderSerializer) {}
+  constructor(@inject('IHeaderSerializer') private headerSerializer: IHeaderSerializer) {}
 
   private _crypt: ICrypt|null = null;
   public set Encryption(crypt: ICrypt) {

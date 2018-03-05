@@ -4,8 +4,10 @@ import { IFactory } from '../../interface/IFactory';
 import { ISerializable } from '../../interface/ISerializable';
 import { IPacket } from '../../interface/IPacket';
 import { ICrypt } from '../../interface/ICrypt';
+import { IDeserializer } from '../../interface/IDeserializer';
 import * as ByteBuffer from 'bytebuffer';
 import { NewLogger } from '../utils/Logger';
+import { injectable, inject } from "inversify";
 
 const log = NewLogger('net/Deserializer');
 
@@ -15,27 +17,32 @@ export interface IHeaderDesc {
   packetBytes: number;
 }
 
+type deserializeFunc = (buffer: Buffer, offset: number) => IHeaderDesc;
+type decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt) => void;
+
 export interface IHeaderDeserializer {
   deserialize(buffer: Buffer, offset: number): IHeaderDesc;
   decrypt(buffer: Buffer, offset: number, crypt: ICrypt): void;
 }
 
-export const AuthHeaderDeserializer = {
-  deserialize: (buffer: Buffer, offset: number): IHeaderDesc => {
+@injectable()
+export class AuthHeaderDeserializer {
+  deserialize: deserializeFunc = (buffer: Buffer, offset: number): IHeaderDesc => {
     return {
       headerBytes: 1,
       opcode: buffer.readUInt8(0),
       packetBytes: buffer.length,
     };
-  },
-  decrypt: (buffer: Buffer, offset: number, crypt: ICrypt): void => {
+  };
+  decrypt: decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(0, 1);
     crypt.Decrypt(header, 1);
-  },
+  };
 };
 
-export const GameHeaderDeserializer = {
-  deserialize: (buffer: Buffer, offset: number): IHeaderDesc => {
+@injectable()
+export class GameHeaderDeserializer {
+  deserialize: deserializeFunc = (buffer: Buffer, offset: number): IHeaderDesc => {
     const size = buffer.readUInt16BE(offset) + 2;
     const opcode = buffer.readUInt16LE(offset + 2);
     return {
@@ -43,17 +50,19 @@ export const GameHeaderDeserializer = {
       opcode,
       packetBytes: size,
     };
-  },
-  decrypt: (buffer: Buffer, offset: number, crypt: ICrypt): void => {
+  };
+  decrypt: decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(offset, offset + 4);
     crypt.Decrypt(header, 4);
-  },
+  };
 };
 
-export class Deserializer {
+@injectable()
+export class Deserializer implements IDeserializer {
   private events: EventList<Deserializer, IPacket> = new EventList<Deserializer, IPacket>();
 
-  constructor(private headerDeserializer: IHeaderDeserializer, private map: Map<number, IFactory<IPacket>>) {}
+  constructor(@inject('IHeaderDeserializer') private headerDeserializer: IHeaderDeserializer,
+              @inject('PacketMap') private map: Map<number, IFactory<IPacket>>) {}
 
   private _crypt: ICrypt|null = null;
   public set Encryption(crypt: ICrypt) {
@@ -68,7 +77,7 @@ export class Deserializer {
       }
 
       const headerDesc = this.headerDeserializer.deserialize(buffer, offset);
-      log.info(`headerBytes:${headerDesc.headerBytes} opcode:0x${headerDesc.opcode.toString(16)}` +
+      log.info(`headerBytes:${headerDesc.headerBytes} opcode:0x${headerDesc.opcode.toString(16)} ` +
         `packetBytes:${headerDesc.packetBytes}`);
 
       offset += headerDesc.packetBytes;

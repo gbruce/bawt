@@ -2,6 +2,7 @@ import { ISocket, SocketEvent } from '../../interface/ISocket';
 import { Socket as NetSocket } from 'net';
 import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
 import { NewLogger } from '../utils/Logger';
+import { injectable, inject } from "inversify";
 
 const log = NewLogger('MySocket');
 
@@ -11,6 +12,7 @@ enum SocketState {
   Connected,
 }
 
+@injectable()
 export class Socket implements ISocket {
   private onDataReceivedEvent: SimpleEventDispatcher<Buffer> = new SimpleEventDispatcher<Buffer>();
   private onPacketSentEvent: SimpleEventDispatcher<ArrayBuffer> = new SimpleEventDispatcher<ArrayBuffer>();
