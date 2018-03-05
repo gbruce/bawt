@@ -1,20 +1,6 @@
+import { IConfig } from '../../interface/IConfig';
 import { IFactory } from '../../interface/IFactory';
 import { Version } from '../utils/Version';
-
-export interface IConfig {
-  readonly Account: string;
-  readonly Password: string;
-  readonly Game: string;
-  readonly Major: number;
-  readonly Minor: number;
-  readonly Patch: number;
-  readonly Build: number;
-  readonly Platform: string;
-  readonly Os: string;
-  readonly Locale: string;
-  readonly Timezone: number;
-  readonly IPAddress: number;
-}
 
 export class ConfigFactory implements IFactory<IConfig> {
   private reverse(value: string) {

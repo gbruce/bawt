@@ -1,164 +1,74 @@
-import * as data from './lightshope.json';
+import { Container } from 'inversify';
+import { makeLoggerMiddleware } from 'inversify-logger-middleware';
+
+import { Client } from './Client';
+import { IDeserializer } from './interface/IDeserializer';
+import { IFactory } from './interface/IFactory';
+import { IPacket } from './interface/IPacket';
+import { ISerializer } from './interface/ISerializer';
 import { ISession } from './interface/ISession';
-import { default as AuthHandler } from './lib/auth/AuthHandler';
-import { default as GameHandler } from './lib/game/Handler';
-import { Realm } from './lib/auth/packets/server/RealmList';
-import { SetVersion, Version, GetVersion } from './lib/utils/Version';
-import { SocketFactory } from './lib/net/SocketFactory';
-import { ConfigFactory } from './lib/auth/Config';
-import { RealmList } from './lib/auth/packets/server/RealmList';
+import { ISocket } from './interface/ISocket';
+import { AuthHandler } from './lib/auth/AuthHandler';
+import AuthOpcode from './lib/auth/Opcode';
+import { NewLogonChallenge } from './lib/auth/packets/server/LogonChallenge';
+import { NewLogonProof } from './lib/auth/packets/server/LogonProof';
+import { RealmListFactory } from './lib/auth/packets/server/RealmList';
+import { GameHandler } from './lib/game/Handler';
+import GameOpcode from './lib/game/Opcode';
+import { NewSAuthChallenge } from './lib/game/packets/server/AuthChallenge';
+import { NewSAuthResponse } from './lib/game/packets/server/AuthResponse';
+import { NewServerPacket } from './lib/game/packets/server/ServerPacket';
+import { NewSMsgCharEnum } from './lib/game/packets/server/SMsgCharEnum';
+import { NewSMsgLoginVerifyWorld } from './lib/game/packets/server/SMsgLoginVerifyWorld';
+import { NewSMsgSetProficiency } from './lib/game/packets/server/SMsgSetProficiency';
+import { NewSMsgSpellOGMiss } from './lib/game/packets/server/SMsgSpellOGMiss';
+import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
+  IHeaderDeserializer } from './lib/net/Deserializer';
+import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from './lib/net/Serializer';
+import { Socket } from './lib/net/Socket';
+import { SetVersion } from './lib/utils/Version';
+import * as data from './lightshope.json';
 
-/*
-wow client packets prior to login
-S->C: 73.202.11.217 [SMSG_AUTH_CHALLENGE 0x01EC (492)]
-C->S: 73.202.11.217 [CMSG_AUTH_SESSION 0x01ED (493)]
-Allowed Level: 0 Player Level 0
-WorldSocket::HandleAuthSession: Client 'TRINITY' authenticated successfully from 73.202.11.217.
-S->C: [Player: Account: 1] [SMSG_AUTH_RESPONSE 0x01EE (494)]
-S->C: [Player: Account: 1] [SMSG_ADDON_INFO 0x02EF (751)]
-S->C: [Player: Account: 1] [SMSG_CLIENTCACHE_VERSION 0x04AB (1195)]
-S->C: [Player: Account: 1] [SMSG_TUTORIAL_FLAGS 0x00FD (253)]
-C->S: [Player: Account: 1] [CMSG_READY_FOR_ACCOUNT_DATA_TIMES 0x04FF (1279)]
-C->S: [Player: Account: 1] [CMSG_CHAR_ENUM 0x0037 (55)]
-C->S: [Player: Account: 1] [CMSG_REALM_SPLIT 0x038C (908)]
-WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES
-S->C: [Player: Account: 1] [SMSG_ACCOUNT_DATA_TIMES 0x0209 (521)]
-CMSG_REALM_SPLIT
-S->C: [Player: Account: 1] [SMSG_REALM_SPLIT 0x038B (907)]
-Loading GUID Full: 0x0000000000000001 Type: Player Low: 1 from account 1.
-S->C: [Player: Account: 1] [SMSG_CHAR_ENUM 0x003B (59)]
-C->S: 73.202.11.217 [CMSG_PING 0x01DC (476)]
-S->C: 73.202.11.217 [SMSG_PONG 0x01DD (477)]
-C->S: 73.202.11.217 [CMSG_PING 0x01DC (476)]
-S->C: 73.202.11.217 [SMSG_PONG 0x01DD (477)]
-*/
+const container = new Container();
+const logger = makeLoggerMiddleware();
+container.applyMiddleware(logger);
 
-/*
-bot packets prior to login
-S->C: 73.202.11.217 [SMSG_AUTH_CHALLENGE 0x01EC (492)]
-C->S: 73.202.11.217 [CMSG_AUTH_SESSION 0x01ED (493)]
-Allowed Level: 0 Player Level 0
-WorldSocket::HandleAuthSession: Client 'TRINITY' authenticated successfully from 73.202.11.217.
-S->C: [Player: Account: 1] [SMSG_AUTH_RESPONSE 0x01EE (494)]
-S->C: [Player: Account: 1] [SMSG_ADDON_INFO 0x02EF (751)]
-S->C: [Player: Account: 1] [SMSG_CLIENTCACHE_VERSION 0x04AB (1195)]
-S->C: [Player: Account: 1] [SMSG_TUTORIAL_FLAGS 0x00FD (253)]
-C->S: [Player: Account: 1] [CMSG_CHAR_ENUM 0x0037 (55)]
-Loading GUID Full: 0x0000000000000001 Type: Player Low: 1 from account 1.
-S->C: [Player: Account: 1] [SMSG_CHAR_ENUM 0x003B (59)]
-C->S: [Player: Account: 1] [CMSG_PLAYER_LOGIN 0x003D (61)]
+container.bind<ISocket>('ISocket').to(Socket);
+container.bind<IHeaderSerializer>('IHeaderSerializer').to(AuthHeaderSerializer).whenParentNamed('Auth');
+container.bind<IHeaderSerializer>('IHeaderSerializer').to(GameHeaderSerializer).whenParentNamed('Game');
+container.bind<ISerializer>('ISerializer').to(Serializer);
 
-*/
+container.bind<IHeaderDeserializer>('IHeaderDeserializer').to(AuthHeaderDeserializer).whenParentNamed('Auth');
+container.bind<IHeaderDeserializer>('IHeaderDeserializer').to(GameHeaderDeserializer).whenParentNamed('Game');
+container.bind<IDeserializer>('IDeserializer').to(Deserializer);
 
-class Raw {
-  public config: Config;
-  constructor(config: Config) {
-    this.config = config;
-  }
+container.bind<Map<number, IFactory<IPacket>>>('PacketMap').toConstantValue(
+  new Map<number, IFactory<IPacket>>([
+    [AuthOpcode.LOGON_CHALLENGE, new NewLogonChallenge()],
+    [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
+    [AuthOpcode.REALM_LIST, new RealmListFactory()],
+  ]),
+).whenAnyAncestorNamed('Auth');
 
-  public raw(value: string) {
-    return (value.split('').reverse().join(''));
-  }
+container.bind<Map<number, IFactory<IPacket>>>('PacketMap').toConstantValue(
+  new Map<number, IFactory<IPacket>>([
+    [GameOpcode.SMSG_AUTH_CHALLENGE, new NewSAuthChallenge()],
+    [GameOpcode.SMSG_AUTH_RESPONSE, new NewSAuthResponse()],
+    [GameOpcode.SMSG_CHAR_ENUM, new NewSMsgCharEnum()],
+    [GameOpcode.SMSG_WARDEN_DATA, new NewServerPacket()],
+    [GameOpcode.SMSG_ADDON_INFO, new NewServerPacket()],
+    [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewServerPacket()],
+    [GameOpcode.SMSG_FORCE_MOVE_UNROOT, new NewServerPacket()],
+    [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewSMsgLoginVerifyWorld()],
+    [GameOpcode.SMSG_SET_PROFICIENCY, new NewSMsgSetProficiency()],
+    [GameOpcode.SMSG_SPELLLOGMISS, new NewSMsgSpellOGMiss()],
+  ]),
+).whenAnyAncestorNamed('Game');
 
-  get locale() {
-    return this.raw(this.config.locale);
-  }
+container.bind<AuthHandler>(AuthHandler).toSelf();
+container.bind<GameHandler>(GameHandler).toSelf();
+container.bind<ISession>('ISession').to(Client);
 
-  get os() {
-    return this.raw(this.config.os);
-  }
-
-  get platform() {
-    return this.raw(this.config.platform);
-  }
-
-}
-
-class Config {
-  public game: string = 'WoW';
-  public build: number = 12340;
-  public timezone: number = 0;
-  public locale: string = 'enUS';
-  public os: string = 'OSX';
-  public platform: string = 'x86';
-  public raw: Raw = new Raw(this);
-  public majorVersion: number = 0;
-  public minorVersion: number = 0;
-  public patchVersion: number = 0;
-
-  constructor() {
-    this.version = '3.3.5';
-  }
-
-  set version(version: string) {
-    [
-      this.majorVersion,
-      this.minorVersion,
-      this.patchVersion,
-    ] = version.split('.').map((bit) => {
-      return parseInt(bit, 10);
-    });
-  }
-
-}
-
-class Client implements ISession {
-  public config: Config = new Config();
-  private configFile: any;
-  private socketFactory: SocketFactory;
-  private auth: AuthHandler;
-  private game: GameHandler;
-  private selectedRealm: Realm|undefined;
-  private configFactory: ConfigFactory;
-  private _account: string = '';
-  private _key: number[] = [];
-
-  constructor() {
-    this.configFile = data as any;
-    SetVersion(this.configFile.version);
-    this.config.version = this.configFile.version;
-    this.config.build =  parseInt(this.configFile.build, 10);
-    this.socketFactory = new SocketFactory();
-    this.configFactory = new ConfigFactory();
-    this.auth = new AuthHandler(this.socketFactory);
-    this.game = new GameHandler(this, this.socketFactory);
-  }
-
-  get key() {
-    return this._key;
-  }
-
-  get account() {
-    return this._account;
-  }
-
-  public async Start() {
-    const authConfig = this.configFactory.Create(this.configFile.username,
-      this.configFile.password, GetVersion());
-    this._account = authConfig.Account;
-    const session = await this.auth.connect(this.configFile.auth, this.configFile.port, authConfig);
-    if (this.auth.key) {
-      this._key = this.auth.key;
-    }
-    const realms = await session.GetRealms();
-    const selectedRealm = realms.find((realmItem): boolean => {
-      return realmItem.Name === this.configFile.realm;
-    });
-
-    if (selectedRealm) {
-      await this.game.connectToRealm(selectedRealm);
-    }
-
-    const characters = await this.game.getChars();
-    const selectedChar = characters.find((character) => {
-      return character.Name === this.configFile.character;
-    });
-
-    if (selectedChar) {
-      await this.game.join(selectedChar);
-    }
-  }
-}
-
-const client = new Client();
-client.Start();
+SetVersion((data as any).version);
+const session = container.get<ISession>('ISession');
+session.Start();

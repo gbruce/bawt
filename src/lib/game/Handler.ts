@@ -1,34 +1,27 @@
 import * as ByteBuffer from 'bytebuffer';
+import { inject, injectable, named } from 'inversify';
 
-import BigNum from '../crypto/BigNum';
 import { ICrypt } from '../../interface/ICrypt';
-import WowCrypt from '../crypto/WowCrypt';
-import RC4Crypt from '../crypto/RC4Crypt';
-import GameOpcode from './Opcode';
-import SHA1 from '../crypto/hash/SHA1';
-import * as process from 'process';
-import { NewLogger } from '../utils/Logger';
+import { IDeserializer } from '../../interface/IDeserializer';
 import { IRealm } from '../../interface/IRealm';
-import { setInterval } from 'timers';
-import { GetVersion, Version } from '../utils/Version';
-import { ISocket, SocketEvent } from '../../interface/ISocket';
+import { ISerializer } from '../../interface/ISerializer';
 import { ISession } from '../../interface/ISession';
-import { IFactory } from '../../interface/IFactory';
-import { IPacket } from '../../interface/IPacket';
-import { EventEmitter } from 'events';
-import { SAuthChallenge, NewSAuthChallenge } from './packets/server/AuthChallenge';
-import { SAuthResponse, NewSAuthResponse } from './packets/server/AuthResponse';
-import { SMsgLoginVerifyWorld, NewSMsgLoginVerifyWorld } from './packets/server/SMsgLoginVerifyWorld';
-import { SMsgSetProficiency, NewSMsgSetProficiency } from './packets/server/SMsgSetProficiency';
-import { SMsgSpellOGMiss, NewSMsgSpellOGMiss } from './packets/server/SMsgSpellOGMiss';
-import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
-import { NewServerPacket, ServerPacket } from './packets/server/ServerPacket';
-import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
-import { SMsgCharEnum, NewSMsgCharEnum, Character } from './packets/server/SMsgCharEnum';
-import { SerializeObjectToBuffer } from '../net/Serialization';
-import { Serializer, GameHeaderSerializer } from '../net/Serializer';
-import { Deserializer, GameHeaderDeserializer } from '../net/Deserializer';
+import { ISocket } from '../../interface/ISocket';
+import BigNum from '../crypto/BigNum';
+import SHA1 from '../crypto/hash/SHA1';
+import RC4Crypt from '../crypto/RC4Crypt';
+import WowCrypt from '../crypto/WowCrypt';
+import { NewLogger } from '../utils/Logger';
+import { GetVersion, Version } from '../utils/Version';
+import GameOpcode from './Opcode';
 import { AuthProof } from './packets/client/AuthProof';
+import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
+import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
+import { SAuthChallenge } from './packets/server/AuthChallenge';
+import { SAuthResponse } from './packets/server/AuthResponse';
+import { ServerPacket } from './packets/server/ServerPacket';
+import { Character, SMsgCharEnum } from './packets/server/SMsgCharEnum';
+
 const log = NewLogger('game/Handler');
 
 const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
@@ -39,56 +32,30 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
   return result;
 };
 
-const sOpcodeMap = new Map<number, IFactory<IPacket>>([
-  [GameOpcode.SMSG_AUTH_CHALLENGE, new NewSAuthChallenge()],
-  [GameOpcode.SMSG_AUTH_RESPONSE, new NewSAuthResponse()],
-  [GameOpcode.SMSG_CHAR_ENUM, new NewSMsgCharEnum()],
-  [GameOpcode.SMSG_WARDEN_DATA, new NewServerPacket()],
-  [GameOpcode.SMSG_ADDON_INFO, new NewServerPacket()],
-  [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewServerPacket()],
-  [GameOpcode.SMSG_FORCE_MOVE_UNROOT, new NewServerPacket()],
-  [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewSMsgLoginVerifyWorld()],
-  [GameOpcode.SMSG_SET_PROFICIENCY, new NewSMsgSetProficiency()],
-  [GameOpcode.SMSG_SPELLLOGMISS, new NewSMsgSpellOGMiss()],
-]);
-
-class GameHandler extends EventEmitter {
-  private session: ISession;
+@injectable()
+export class GameHandler {
+  private session: ISession|null = null;
   private useCrypt = false;
   private crypt: ICrypt|null = null;
   private realm: IRealm|null = null;
   private pingCount: number = 1;
-  private socket: ISocket;
-  private serializer: Serializer;
-  private deserializer: Deserializer;
 
   // Creates a new game handler
-  constructor(session: ISession, socketFactory: IFactory<ISocket>) {
-    super();
-
-    this.socket = socketFactory.Create();
-    this.serializer = new Serializer(GameHeaderSerializer);
-    this.deserializer = new Deserializer(GameHeaderDeserializer, sOpcodeMap);
+  constructor(@inject('ISocket') private socket: ISocket,
+              @inject('ISerializer') @named('Game') private serializer: ISerializer,
+              @inject('IDeserializer') @named('Game') private deserializer: IDeserializer) {
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     this.socket.OnDataReceived.sub((arrayBuffer) => this.deserializer.Deserialize(arrayBuffer));
 
-    // Holds session
-    this.session = session;
-
-    this.on('packet:receive:SMSG_COMPRESSED_UPDATE_OBJECT', (packet: any) => {
-      // this.HandleCompressedUpdateObject(packet);
-    });
-
-    this.on('packet:receive:SMSG_ACCOUNT_DATA_TIMES', (packet: any) => {
-    });
-
+    /*
     this.on('packet:receive:SMSG_PONG', (packet: any) => {
       packet.readUint16(); // size
       packet.readUint16(); // opcode
       const pingCount = packet.readUint32(); // size
       log.info(`Pong ${pingCount}`);
     });
+    */
 
     if (GetVersion() === Version.WoW_1_12_1) {
       this.crypt = new WowCrypt();
@@ -111,6 +78,11 @@ class GameHandler extends EventEmitter {
 
   private handleChallenge(challenge: SAuthChallenge) {
     return new Promise((resolve, reject) => {
+      if (this.session == null) {
+        reject();
+        return;
+      }
+
       const salt = challenge.Salt;
       const seed = BigNum.fromRand(4);
 
@@ -125,7 +97,7 @@ class GameHandler extends EventEmitter {
       log.debug('salt: ' + this.toHexString(salt));
       log.debug('key: ' + this.toHexString(this.session.key));
 
-      const build = this.session.config.build;
+      const build = this.session.build;
       const account = this.session.account;
 
       const authProof = new AuthProof();
@@ -166,7 +138,8 @@ class GameHandler extends EventEmitter {
   }
 
   // Connects to given host through given port
-  public async connectToRealm(realm: IRealm) {
+  public async connectToRealm(session: ISession, realm: IRealm) {
+    this.session = session;
     this.realm = realm;
 
     await this.socket.connect(realm.Host, realm.Port);

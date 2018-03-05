@@ -1,46 +1,31 @@
+import { inject, injectable, named } from 'inversify';
+
+import { IConfig } from '../../interface/IConfig';
+import { IDeserializer } from '../../interface/IDeserializer';
+import { IRealm } from '../../interface/IRealm';
+import { ISerializer } from '../../interface/ISerializer';
+import { ISocket } from '../../interface/ISocket';
 import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
+import { IAuthSession } from './AuthSession';
 import AuthOpcode from './Opcode';
-import { IFactory } from '../../interface/IFactory';
-import { ISocket, SocketEvent } from '../../interface/ISocket';
-import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
-import { SerializeObjectToBuffer } from '../net/Serialization';
-import { Serializer, AuthHeaderSerializer } from '../net/Serializer';
-import { Deserializer, AuthHeaderDeserializer } from '../net/Deserializer';
-import { SLogonChallenge,
-  NewLogonChallenge as NewSLogonChallenge } from './packets/server/LogonChallenge';
-import { SLogonProof, NewLogonProof } from './packets/server/LogonProof';
 import { LogonProof } from './packets/client/LogonProof';
 import { RealmList as CRealmList } from './packets/client/RealmList';
-import { RealmList as SRealmList, RealmListFactory as SRealmListFactory,
-  RealmListFactory } from './packets/server/RealmList';
-import { IConfig as AuthConfig } from './Config';
-import { IAuthSession } from './AuthSession';
-import { IRealm } from '../../interface/IRealm';
-import { IPacket } from '../../interface/IPacket';
+import { SLogonChallenge } from './packets/server/LogonChallenge';
+import { SLogonProof } from './packets/server/LogonProof';
+import { RealmList as SRealmList } from './packets/server/RealmList';
 
 const log = NewLogger('AuthHandler');
 
-const sOpcodeMap = new Map<number, IFactory<IPacket>>([
-  [AuthOpcode.LOGON_CHALLENGE, new NewSLogonChallenge()],
-  [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
-  [AuthOpcode.REALM_LIST, new RealmListFactory()],
-]);
-
-class AuthHandler extends EventEmitter {
+@injectable()
+export class AuthHandler {
   private srp: SRP|null;
-  private socket: ISocket;
-  private serializer: Serializer;
-  private deserializer: Deserializer;
 
   // Creates a new authentication handler
-  constructor(socketFactory: IFactory<ISocket>) {
-    super();
-
-    this.socket = socketFactory.Create();
-    this.serializer = new Serializer(AuthHeaderSerializer);
-    this.deserializer = new Deserializer(AuthHeaderDeserializer, sOpcodeMap);
+  constructor(@inject('ISocket') private socket: ISocket,
+              @inject('ISerializer') @named('Auth') private serializer: ISerializer,
+              @inject('IDeserializer') @named('Auth') private deserializer: IDeserializer) {
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     // Holds Secure Remote Password implementation
@@ -81,7 +66,7 @@ class AuthHandler extends EventEmitter {
     });
   }
 
-  private async challenge(config: AuthConfig): Promise<SRP> {
+  private async challenge(config: IConfig): Promise<SRP> {
     return new Promise<SRP>((resolve, reject) => {
       log.info('authenticating ', config.Account);
 
@@ -113,13 +98,13 @@ class AuthHandler extends EventEmitter {
     });
   }
 
-  private async authenticate(config: AuthConfig) {
+  private async authenticate(config: IConfig) {
     const srp = await this.challenge(config);
     await this.logonProof(srp);
     this.srp = srp;
   }
 
-  public async connect(host: string, port: number, config: AuthConfig): Promise<IAuthSession> {
+  public async connect(host: string, port: number, config: IConfig): Promise<IAuthSession> {
     await this.socket.connect(host, port);
     await this.authenticate(config);
     return this;
