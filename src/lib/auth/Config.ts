@@ -1,4 +1,4 @@
-import { IConfig } from '../../interface/iConfig';
+import { IConfig } from '../../interface/IConfig';
 import { IFactory } from '../../interface/IFactory';
 import { Version } from '../utils/Version';
 

@@ -1,6 +1,6 @@
 import { inject, injectable, named } from 'inversify';
 
-import { IConfig } from '../../interface/iConfig';
+import { IConfig } from '../../interface/IConfig';
 import { IDeserializer } from '../../interface/IDeserializer';
 import { IRealm } from '../../interface/IRealm';
 import { ISerializer } from '../../interface/ISerializer';
