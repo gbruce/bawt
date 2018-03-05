@@ -1,25 +1,20 @@
+import { inject, injectable, named } from 'inversify';
+
+import { IConfig } from '../../interface/iConfig';
+import { IDeserializer } from '../../interface/IDeserializer';
+import { IRealm } from '../../interface/IRealm';
+import { ISerializer } from '../../interface/ISerializer';
+import { ISocket } from '../../interface/ISocket';
 import SRP from '../crypto/SRP';
 import { NewLogger } from '../utils/Logger';
+import { IAuthSession } from './AuthSession';
 import AuthOpcode from './Opcode';
-import { IFactory } from '../../interface/IFactory';
-import { ISocket } from '../../interface/ISocket';
-import { EventEmitter } from 'events';
 import { LogonChallenge } from './packets/client/LogonChallenge';
-import { SerializeObjectToBuffer } from '../net/Serialization';
-import { Serializer, AuthHeaderSerializer } from '../net/Serializer';
-import { Deserializer, AuthHeaderDeserializer } from '../net/Deserializer';
-import { SLogonChallenge } from './packets/server/LogonChallenge';
-import { SLogonProof } from './packets/server/LogonProof';
 import { LogonProof } from './packets/client/LogonProof';
 import { RealmList as CRealmList } from './packets/client/RealmList';
+import { SLogonChallenge } from './packets/server/LogonChallenge';
+import { SLogonProof } from './packets/server/LogonProof';
 import { RealmList as SRealmList } from './packets/server/RealmList';
-import { IAuthSession } from './AuthSession';
-import { IRealm } from '../../interface/IRealm';
-import { IPacket } from '../../interface/IPacket';
-import { IConfig } from '../../interface/iConfig';
-import { inject, interfaces, injectable, named } from 'inversify';
-import { ISerializer } from '../../interface/ISerializer';
-import { IDeserializer } from '../../interface/IDeserializer';
 
 const log = NewLogger('AuthHandler');
 

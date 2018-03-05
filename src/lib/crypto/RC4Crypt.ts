@@ -1,7 +1,8 @@
-import sha1 = require('jsbn/lib/sha1');
 import RC4 = require('jsbn/lib/rc4');
-import ArrayUtil from '../utils/ArrayUtil';
+import sha1 = require('jsbn/lib/sha1');
+
 import { ICrypt } from '../../interface/ICrypt';
+import ArrayUtil from '../utils/ArrayUtil';
 import { NewLogger } from '../utils/Logger';
 
 const HMAC = sha1.HMAC;

@@ -1,11 +1,12 @@
-import { SimpleEventDispatcher, ISimpleEvent } from 'strongly-typed-events';
-import { SerializeObjectToBuffer, BufferLength } from '../net/Serialization';
-import { IPacket } from '../../interface/IPacket';
-import { ICrypt } from '../../interface/ICrypt';
-import { ISerializer } from '../../interface/ISerializer';
 import * as ByteBuffer from 'bytebuffer';
+import { inject, injectable } from 'inversify';
+import { ISimpleEvent, SimpleEventDispatcher } from 'strongly-typed-events';
+
+import { ICrypt } from '../../interface/ICrypt';
+import { IPacket } from '../../interface/IPacket';
+import { ISerializer } from '../../interface/ISerializer';
+import { BufferLength, SerializeObjectToBuffer } from '../net/Serialization';
 import { NewLogger } from '../utils/Logger';
-import { injectable, inject } from "inversify";
 
 const log = NewLogger('net/Serializer');
 

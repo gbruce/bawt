@@ -1,5 +1,5 @@
-import { IFactory } from '../../interface/IFactory';
 import { IConfig } from '../../interface/iConfig';
+import { IFactory } from '../../interface/IFactory';
 import { Version } from '../utils/Version';
 
 export class ConfigFactory implements IFactory<IConfig> {

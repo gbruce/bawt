@@ -1,15 +1,14 @@
-import * as data from './lightshope.json';
+import 'reflect-metadata';
+
+import { Container, inject, injectable } from 'inversify';
+
 import { ISession } from './interface/ISession';
-import { default as AuthHandler } from './lib/auth/AuthHandler';
-import { default as GameHandler } from './lib/game/Handler';
-import { Realm } from './lib/auth/packets/server/RealmList';
-import { SetVersion, Version, GetVersion } from './lib/utils/Version';
+import AuthHandler from './lib/auth/AuthHandler';
 import { ConfigFactory } from './lib/auth/Config';
-import { RealmList } from './lib/auth/packets/server/RealmList';
-import { Container, injectable, inject, interfaces } from "inversify";
-import { Socket } from './lib/net/Socket';
-import { ISocket } from './interface/ISocket';
-import "reflect-metadata";
+import { Realm } from './lib/auth/packets/server/RealmList';
+import GameHandler from './lib/game/Handler';
+import { GetVersion } from './lib/utils/Version';
+import * as data from './lightshope.json';
 
 /*
 wow client packets prior to login

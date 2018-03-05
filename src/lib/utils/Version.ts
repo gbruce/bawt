@@ -1,4 +1,3 @@
-import ObjectUtil from './ObjectUtil';
 import { NewLogger } from '../utils/Logger';
 
 const log = NewLogger('utils/Version');

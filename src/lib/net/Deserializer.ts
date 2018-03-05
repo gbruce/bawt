@@ -1,13 +1,13 @@
+import * as ByteBuffer from 'bytebuffer';
+import { inject, injectable } from 'inversify';
 import { EventList, IEvent } from 'strongly-typed-events';
-import { DeserializeObjectFromBuffer, BufferLength } from '../net/Serialization';
-import { IFactory } from '../../interface/IFactory';
-import { ISerializable } from '../../interface/ISerializable';
-import { IPacket } from '../../interface/IPacket';
+
 import { ICrypt } from '../../interface/ICrypt';
 import { IDeserializer } from '../../interface/IDeserializer';
-import * as ByteBuffer from 'bytebuffer';
+import { IFactory } from '../../interface/IFactory';
+import { IPacket } from '../../interface/IPacket';
+import { BufferLength, DeserializeObjectFromBuffer } from '../net/Serialization';
 import { NewLogger } from '../utils/Logger';
-import { injectable, inject } from "inversify";
 
 const log = NewLogger('net/Deserializer');
 

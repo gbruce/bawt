@@ -1,37 +1,27 @@
 import * as ByteBuffer from 'bytebuffer';
+import { inject, injectable, named } from 'inversify';
 
-import BigNum from '../crypto/BigNum';
 import { ICrypt } from '../../interface/ICrypt';
-import WowCrypt from '../crypto/WowCrypt';
-import RC4Crypt from '../crypto/RC4Crypt';
-import GameOpcode from './Opcode';
-import SHA1 from '../crypto/hash/SHA1';
-import * as process from 'process';
-import { NewLogger } from '../utils/Logger';
-import { IRealm } from '../../interface/IRealm';
-import { setInterval } from 'timers';
-import { GetVersion, Version } from '../utils/Version';
-import { ISocket, SocketEvent } from '../../interface/ISocket';
-import { ISession } from '../../interface/ISession';
-import { IFactory } from '../../interface/IFactory';
-import { IPacket } from '../../interface/IPacket';
-import { ISerializer } from '../../interface/ISerializer';
 import { IDeserializer } from '../../interface/IDeserializer';
-import { EventEmitter } from 'events';
+import { IRealm } from '../../interface/IRealm';
+import { ISerializer } from '../../interface/ISerializer';
+import { ISession } from '../../interface/ISession';
+import { ISocket } from '../../interface/ISocket';
+import BigNum from '../crypto/BigNum';
+import SHA1 from '../crypto/hash/SHA1';
+import RC4Crypt from '../crypto/RC4Crypt';
+import WowCrypt from '../crypto/WowCrypt';
+import { NewLogger } from '../utils/Logger';
+import { GetVersion, Version } from '../utils/Version';
+import GameOpcode from './Opcode';
+import { AuthProof } from './packets/client/AuthProof';
+import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
+import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
 import { SAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse } from './packets/server/AuthResponse';
-import { SMsgLoginVerifyWorld } from './packets/server/SMsgLoginVerifyWorld';
-import { SMsgSetProficiency } from './packets/server/SMsgSetProficiency';
-import { SMsgSpellOGMiss } from './packets/server/SMsgSpellOGMiss';
-import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
 import { ServerPacket } from './packets/server/ServerPacket';
-import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
-import { SMsgCharEnum, NewSMsgCharEnum, Character } from './packets/server/SMsgCharEnum';
-import { SerializeObjectToBuffer } from '../net/Serialization';
-import { Serializer, GameHeaderSerializer } from '../net/Serializer';
-import { Deserializer, GameHeaderDeserializer } from '../net/Deserializer';
-import { AuthProof } from './packets/client/AuthProof';
-import { inject, interfaces, injectable, named } from 'inversify';
+import { Character, SMsgCharEnum } from './packets/server/SMsgCharEnum';
+
 const log = NewLogger('game/Handler');
 
 const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
