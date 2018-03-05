@@ -27,22 +27,22 @@ export interface IHeaderDeserializer {
 
 @injectable()
 export class AuthHeaderDeserializer {
-  deserialize: deserializeFunc = (buffer: Buffer, offset: number): IHeaderDesc => {
+  public deserialize: deserializeFunc = (buffer: Buffer, offset: number): IHeaderDesc => {
     return {
       headerBytes: 1,
       opcode: buffer.readUInt8(0),
       packetBytes: buffer.length,
     };
-  };
-  decrypt: decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt): void => {
+  }
+  public decrypt: decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(0, 1);
     crypt.Decrypt(header, 1);
-  };
-};
+  }
+}
 
 @injectable()
 export class GameHeaderDeserializer {
-  deserialize: deserializeFunc = (buffer: Buffer, offset: number): IHeaderDesc => {
+  public deserialize: deserializeFunc = (buffer: Buffer, offset: number): IHeaderDesc => {
     const size = buffer.readUInt16BE(offset) + 2;
     const opcode = buffer.readUInt16LE(offset + 2);
     return {
@@ -50,12 +50,12 @@ export class GameHeaderDeserializer {
       opcode,
       packetBytes: size,
     };
-  };
-  decrypt: decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt): void => {
+  }
+  public decrypt: decryptFunc = (buffer: Buffer, offset: number, crypt: ICrypt): void => {
     const header = buffer.subarray(offset, offset + 4);
     crypt.Decrypt(header, 4);
-  };
-};
+  }
+}
 
 @injectable()
 export class Deserializer implements IDeserializer {

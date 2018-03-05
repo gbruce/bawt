@@ -23,9 +23,9 @@ export class AuthHandler {
   private srp: SRP|null;
 
   // Creates a new authentication handler
-  constructor(@inject("ISocket") private socket: ISocket,
-              @inject("ISerializer") @named('Auth') private serializer: ISerializer,
-              @inject("IDeserializer") @named('Auth') private deserializer: IDeserializer) {
+  constructor(@inject('ISocket') private socket: ISocket,
+              @inject('ISerializer') @named('Auth') private serializer: ISerializer,
+              @inject('IDeserializer') @named('Auth') private deserializer: IDeserializer) {
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     // Holds Secure Remote Password implementation

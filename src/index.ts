@@ -22,18 +22,18 @@ import { NewSMsgCharEnum } from './lib/game/packets/server/SMsgCharEnum';
 import { NewSMsgLoginVerifyWorld } from './lib/game/packets/server/SMsgLoginVerifyWorld';
 import { NewSMsgSetProficiency } from './lib/game/packets/server/SMsgSetProficiency';
 import { NewSMsgSpellOGMiss } from './lib/game/packets/server/SMsgSpellOGMiss';
-import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer, IHeaderDeserializer } from './lib/net/Deserializer';
+import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
+  IHeaderDeserializer } from './lib/net/Deserializer';
 import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from './lib/net/Serializer';
 import { Socket } from './lib/net/Socket';
 import { SetVersion } from './lib/utils/Version';
 import * as data from './lightshope.json';
 
-
 const container = new Container();
 const logger = makeLoggerMiddleware();
 container.applyMiddleware(logger);
 
-container.bind<ISocket>("ISocket").to(Socket);
+container.bind<ISocket>('ISocket').to(Socket);
 container.bind<IHeaderSerializer>('IHeaderSerializer').to(AuthHeaderSerializer).whenParentNamed('Auth');
 container.bind<IHeaderSerializer>('IHeaderSerializer').to(GameHeaderSerializer).whenParentNamed('Game');
 container.bind<ISerializer>('ISerializer').to(Serializer);
@@ -47,7 +47,7 @@ container.bind<Map<number, IFactory<IPacket>>>('PacketMap').toConstantValue(
     [AuthOpcode.LOGON_CHALLENGE, new NewLogonChallenge()],
     [AuthOpcode.LOGON_PROOF, new NewLogonProof()],
     [AuthOpcode.REALM_LIST, new RealmListFactory()],
-  ])
+  ]),
 ).whenAnyAncestorNamed('Auth');
 
 container.bind<Map<number, IFactory<IPacket>>>('PacketMap').toConstantValue(
@@ -62,7 +62,7 @@ container.bind<Map<number, IFactory<IPacket>>>('PacketMap').toConstantValue(
     [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewSMsgLoginVerifyWorld()],
     [GameOpcode.SMSG_SET_PROFICIENCY, new NewSMsgSetProficiency()],
     [GameOpcode.SMSG_SPELLLOGMISS, new NewSMsgSpellOGMiss()],
-  ])
+  ]),
 ).whenAnyAncestorNamed('Game');
 
 container.bind<AuthHandler>(AuthHandler).toSelf();

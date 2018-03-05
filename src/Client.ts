@@ -62,7 +62,7 @@ export class Client implements ISession {
   private container = new Container();
 
   constructor(@inject(AuthHandler) private auth: AuthHandler,
-              @inject(GameHandler) private game: GameHandler) { 
+              @inject(GameHandler) private game: GameHandler) {
     this.configFile = data as any;
     this.configFactory = new ConfigFactory();
   }

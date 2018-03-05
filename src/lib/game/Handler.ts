@@ -41,9 +41,9 @@ export class GameHandler {
   private pingCount: number = 1;
 
   // Creates a new game handler
-  constructor(@inject("ISocket") private socket: ISocket,
-              @inject("ISerializer") @named('Game') private serializer: ISerializer,
-              @inject("IDeserializer") @named('Game') private deserializer: IDeserializer) {
+  constructor(@inject('ISocket') private socket: ISocket,
+              @inject('ISerializer') @named('Game') private serializer: ISerializer,
+              @inject('IDeserializer') @named('Game') private deserializer: IDeserializer) {
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     this.socket.OnDataReceived.sub((arrayBuffer) => this.deserializer.Deserialize(arrayBuffer));
@@ -78,7 +78,7 @@ export class GameHandler {
 
   private handleChallenge(challenge: SAuthChallenge) {
     return new Promise((resolve, reject) => {
-      if(this.session == null) {
+      if (this.session == null) {
         reject();
         return;
       }

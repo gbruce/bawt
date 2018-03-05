@@ -27,16 +27,16 @@ export interface IHeaderSerializer {
 
 @injectable()
 export class AuthHeaderSerializer implements IHeaderSerializer {
-  bytes: number = 1;
-  serialize: serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
+  public bytes: number = 1;
+  public serialize: serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
     buffer.writeUint8(opcode);
-  };
+  }
 }
 
 @injectable()
 export class GameHeaderSerializer implements IHeaderSerializer {
-  bytes: number = 6;
-  serialize: serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
+  public bytes: number = 6;
+  public serialize: serializeFunc = (opcode: number, buffer: ByteBuffer, crypt: ICrypt|null) => {
     buffer.BE().writeUint16(buffer.capacity() - 2);
     buffer.LE().writeUint32(opcode);
 
@@ -52,7 +52,7 @@ export class GameHeaderSerializer implements IHeaderSerializer {
       buffer.writeUint8(array[4]);
       buffer.writeUint8(array[5]);
     }
-  };
+  }
 }
 
 @injectable()
