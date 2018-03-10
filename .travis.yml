@@ -7,3 +7,4 @@ cache:
 script:
   - yarn lint
   - yarn tsc
+  - yarn webpack

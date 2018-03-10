@@ -9,9 +9,10 @@
   "scripts": {
     "lint": "tslint --project .",
     "tsc": "tsc",
+    "webpack": "webpack",
     "node-dev": "ts-node ./src/node.ts",
     "proxy": "wsproxy -p 9000",
-    "serve": "webpack-serve",
+    "serve": "webpack-serve --port 8000",
     "browser-dev": "yarn proxy | yarn serve"
   },
   "dependencies": {

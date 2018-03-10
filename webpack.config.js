@@ -20,9 +20,6 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
-  serve: {
-    port: 8000
-  },
   node: {
     fs: 'empty'
   }
