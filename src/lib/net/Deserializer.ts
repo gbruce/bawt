@@ -93,6 +93,7 @@ export class Deserializer implements IDeserializer {
       const packet = buffer.subarray(headerDesc.headerBytes);
       byteBuffer.append(packet);
       byteBuffer.offset = 0;
+      byteBuffer.limit = packet.length;
       byteBuffer.LE();
       DeserializeObjectFromBuffer(obj, byteBuffer);
 
