@@ -42,7 +42,7 @@
     "webpack-cli": "^2.0.10",
     "webpack-serve": "^0.2.0",
     "winston": "^2.4.0",
-    "ws": "^3.3.2"
+    "ws": "^3.3.2",
     "winston-browser": "^1.0.0",
     "wsproxy": "^1.2.32"
   }
