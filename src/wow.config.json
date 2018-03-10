@@ -1,9 +1,9 @@
 {
-  "auth": "logon.lightshope.org",
-  "port": "3724",
+  "auth": "AUTH_SERVER",
+  "port": "PORT",
   "username": "USERNAME",
   "password": "PASSWORD",
-  "realm": "Lightbringer",
+  "realm": "REALM",
   "character": "CHARACTER",
   "version": "1.12.1",
   "build":  "5875"
