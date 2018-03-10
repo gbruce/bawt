@@ -28,21 +28,21 @@ export class WSocket implements ISocket {
     this.state = SocketState.Connecting;
 
     return new Promise((resolve, reject) => {
-      const url = `ws://${this.proxyHost}:${this.proxyPort}/${host}:${port}`
+      const url = `ws://${this.proxyHost}:${this.proxyPort}/${host}:${port}`;
       this.socket = new WebSocket(url);
       this.socket.binaryType = 'arraybuffer';
-      this.socket.addEventListener('open', event => {
+      this.socket.addEventListener('open', (event) => {
         this.state = SocketState.Connected;
         resolve();
       });
 
-      this.socket.addEventListener('message', event => {
+      this.socket.addEventListener('message', (event) => {
         log.info('ondata ' + event.data.byteLength + ' bytes');
         this.onDataReceivedEvent.dispatch(new Buffer(event.data));
       });
     });
   }
-  
+
   public disconnect(): void {
   }
 

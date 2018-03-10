@@ -53,3 +53,6 @@ declare module ByteBuffer2 {
 declare module 'byte-buffer' {
   export = ByteBuffer2
 }
+
+declare module 'winston-browser' {}
+

@@ -1,6 +1,6 @@
 
 import * as winston from 'winston';
-const browser = require('winston-browser');
+import browser = require('winston-browser');
 
 const startTime: number = new Date().getTime();
 
@@ -10,7 +10,8 @@ const tsFormat = () => {
 
 export function NewLogger(label: string = ''): winston.LoggerInstance {
   if (typeof process.stdout === 'undefined') {
-    return browser;
+    // yeah, yuck...
+    return browser as winston.LoggerInstance;
   }
 
   return new (winston.Logger)({
