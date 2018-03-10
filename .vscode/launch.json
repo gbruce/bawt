@@ -8,7 +8,7 @@
       "name": "Launch Program",
       "type": "node",
       "request": "launch",
-      "args": ["${workspaceRoot}/src/index.ts"],
+      "args": ["${workspaceRoot}/src/node.ts"],
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",

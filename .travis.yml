@@ -1,9 +1,10 @@
 language: node_js
 node_js:
   - "8"
-  - "6"
+  - "7"
 cache:
   yarn: true
 script:
   - yarn lint
   - yarn tsc
+  - yarn webpack
