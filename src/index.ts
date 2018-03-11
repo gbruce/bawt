@@ -20,6 +20,7 @@ import { NewServerPacket } from './lib/game/packets/server/ServerPacket';
 import { NewSMsgCharEnum } from './lib/game/packets/server/SMsgCharEnum';
 import { NewSMsgLoginVerifyWorld } from './lib/game/packets/server/SMsgLoginVerifyWorld';
 import { NewSMsgSetProficiency } from './lib/game/packets/server/SMsgSetProficiency';
+import { NewSMsgLogoutResponse } from './lib/game/packets/server/SMsgLogoutResponse';
 import { NewSMsgSpellOGMiss } from './lib/game/packets/server/SMsgSpellOGMiss';
 import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
   IHeaderDeserializer } from './lib/net/Deserializer';
@@ -27,7 +28,7 @@ import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializ
 import { SetVersion } from './lib/utils/Version';
 import * as data from './lightshope.json';
 
-export function InitializeCommon(container: Container) {
+export async function InitializeCommon(container: Container) {
   const logger = makeLoggerMiddleware();
   container.applyMiddleware(logger);
 
@@ -59,6 +60,7 @@ export function InitializeCommon(container: Container) {
       [GameOpcode.SMSG_LOGIN_VERIFY_WORLD, new NewSMsgLoginVerifyWorld()],
       [GameOpcode.SMSG_SET_PROFICIENCY, new NewSMsgSetProficiency()],
       [GameOpcode.SMSG_SPELLLOGMISS, new NewSMsgSpellOGMiss()],
+      [GameOpcode.SMSG_LOGOUT_RESPONSE, new NewSMsgLogoutResponse()],
     ]),
   ).whenAnyAncestorNamed('Game');
 
@@ -67,6 +69,4 @@ export function InitializeCommon(container: Container) {
   container.bind<ISession>('ISession').to(Client);
 
   SetVersion((data as any).version);
-  const session = container.get<ISession>('ISession');
-  session.Start();
 }

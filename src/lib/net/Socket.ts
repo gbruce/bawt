@@ -52,10 +52,19 @@ export class Socket implements ISocket {
     });
   }
 
-  public disconnect(): void {
-    if (this.state !== SocketState.Disconnected) {
-      this.socket.end();
-    }
+  public disconnect(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.state === SocketState.Disconnected) {
+        resolve();
+      }
+
+      this.socket.once('close', () => {
+        this.state = SocketState.Disconnected;
+        resolve();
+      });
+
+      this.socket.destroy();
+    });
   }
 
   public sendBuffer(buffer: ArrayBuffer): boolean {
