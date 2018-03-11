@@ -1,10 +1,10 @@
 import { Container } from 'inversify';
-import { makeLoggerMiddleware } from 'inversify-logger-middleware';
 
 import { Client } from './Client';
 import { IDeserializer } from './interface/IDeserializer';
 import { IFactory } from './interface/IFactory';
 import { IPacket } from './interface/IPacket';
+import { IConfig } from './interface/IConfig';
 import { ISerializer } from './interface/ISerializer';
 import { ISession } from './interface/ISession';
 import { AuthHandler } from './lib/auth/AuthHandler';
@@ -25,13 +25,10 @@ import { NewSMsgSpellOGMiss } from './lib/game/packets/server/SMsgSpellOGMiss';
 import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
   IHeaderDeserializer } from './lib/net/Deserializer';
 import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from './lib/net/Serializer';
-import { SetVersion } from './lib/utils/Version';
-import * as data from './lightshope.json';
+import { Config } from  './lib/auth/Config';
 
 export async function InitializeCommon(container: Container) {
-  const logger = makeLoggerMiddleware();
-  container.applyMiddleware(logger);
-
+  container.bind<IConfig>('IConfig').to(Config);
   container.bind<IHeaderSerializer>('IHeaderSerializer').to(AuthHeaderSerializer).whenParentNamed('Auth');
   container.bind<IHeaderSerializer>('IHeaderSerializer').to(GameHeaderSerializer).whenParentNamed('Game');
   container.bind<ISerializer>('ISerializer').to(Serializer);
@@ -67,6 +64,4 @@ export async function InitializeCommon(container: Container) {
   container.bind<AuthHandler>(AuthHandler).toSelf();
   container.bind<GameHandler>(GameHandler).toSelf();
   container.bind<ISession>('ISession').to(Client);
-
-  SetVersion((data as any).version);
 }

@@ -93,7 +93,7 @@ export class Client implements ISession {
     });
 
     if (selectedRealm) {
-      await this.game.connectToRealm(this, selectedRealm);
+      await this.game.connectToRealm(this._key, selectedRealm);
     }
 
     const characters = await this.game.getChars();
