@@ -3,8 +3,9 @@ import { InitializeCommon } from '../index';
 import { Socket } from '../lib/net/Socket';
 import { ISocket } from '../interface/ISocket';
 import { ISession } from '../interface/ISession';
+import 'mocha';
 
-it('test connect to lights hope server', async function () {
+it('test connect to lights hope server', async function() {
   this.timeout(10000);
 
   const container = new Container();

@@ -20,7 +20,7 @@
     "@types/bytebuffer": "^5.0.34",
     "@types/chai": "^4.0.10",
     "@types/deep-equal": "^1.0.1",
-    "@types/mocha": "^2.2.45",
+    "@types/mocha": "^2.2.48",
     "@types/reflect-metadata": "^0.1.0",
     "@types/socket.io-client": "^1.4.32",
     "@types/winston": "^2.3.7",
@@ -32,7 +32,7 @@
     "inversify": "^4.11.1",
     "inversify-logger-middleware": "^3.1.0",
     "jsbn": "timkurvers/jsbn.git#wowser",
-    "mocha": "^4.0.1",
+    "mocha": "^5.0.4",
     "reflect-metadata": "^0.1.10",
     "socket.io-client": "^2.0.4",
     "strongly-typed-events": "^1.0.1",
@@ -44,8 +44,8 @@
     "webpack-cli": "^2.0.10",
     "webpack-serve": "^0.2.0",
     "winston": "^2.4.0",
-    "ws": "^3.3.2",
     "winston-browser": "^1.0.0",
+    "ws": "^3.3.2",
     "wsproxy": "^1.2.32"
   }
 }
