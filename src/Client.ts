@@ -105,4 +105,8 @@ export class Client implements ISession {
       await this.game.join(selectedChar);
     }
   }
+
+  public async Stop() {
+    await this.game.disconnect();
+  }
 }

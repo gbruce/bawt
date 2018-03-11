@@ -13,7 +13,8 @@
     "node-dev": "ts-node ./src/node.ts",
     "proxy": "wsproxy -p 9000",
     "serve": "webpack-serve --port 8000",
-    "browser-dev": "yarn proxy | yarn serve"
+    "browser-dev": "yarn proxy | yarn serve",
+    "node-test": "mocha -r ts-node/register src/tests/NodeTest.ts --exit"
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.34",

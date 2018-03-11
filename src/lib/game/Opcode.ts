@@ -59,6 +59,9 @@ class GameOpcode {
   public static CMSG_PLAYER_LOGIN                  = 0x003D;
   public static SMSG_CHARACTER_LOGIN_FAILED        = 0x0041;
   public static SMSG_LOGIN_SETTIMESPEED            = 0x0042;
+  public static CMSG_PLAYER_LOGOUT                 = 0x004A;
+  public static CMSG_LOGOUT_REQUEST                = 0x004B;
+  public static SMSG_LOGOUT_RESPONSE               = 0x004C;
   public static SMSG_CONTACT_LIST                  = 0x0067;
   public static CMSG_MESSAGE_CHAT                  = 0x0095;
   public static SMSG_MESSAGE_CHAT                  = 0x0096;

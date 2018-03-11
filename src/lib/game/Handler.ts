@@ -17,6 +17,8 @@ import GameOpcode from './Opcode';
 import { AuthProof } from './packets/client/AuthProof';
 import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
 import { CMsgPlayerLogin } from './packets/client/CMsgPlayerLogin';
+import { CMsgLogoutRequest } from './packets/client/CMsgLogoutRequest';
+import { SMsgLogoutResponse } from './packets/server/SMsgLogoutResponse';
 import { SAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse } from './packets/server/AuthResponse';
 import { ServerPacket } from './packets/server/ServerPacket';
@@ -170,6 +172,18 @@ export class GameHandler {
 
     const loginVerify = await this.waitForOpcode<ServerPacket>(GameOpcode.SMSG_LOGIN_VERIFY_WORLD);
 
+  }
+
+  public async disconnect() {
+    const logoutRequest = new CMsgLogoutRequest();
+    this.serializer.Serialize(logoutRequest);
+
+    await this.socket.disconnect();
+
+    /* TODO: eventually handle waiting for the logout response
+    const logoutResponse = await this.waitForOpcode<SMsgLogoutResponse>(GameOpcode.SMSG_LOGOUT_RESPONSE);
+    log.info('logout ', logoutResponse.Reason, logoutResponse.Result);
+    */
   }
 
   public toHexString(byteArray: any) {

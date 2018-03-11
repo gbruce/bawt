@@ -43,7 +43,22 @@ export class WSocket implements ISocket {
     });
   }
 
-  public disconnect(): void {
+  public disconnect(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.state === SocketState.Disconnected) {
+        resolve();
+      }
+
+      if (this.socket !== null) {
+        this.socket.addEventListener('close', (event) => {
+          this.state = SocketState.Disconnected;
+          this.socket = null;
+          resolve();
+        }, { once: true });
+      }
+
+      resolve();
+    });
   }
 
   public sendBuffer(buffer: ArrayBuffer): boolean {

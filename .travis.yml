@@ -4,10 +4,13 @@ node_js:
 - '7'
 cache:
   yarn: true
+  directories:
+    - node_modules
 script:
 - yarn lint
 - yarn tsc
 - yarn webpack
+- yarn node-test
 env:
   global:
     secure: fRXdi2e+f13FqAfpTyTkEZy7lXRKeQOKgnAUEjJ7nOUFbxtByeKZil6IU47tQdZGCpTqduy83a7Wl/4q2nqsC7Rzqaw2jEvlZkP98ttlwfh5aL43jwfMoLYOB982+tm4WIGmI5SGo7Y5jMJajxn+R7hgDmBcIYRhxLb0ild9YrO3BPmG4725vFEEONH9y71mIbTj1Q1ZDpqc3LvpymdFyaRqQ2r6iC8DehYMi36P0RrlaBrXuvaS1zwKhtqft6mHG4HL6SGV2MVp6DSd48ecVlC1mm2mI/wO1HUjc+J2b4BzoQvuOFt5Q8DbBUxjHHgA7zY8Qs6sAWCQFJ1QkgLTLsA2jIIbUD+fBNO4Qxnd0ebUhDJlyRp4ta9EsfaZGjK0bTOXaulpIWEKWmU3OLaEHyQF9t4QPK6jAXAqHbhp50u9vW1VQ6QPCzrzKchGZgPjzLaN6GNFFRRKkqjyHfkstMgFTgP3VuT+ml+lCawDnPePVEENe7DClXFz9rhDdt7eVz7h22P4qGgs2NuJCcsKvsH+MshLBQ38GReR8mjtVhyGG5wcZgm9VwkeqAgvHSDQlyRRozvUQ2x8PIc5nutkMaTSL5ICQ9jm5OVYttsX03uYfRoQS7pFDRbm+u8XRQXGn1ZkqSarToNRR04FvmHYsU1vHKajKue4d/tW2asBAiM=

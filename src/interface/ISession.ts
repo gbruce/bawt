@@ -5,5 +5,6 @@ export interface ISession {
   account: string;
   build: number;
 
-  Start(): void;
+  Start(): Promise<void>;
+  Stop(): Promise<void>;
 }
