@@ -25,7 +25,7 @@ import { NewSMsgSpellOGMiss } from './lib/game/packets/server/SMsgSpellOGMiss';
 import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
   IHeaderDeserializer } from './lib/net/Deserializer';
 import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from './lib/net/Serializer';
-import { Config } from  './lib/auth/Config';
+import { Config } from './lib/auth/Config';
 
 export async function InitializeCommon(container: Container) {
   container.bind<IConfig>('IConfig').to(Config);

@@ -26,7 +26,7 @@ export class Config implements IConfig {
 
     SetVersion(file.version);
 
-    switch(GetVersion()) {
+    switch (GetVersion()) {
       case Version.WoW_1_12_1:
         this.Major = 1;
         this.Minor = 12;
