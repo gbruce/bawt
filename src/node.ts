@@ -8,10 +8,5 @@ const container = new Container();
 container.bind<ISocket>('ISocket').to(Socket);
 InitializeCommon(container);
 
-async function test() {
-  const session = container.get<ISession>('ISession');
-  await session.Start();
-  await session.Stop();
-}
-
-test();
+const session = container.get<ISession>('ISession');
+session.Start();

@@ -5,7 +5,6 @@ import { ICrypt } from '../../interface/ICrypt';
 import { IDeserializer } from '../../interface/IDeserializer';
 import { IRealm } from '../../interface/IRealm';
 import { ISerializer } from '../../interface/ISerializer';
-import { ISession } from '../../interface/ISession';
 import { ISocket } from '../../interface/ISocket';
 import BigNum from '../crypto/BigNum';
 import SHA1 from '../crypto/hash/SHA1';
@@ -23,6 +22,7 @@ import { SAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse } from './packets/server/AuthResponse';
 import { ServerPacket } from './packets/server/ServerPacket';
 import { Character, SMsgCharEnum } from './packets/server/SMsgCharEnum';
+import { IConfig } from '../../interface/IConfig';
 
 const log = NewLogger('game/Handler');
 
@@ -36,7 +36,7 @@ const readIntoByteArray = (bytes: number, bb: ByteBuffer) => {
 
 @injectable()
 export class GameHandler {
-  private session: ISession|null = null;
+  private key: number[] = [];
   private useCrypt = false;
   private crypt: ICrypt|null = null;
   private realm: IRealm|null = null;
@@ -45,7 +45,8 @@ export class GameHandler {
   // Creates a new game handler
   constructor(@inject('ISocket') private socket: ISocket,
               @inject('ISerializer') @named('Game') private serializer: ISerializer,
-              @inject('IDeserializer') @named('Game') private deserializer: IDeserializer) {
+              @inject('IDeserializer') @named('Game') private deserializer: IDeserializer,
+              @inject('IConfig') private config: IConfig ) {
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     this.socket.OnDataReceived.sub((arrayBuffer) => this.deserializer.Deserialize(arrayBuffer));
@@ -80,27 +81,22 @@ export class GameHandler {
 
   private handleChallenge(challenge: SAuthChallenge) {
     return new Promise((resolve, reject) => {
-      if (this.session == null) {
-        reject();
-        return;
-      }
-
       const salt = challenge.Salt;
       const seed = BigNum.fromRand(4);
 
       const hash = new SHA1();
-      hash.feed(this.session.account);
+      hash.feed(this.config.Account);
       hash.feed([0, 0, 0, 0]);
       hash.feed(seed.toArray());
       hash.feed(salt);
-      hash.feed(this.session.key);
+      hash.feed(this.key);
 
       log.debug('seed: ' + this.toHexString(seed.toArray()));
       log.debug('salt: ' + this.toHexString(salt));
-      log.debug('key: ' + this.toHexString(this.session.key));
+      log.debug('key: ' + this.toHexString(this.key));
 
-      const build = this.session.build;
-      const account = this.session.account;
+      const build = this.config.Build;
+      const account = this.config.Account;
 
       const authProof = new AuthProof();
       authProof.Build = build;
@@ -110,8 +106,8 @@ export class GameHandler {
       authProof.Digest = hash.digest;
       this.serializer.Serialize(authProof);
 
-      if (this.crypt && this.session.key) {
-        this.crypt.Init(this.session.key);
+      if (this.crypt && this.key) {
+        this.crypt.Init(this.key);
         this.deserializer.Encryption = this.crypt;
         this.serializer.Encryption = this.crypt;
       }
@@ -140,8 +136,8 @@ export class GameHandler {
   }
 
   // Connects to given host through given port
-  public async connectToRealm(session: ISession, realm: IRealm) {
-    this.session = session;
+  public async connectToRealm(key: number[], realm: IRealm) {
+    this.key = key;
     this.realm = realm;
 
     await this.socket.connect(realm.Host, realm.Port);
