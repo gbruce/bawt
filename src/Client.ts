@@ -55,7 +55,7 @@ export class Client implements ISession {
 
   constructor(@inject(AuthHandler) private auth: AuthHandler,
               @inject(GameHandler) private game: GameHandler,
-              @inject("IConfig") private config: IConfig) {
+              @inject('IConfig') private config: IConfig) {
   }
 
   public async Start() {

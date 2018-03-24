@@ -17,4 +17,3 @@ export class ClientPacket implements IPacket {
 
   public readonly Opcode: number;
 }
-
