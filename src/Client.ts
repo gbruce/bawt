@@ -2,13 +2,10 @@ import 'reflect-metadata';
 
 import { Container, inject, injectable } from 'inversify';
 
+import { IConfig } from './interface/IConfig';
 import { ISession } from './interface/ISession';
 import AuthHandler from './lib/auth/AuthHandler';
-import { ConfigFactory } from './lib/auth/Config';
-import { Realm } from './lib/auth/packets/server/RealmList';
 import GameHandler from './lib/game/Handler';
-import { GetVersion } from './lib/utils/Version';
-import * as data from './lightshope.json';
 
 /*
 wow client packets prior to login
@@ -54,52 +51,25 @@ C->S: [Player: Account: 1] [CMSG_PLAYER_LOGIN 0x003D (61)]
 
 @injectable()
 export class Client implements ISession {
-  private configFile: any;
-  private selectedRealm: Realm|undefined;
-  private configFactory: ConfigFactory;
-  private _account: string = '';
-  private _key: number[] = [];
   private container = new Container();
 
   constructor(@inject(AuthHandler) private auth: AuthHandler,
-              @inject(GameHandler) private game: GameHandler) {
-    this.configFile = data as any;
-    this.configFactory = new ConfigFactory();
-  }
-
-  get key() {
-    return this._key;
-  }
-
-  get account() {
-    return this._account;
-  }
-
-  get build() {
-    return parseInt(this.configFile.build, 10);
+              @inject(GameHandler) private game: GameHandler,
+              @inject("IConfig") private config: IConfig) {
   }
 
   public async Start() {
-    const authConfig = this.configFactory.Create(this.configFile.username,
-      this.configFile.password, GetVersion());
-    this._account = authConfig.Account;
-    const session = await this.auth.connect(this.configFile.auth, this.configFile.port, authConfig);
-    if (this.auth.key) {
-      this._key = this.auth.key;
-    }
-    const realms = await session.GetRealms();
-    const selectedRealm = realms.find((realmItem): boolean => {
-      return realmItem.Name === this.configFile.realm;
-    });
+    const session = await this.auth.connect(this.config.AuthServer, this.config.Port);
 
-    if (selectedRealm) {
-      await this.game.connectToRealm(this._key, selectedRealm);
+    const realms = await session.GetRealms();
+    const selectedRealm = realms.find((realmItem): boolean => realmItem.Name === this.config.Realm);
+
+    if (selectedRealm && this.auth.key) {
+      await this.game.connectToRealm(this.auth.key, selectedRealm);
     }
 
     const characters = await this.game.getChars();
-    const selectedChar = characters.find((character) => {
-      return character.Name === this.configFile.character;
-    });
+    const selectedChar = characters.find((character) => character.Name === this.config.Character);
 
     if (selectedChar) {
       await this.game.join(selectedChar);

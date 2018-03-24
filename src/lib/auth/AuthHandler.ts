@@ -25,7 +25,8 @@ export class AuthHandler {
   // Creates a new authentication handler
   constructor(@inject('ISocket') private socket: ISocket,
               @inject('ISerializer') @named('Auth') private serializer: ISerializer,
-              @inject('IDeserializer') @named('Auth') private deserializer: IDeserializer) {
+              @inject('IDeserializer') @named('Auth') private deserializer: IDeserializer,
+              @inject('IConfig') private config: IConfig) {
     this.serializer.OnPacketSerialized.sub((buffer) => this.socket.sendBuffer(buffer));
 
     // Holds Secure Remote Password implementation
@@ -66,25 +67,25 @@ export class AuthHandler {
     });
   }
 
-  private async challenge(config: IConfig): Promise<SRP> {
+  private async challenge(): Promise<SRP> {
     return new Promise<SRP>((resolve, reject) => {
-      log.info('authenticating ', config.Account);
+      log.info('authenticating ', this.config.Account);
 
       const challenge = new LogonChallenge();
       challenge.Unk1 = 0x08;
-      challenge.Size = 30 + config.Account.length;
-      challenge.Game = config.Game;
-      challenge.Major = config.Major;
-      challenge.Minor = config.Minor;
-      challenge.Patch = config.Patch;
-      challenge.Build = config.Build;
-      challenge.Platform = config.Platform;
-      challenge.Os = config.Os;
-      challenge.Locale = config.Locale;
-      challenge.Timezone = config.Timezone;
-      challenge.IPAddress = config.IPAddress;
-      challenge.AccountLength = config.Account.length;
-      challenge.Account = config.Account;
+      challenge.Size = 30 + this.config.Account.length;
+      challenge.Game = this.config.Game;
+      challenge.Major = this.config.Major;
+      challenge.Minor = this.config.Minor;
+      challenge.Patch = this.config.Patch;
+      challenge.Build = this.config.Build;
+      challenge.Platform = this.config.Platform;
+      challenge.Os = this.config.Os;
+      challenge.Locale = this.config.Locale;
+      challenge.Timezone = this.config.Timezone;
+      challenge.IPAddress = this.config.IPAddress;
+      challenge.AccountLength = this.config.Account.length;
+      challenge.Account = this.config.Account;
       this.serializer.Serialize(challenge);
 
       this.deserializer.OnObjectDeserialized(AuthOpcode.LOGON_CHALLENGE.toString())
@@ -92,21 +93,21 @@ export class AuthHandler {
           log.info('handleLogonChallenge');
 
           const srp = new SRP(packet.N, packet.G);
-          srp.feed(packet.Salt, packet.B, config.Account, config.Password);
+          srp.feed(packet.Salt, packet.B, this.config.Account, this.config.Password);
           resolve(srp);
         });
     });
   }
 
-  private async authenticate(config: IConfig) {
-    const srp = await this.challenge(config);
+  private async authenticate() {
+    const srp = await this.challenge();
     await this.logonProof(srp);
     this.srp = srp;
   }
 
-  public async connect(host: string, port: number, config: IConfig): Promise<IAuthSession> {
+  public async connect(host: string, port: number): Promise<IAuthSession> {
     await this.socket.connect(host, port);
-    await this.authenticate(config);
+    await this.authenticate();
     return this;
   }
 
