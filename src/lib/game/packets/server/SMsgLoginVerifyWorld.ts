@@ -1,8 +1,8 @@
 
-import { Serialize, UInt32Prop, Float32Prop } from '../../../net/Serialization';
+import { Serialize, UInt32Prop, Float32Prop } from 'bawt/net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/IPacket';
+import { IFactory } from 'interface/IFactory';
+import { IPacket } from 'interface/IPacket';
 import Opcode from '../../Opcode';
 
 export class NewSMsgLoginVerifyWorld implements IFactory<IPacket> {

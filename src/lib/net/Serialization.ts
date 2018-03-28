@@ -2,8 +2,8 @@ import 'reflect-metadata';
 
 import * as ByteBuffer from 'bytebuffer';
 
-import { ISerializable } from '../../interface/ISerializable';
-import { NewLogger } from '../utils/Logger';
+import { ISerializable } from 'interface/ISerializable';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const Log = NewLogger('net/Socket');
 

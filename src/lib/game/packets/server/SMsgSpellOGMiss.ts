@@ -1,11 +1,11 @@
 
-import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from '../../../net/Serialization';
+import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from 'bawt/net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/IPacket';
+import { IFactory } from 'interface/IFactory';
+import { IPacket } from 'interface/IPacket';
 import * as Long from 'long';
 import Opcode from '../../Opcode';
-import { NewLogger } from '../../../utils/Logger';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('SMsgSpellOGMiss');
 

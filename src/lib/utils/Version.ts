@@ -1,4 +1,4 @@
-import { NewLogger } from '../utils/Logger';
+import { NewLogger } from './Logger';
 
 const log = NewLogger('utils/Version');
 

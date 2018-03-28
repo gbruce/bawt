@@ -1,5 +1,5 @@
-import { ICrypt } from '../../interface/ICrypt';
-import { NewLogger } from '../utils/Logger';
+import { ICrypt } from 'interface/ICrypt';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('crypto/WowCrypt');
 

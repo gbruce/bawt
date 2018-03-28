@@ -1,9 +1,9 @@
 import RC4 = require('jsbn/lib/rc4');
 import sha1 = require('jsbn/lib/sha1');
 
-import { ICrypt } from '../../interface/ICrypt';
-import ArrayUtil from '../utils/ArrayUtil';
-import { NewLogger } from '../utils/Logger';
+import { ICrypt } from 'interface/ICrypt';
+import ArrayUtil from 'bawt/utils/ArrayUtil';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const HMAC = sha1.HMAC;
 const log = NewLogger('crypto/RC4Crypt');
