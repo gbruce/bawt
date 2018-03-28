@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
-import { IConfig } from '../../interface/IConfig';
-import { IFactory } from '../../interface/IFactory';
-import { Version, SetVersion, GetVersion } from '../utils/Version';
+import { IConfig } from 'interface/IConfig';
+import { IFactory } from 'interface/IFactory';
+import { Version, SetVersion, GetVersion } from 'bawt/utils/Version';
 import * as data from '../../lightshope.json';
 
 @injectable()

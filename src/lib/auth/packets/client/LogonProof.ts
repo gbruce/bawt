@@ -1,7 +1,7 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
-  StringNoNullProp, ByteArrayProp } from '../../../net/Serialization';
+  StringNoNullProp, ByteArrayProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { IFactory } from '../../../../interface/IFactory';
+import { IFactory } from 'interface/IFactory';
 import Opcode from '../../Opcode';
 
 export class LogonProof extends AuthPacket {

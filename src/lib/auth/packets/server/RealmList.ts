@@ -1,12 +1,12 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
-  ArrayProp } from '../../../net/Serialization';
+  ArrayProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { IFactory } from '../../../../interface/IFactory';
-import { IRealm as RealmInterface } from '../../../../interface/IRealm';
-import { ISerializable } from '../../../../interface/ISerializable';
-import { IPacket } from '../../../../interface/IPacket';
+import { IFactory } from 'interface/IFactory';
+import { IRealm as RealmInterface } from 'interface/IRealm';
+import { ISerializable } from 'interface/ISerializable';
+import { IPacket } from 'interface/IPacket';
 import Opcode from '../../Opcode';
-import { NewLogger } from '../../../utils/Logger';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('RealmList');
 

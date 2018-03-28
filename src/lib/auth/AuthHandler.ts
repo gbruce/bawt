@@ -1,12 +1,12 @@
 import { inject, injectable, named } from 'inversify';
 
-import { IConfig } from '../../interface/IConfig';
-import { IDeserializer } from '../../interface/IDeserializer';
-import { IRealm } from '../../interface/IRealm';
-import { ISerializer } from '../../interface/ISerializer';
-import { ISocket } from '../../interface/ISocket';
-import SRP from '../crypto/SRP';
-import { NewLogger } from '../utils/Logger';
+import { IConfig } from 'interface/IConfig';
+import { IDeserializer } from 'interface/IDeserializer';
+import { IRealm } from 'interface/IRealm';
+import { ISerializer } from 'interface/ISerializer';
+import { ISocket } from 'interface/ISocket';
+import SRP from 'bawt/crypto/SRP';
+import { NewLogger } from 'bawt/utils/Logger';
 import { IAuthSession } from './AuthSession';
 import AuthOpcode from './Opcode';
 import { LogonChallenge } from './packets/client/LogonChallenge';
