@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/browser.ts',
+  entry: './src/apps/bawt-gui/index.ts',
   devtool: 'source-map',
   mode: 'development',
   module: {
@@ -14,7 +14,11 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
+    extensions: [ '.tsx', '.ts', '.js' ],
+    alias: {
+      'bawt': path.resolve(__dirname, 'src/lib/'),
+      '*': path.resolve(__dirname, 'src/')
+    }
   },
   output: {
     filename: 'bundle.js',

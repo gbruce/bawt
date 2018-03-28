@@ -1,8 +1,8 @@
 import { Container } from 'inversify';
-import { InitializeCommon } from '../index';
-import { Socket } from '../lib/net/Socket';
-import { ISocket } from '../interface/ISocket';
-import { ISession } from '../interface/ISession';
+import { InitializeCommon } from 'bawt/index';
+import { Socket } from 'bawt/net/Socket';
+import { ISocket } from 'interface/ISocket';
+import { ISession } from 'interface/ISession';
 import 'mocha';
 
 it('test connect to lights hope server', async function() {

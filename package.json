@@ -10,11 +10,11 @@
     "lint": "tslint --project .",
     "tsc": "tsc",
     "webpack": "webpack",
-    "node-dev": "ts-node ./src/node.ts",
+    "node-dev": "ts-node -r tsconfig-paths/register ./src/apps/bawt-cli/index.ts",
     "proxy": "wsproxy -p 9000",
     "serve": "webpack-serve --port 8000",
     "browser-dev": "yarn proxy | yarn serve",
-    "node-test": "mocha -r ts-node/register src/tests/NodeTest.ts --exit"
+    "node-test": "mocha -r tsconfig-paths/register -r ts-node/register src/tests/NodeTest.ts --exit"
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.34",
@@ -38,6 +38,7 @@
     "strongly-typed-events": "^1.0.1",
     "ts-loader": "^4.0.1",
     "ts-node": "^4.1.0",
+    "tsconfig-paths": "^3.1.3",
     "tslint": "^5.9.0",
     "typescript": "^2.6.2",
     "webpack": "^4.1.0",

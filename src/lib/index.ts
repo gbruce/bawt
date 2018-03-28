@@ -1,31 +1,31 @@
 import { Container } from 'inversify';
 
 import { Client } from './Client';
-import { IDeserializer } from './interface/IDeserializer';
-import { IFactory } from './interface/IFactory';
-import { IPacket } from './interface/IPacket';
-import { IConfig } from './interface/IConfig';
-import { ISerializer } from './interface/ISerializer';
-import { ISession } from './interface/ISession';
-import { AuthHandler } from './lib/auth/AuthHandler';
-import AuthOpcode from './lib/auth/Opcode';
-import { NewLogonChallenge } from './lib/auth/packets/server/LogonChallenge';
-import { NewLogonProof } from './lib/auth/packets/server/LogonProof';
-import { RealmListFactory } from './lib/auth/packets/server/RealmList';
-import { GameHandler } from './lib/game/Handler';
-import GameOpcode from './lib/game/Opcode';
-import { NewSAuthChallenge } from './lib/game/packets/server/AuthChallenge';
-import { NewSAuthResponse } from './lib/game/packets/server/AuthResponse';
-import { NewServerPacket } from './lib/game/packets/server/ServerPacket';
-import { NewSMsgCharEnum } from './lib/game/packets/server/SMsgCharEnum';
-import { NewSMsgLoginVerifyWorld } from './lib/game/packets/server/SMsgLoginVerifyWorld';
-import { NewSMsgSetProficiency } from './lib/game/packets/server/SMsgSetProficiency';
-import { NewSMsgLogoutResponse } from './lib/game/packets/server/SMsgLogoutResponse';
-import { NewSMsgSpellOGMiss } from './lib/game/packets/server/SMsgSpellOGMiss';
+import { IDeserializer } from '../interface/IDeserializer';
+import { IFactory } from '../interface/IFactory';
+import { IPacket } from '../interface/IPacket';
+import { IConfig } from '../interface/IConfig';
+import { ISerializer } from '../interface/ISerializer';
+import { ISession } from '../interface/ISession';
+import { AuthHandler } from '../lib/auth/AuthHandler';
+import AuthOpcode from '../lib/auth/Opcode';
+import { NewLogonChallenge } from '../lib/auth/packets/server/LogonChallenge';
+import { NewLogonProof } from '../lib/auth/packets/server/LogonProof';
+import { RealmListFactory } from '../lib/auth/packets/server/RealmList';
+import { GameHandler } from '../lib/game/Handler';
+import GameOpcode from '../lib/game/Opcode';
+import { NewSAuthChallenge } from '../lib/game/packets/server/AuthChallenge';
+import { NewSAuthResponse } from '../lib/game/packets/server/AuthResponse';
+import { NewServerPacket } from '../lib/game/packets/server/ServerPacket';
+import { NewSMsgCharEnum } from '../lib/game/packets/server/SMsgCharEnum';
+import { NewSMsgLoginVerifyWorld } from '../lib/game/packets/server/SMsgLoginVerifyWorld';
+import { NewSMsgSetProficiency } from '../lib/game/packets/server/SMsgSetProficiency';
+import { NewSMsgLogoutResponse } from '../lib/game/packets/server/SMsgLogoutResponse';
+import { NewSMsgSpellOGMiss } from '../lib/game/packets/server/SMsgSpellOGMiss';
 import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
-  IHeaderDeserializer } from './lib/net/Deserializer';
-import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from './lib/net/Serializer';
-import { Config } from './lib/auth/Config';
+  IHeaderDeserializer } from '../lib/net/Deserializer';
+import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from '../lib/net/Serializer';
+import { Config } from '../lib/auth/Config';
 
 export async function InitializeCommon(container: Container) {
   container.bind<IConfig>('IConfig').to(Config);

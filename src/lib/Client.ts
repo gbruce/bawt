@@ -2,10 +2,10 @@ import 'reflect-metadata';
 
 import { Container, inject, injectable } from 'inversify';
 
-import { IConfig } from './interface/IConfig';
-import { ISession } from './interface/ISession';
-import AuthHandler from './lib/auth/AuthHandler';
-import GameHandler from './lib/game/Handler';
+import { IConfig } from '../interface/IConfig';
+import { ISession } from '../interface/ISession';
+import AuthHandler from '../lib/auth/AuthHandler';
+import GameHandler from '../lib/game/Handler';
 
 /*
 wow client packets prior to login
