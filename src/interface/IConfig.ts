@@ -1,4 +1,8 @@
 export interface IConfig {
+  readonly AuthServer: string;
+  readonly Port: number;
+  readonly Realm: string;
+  readonly Character: string;
   readonly Account: string;
   readonly Password: string;
   readonly Game: string;

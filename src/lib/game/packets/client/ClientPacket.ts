@@ -15,7 +15,5 @@ export class ClientPacket implements IPacket {
     return this._name;
   }
 
-  public readonly Size: number = 0;
-
   public readonly Opcode: number;
 }

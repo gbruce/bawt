@@ -6,6 +6,10 @@ import * as data from '../../lightshope.json';
 
 @injectable()
 export class Config implements IConfig {
+  public AuthServer: string = '';
+  public Port: number = 0;
+  public Realm: string = '';
+  public Character: string = '';
   public Account: string = '';
   public Password: string = '';
   public Game: string = 'WoW';
@@ -21,8 +25,12 @@ export class Config implements IConfig {
 
   constructor() {
     const file = data as any;
-    this.Account = file.username;
-    this.Password = file.password;
+    this.Account = file.username.toUpperCase();
+    this.Password = file.password.toUpperCase();
+    this.AuthServer = file.auth;
+    this.Realm = file.realm;
+    this.Port = file.port;
+    this.Character = file.character;
 
     SetVersion(file.version);
 
@@ -69,6 +77,10 @@ export class ConfigFactory implements IFactory<IConfig> {
           Locale: this.reverse('enUS'),
           Timezone: 0,
           IPAddress: 0,
+          AuthServer: '',
+          Port: 0,
+          Realm: '',
+          Character: '',
         };
 
       case Version.WoW_3_3_5:
@@ -86,6 +98,10 @@ export class ConfigFactory implements IFactory<IConfig> {
           Locale: this.reverse('enUS'),
           Timezone: 0,
           IPAddress: 0,
+          AuthServer: '',
+          Port: 0,
+          Realm: '',
+          Character: '',
         };
     }
   }
