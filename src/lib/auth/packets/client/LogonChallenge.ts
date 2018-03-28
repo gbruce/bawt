@@ -1,8 +1,8 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
-  StringNoNullProp } from '../../../net/Serialization';
+  StringNoNullProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/IPacket';
+import { IFactory } from 'interface/IFactory';
+import { IPacket } from 'interface/IPacket';
 import Opcode from '../../Opcode';
 
 export class LogonChallenge extends AuthPacket {

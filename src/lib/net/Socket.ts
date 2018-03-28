@@ -2,8 +2,8 @@ import { injectable } from 'inversify';
 import { Socket as NetSocket } from 'net';
 import { ISimpleEvent, SimpleEventDispatcher } from 'strongly-typed-events';
 
-import { ISocket } from '../../interface/ISocket';
-import { NewLogger } from '../utils/Logger';
+import { ISocket } from 'interface/ISocket';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('MySocket');
 

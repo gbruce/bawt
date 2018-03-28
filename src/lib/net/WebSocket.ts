@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
-import { ISocket } from '../../interface/ISocket';
+import { ISocket } from 'interface/ISocket';
 import { ISimpleEvent, SimpleEventDispatcher } from 'strongly-typed-events';
-import { NewLogger } from '../utils/Logger';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('WebSocket');
 

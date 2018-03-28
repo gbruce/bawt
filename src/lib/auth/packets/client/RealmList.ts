@@ -1,4 +1,4 @@
-import { Serialize, UInt32Prop } from '../../../net/Serialization';
+import { Serialize, UInt32Prop } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
 import Opcode from '../../Opcode';
 

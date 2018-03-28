@@ -1,7 +1,7 @@
-import { Serialize, UInt8Prop } from '../../net/Serialization';
-import { default as ObjectUtil } from '../../utils/ObjectUtil';
+import { Serialize, UInt8Prop } from 'bawt/net/Serialization';
+import { default as ObjectUtil } from 'bawt/utils/ObjectUtil';
 import AuthOpcode from '../Opcode';
-import { IPacket } from '../../../interface/IPacket';
+import { IPacket } from 'interface/IPacket';
 
 export class AuthPacket implements IPacket {
   constructor(private _opcode: number) {

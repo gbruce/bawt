@@ -11,7 +11,10 @@
     "emitDecoratorMetadata": true,
     "types": ["node"],
     "baseUrl": "./src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "bawt/*": ["./lib/*"]
+    }
   },
   "exclude": [
     "node_modules"

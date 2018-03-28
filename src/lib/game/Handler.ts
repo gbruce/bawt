@@ -1,17 +1,17 @@
 import * as ByteBuffer from 'bytebuffer';
 import { inject, injectable, named } from 'inversify';
 
-import { ICrypt } from '../../interface/ICrypt';
-import { IDeserializer } from '../../interface/IDeserializer';
-import { IRealm } from '../../interface/IRealm';
-import { ISerializer } from '../../interface/ISerializer';
-import { ISocket } from '../../interface/ISocket';
-import BigNum from '../crypto/BigNum';
-import SHA1 from '../crypto/hash/SHA1';
-import RC4Crypt from '../crypto/RC4Crypt';
-import WowCrypt from '../crypto/WowCrypt';
-import { NewLogger } from '../utils/Logger';
-import { GetVersion, Version } from '../utils/Version';
+import { ICrypt } from 'interface/ICrypt';
+import { IDeserializer } from 'interface/IDeserializer';
+import { IRealm } from 'interface/IRealm';
+import { ISerializer } from 'interface/ISerializer';
+import { ISocket } from 'interface/ISocket';
+import BigNum from 'bawt/crypto/BigNum';
+import SHA1 from 'bawt/crypto/hash/SHA1';
+import RC4Crypt from 'bawt/crypto/RC4Crypt';
+import WowCrypt from 'bawt/crypto/WowCrypt';
+import { NewLogger } from 'bawt/utils/Logger';
+import { GetVersion, Version } from 'bawt/utils/Version';
 import GameOpcode from './Opcode';
 import { AuthProof } from './packets/client/AuthProof';
 import { CMsgCharEnum } from './packets/client/CMsgCharEnum';
@@ -22,7 +22,7 @@ import { SAuthChallenge } from './packets/server/AuthChallenge';
 import { SAuthResponse } from './packets/server/AuthResponse';
 import { ServerPacket } from './packets/server/ServerPacket';
 import { Character, SMsgCharEnum } from './packets/server/SMsgCharEnum';
-import { IConfig } from '../../interface/IConfig';
+import { IConfig } from 'interface/IConfig';
 
 const log = NewLogger('game/Handler');
 

@@ -1,12 +1,12 @@
 
 import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
-  ArrayProp } from '../../../net/Serialization';
+  ArrayProp } from 'bawt/net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/IPacket';
-import { ISerializable } from '../../../../interface/ISerializable';
+import { IFactory } from 'interface/IFactory';
+import { IPacket } from 'interface/IPacket';
+import { ISerializable } from 'interface/ISerializable';
 import Opcode from '../../Opcode';
-import { NewLogger } from '../../../utils/Logger';
+import { NewLogger } from 'bawt/utils/Logger';
 import * as Long from 'long';
 
 const log = NewLogger('SMsgCharEnum');

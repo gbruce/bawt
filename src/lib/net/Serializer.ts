@@ -2,11 +2,11 @@ import * as ByteBuffer from 'bytebuffer';
 import { inject, injectable } from 'inversify';
 import { ISimpleEvent, SimpleEventDispatcher } from 'strongly-typed-events';
 
-import { ICrypt } from '../../interface/ICrypt';
-import { IPacket } from '../../interface/IPacket';
-import { ISerializer } from '../../interface/ISerializer';
-import { BufferLength, SerializeObjectToBuffer } from '../net/Serialization';
-import { NewLogger } from '../utils/Logger';
+import { ICrypt } from 'interface/ICrypt';
+import { IPacket } from 'interface/IPacket';
+import { ISerializer } from 'interface/ISerializer';
+import { BufferLength, SerializeObjectToBuffer } from 'bawt/net/Serialization';
+import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('net/Serializer');
 

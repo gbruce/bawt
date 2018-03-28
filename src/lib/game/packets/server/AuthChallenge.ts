@@ -1,8 +1,8 @@
 
-import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from '../../../net/Serialization';
+import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from 'bawt/net/Serialization';
 import { ServerPacket } from './ServerPacket';
-import { IFactory } from '../../../../interface/IFactory';
-import { IPacket } from '../../../../interface/IPacket';
+import { IFactory } from 'interface/IFactory';
+import { IPacket } from 'interface/IPacket';
 import Opcode from '../../Opcode';
 
 export class NewSAuthChallenge implements IFactory<IPacket> {
