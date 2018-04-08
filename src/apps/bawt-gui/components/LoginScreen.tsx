@@ -5,6 +5,7 @@ import { LoginButton } from './LoginButton';
 import { Input } from './Input';
 import { IConfig } from 'interface/IConfig';
 import { lazyInject } from 'bawt/Container';
+import { Credentials } from 'bawt/utils/Credentials';
 import AuthHandler from 'bawt/auth/AuthHandler';
 
 const theme = {
@@ -31,8 +32,7 @@ const Wrapper = styled.section`
 export class LoginScreen extends React.Component<{}, object> {
   @lazyInject('IConfig')
   public config!: IConfig;
-  private account: string = '';
-  private password: string = '';
+  private credentials: Credentials = new Credentials();
 
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
@@ -45,15 +45,15 @@ export class LoginScreen extends React.Component<{}, object> {
   }
 
   private onAccountChanged(account: string) {
-    this.account = account;
+    this.credentials.Account = account;
   }
 
   private onPasswordChanged(password: string) {
-    this.password = password;
+    this.credentials.Password = password;
   }
 
   private async onClick() {
-    await this.auth.connect(this.config.AuthServer, this.config.Port);
+    await this.auth.connect(this.config.AuthServer, this.config.Port, this.credentials);
   }
 
   public render() {
@@ -61,9 +61,9 @@ export class LoginScreen extends React.Component<{}, object> {
       <Wrapper>
         <Title>World of Warcraft</Title>
         <Server>{this.config.AuthServer}</Server>
-        <Input label='Account Name' color='yellow' type='text' defaultValue={this.config.Account}
+        <Input label='Account Name' color='yellow' type='text' defaultValue={this.credentials.Account}
           onValueChanged={this.onAccountChanged}/>
-        <Input label='Password' color='yellow' type='password' defaultValue={this.config.Password}
+        <Input label='Password' color='yellow' type='password' defaultValue={this.credentials.Password}
           onValueChanged={this.onPasswordChanged}/>
         <LoginButton onClick={this.onClick}/>
       </Wrapper>

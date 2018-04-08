@@ -7,6 +7,7 @@ import { ISerializer } from 'interface/ISerializer';
 import { ISocket } from 'interface/ISocket';
 import SRP from 'bawt/crypto/SRP';
 import { NewLogger } from 'bawt/utils/Logger';
+import { Credentials } from 'bawt/utils/Credentials';
 import { IAuthSession } from './AuthSession';
 import AuthOpcode from './Opcode';
 import { LogonChallenge } from './packets/client/LogonChallenge';
@@ -21,6 +22,8 @@ const log = NewLogger('AuthHandler');
 @injectable()
 export class AuthHandler {
   private srp: SRP|null;
+  private account: string = '';
+  private password: string = '';
 
   // Creates a new authentication handler
   constructor(@inject('ISocket') private socket: ISocket,
@@ -69,11 +72,11 @@ export class AuthHandler {
 
   private async challenge(): Promise<SRP> {
     return new Promise<SRP>((resolve, reject) => {
-      log.info('authenticating ', this.config.Account);
+      log.info('authenticating ', this.account);
 
       const challenge = new LogonChallenge();
       challenge.Unk1 = 0x08;
-      challenge.Size = 30 + this.config.Account.length;
+      challenge.Size = 30 + this.account.length;
       challenge.Game = this.config.Game;
       challenge.Major = this.config.Major;
       challenge.Minor = this.config.Minor;
@@ -84,8 +87,8 @@ export class AuthHandler {
       challenge.Locale = this.config.Locale;
       challenge.Timezone = this.config.Timezone;
       challenge.IPAddress = this.config.IPAddress;
-      challenge.AccountLength = this.config.Account.length;
-      challenge.Account = this.config.Account;
+      challenge.AccountLength = this.account.length;
+      challenge.Account = this.account;
       this.serializer.Serialize(challenge);
 
       this.deserializer.OnObjectDeserialized(AuthOpcode.LOGON_CHALLENGE.toString())
@@ -93,7 +96,7 @@ export class AuthHandler {
           log.info('handleLogonChallenge');
 
           const srp = new SRP(packet.N, packet.G);
-          srp.feed(packet.Salt, packet.B, this.config.Account, this.config.Password);
+          srp.feed(packet.Salt, packet.B, this.account, this.password);
           resolve(srp);
         });
     });
@@ -105,7 +108,11 @@ export class AuthHandler {
     this.srp = srp;
   }
 
-  public async connect(host: string, port: number): Promise<IAuthSession> {
+  public async connect(host: string, port: number, credentials: Credentials): Promise<IAuthSession> {
+    const { account, password } = credentials.Validated();
+    this.account = account;
+    this.password = password;
+
     await this.socket.connect(host, port);
     await this.authenticate();
     return this;
