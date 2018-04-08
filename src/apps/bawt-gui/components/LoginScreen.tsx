@@ -8,19 +8,19 @@ import { lazyInject } from 'bawt/Container';
 import AuthHandler from 'bawt/auth/AuthHandler';
 
 const theme = {
-  main: 'mediumseagreen'
+  main: 'mediumseagreen',
 };
 
 const Title = styled.h1`
   font-size: 1.5em;
   text-align: center;
-  color: ${props => props.theme.main};
+  color: ${(props) => props.theme.main};
 `;
 
 const Server = styled.text`
   display: block;
   text-align: center;
-  color: ${props => props.theme.main};
+  color: ${(props) => props.theme.main};
 `;
 
 const Wrapper = styled.section`
@@ -28,12 +28,7 @@ const Wrapper = styled.section`
   background: black;
 `;
 
-export interface HelloProps {
-  compiler: string;
-  framework: string;
-}
-
-export class LoginScreen extends React.Component<HelloProps, object> {
+export class LoginScreen extends React.Component<{}, object> {
   @lazyInject('IConfig')
   public config!: IConfig;
   private account: string = '';
@@ -42,36 +37,36 @@ export class LoginScreen extends React.Component<HelloProps, object> {
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
 
-  constructor(props: HelloProps) {
+  constructor(props: {}) {
     super(props);
     this.onClick = this.onClick.bind(this);
     this.onAccountChanged = this.onAccountChanged.bind(this);
     this.onPasswordChanged = this.onPasswordChanged.bind(this);
   }
 
-  onAccountChanged(account: string) {
+  private onAccountChanged(account: string) {
     this.account = account;
   }
 
-  onPasswordChanged(password: string) {
+  private onPasswordChanged(password: string) {
     this.password = password;
   }
 
-  async onClick() {
-    console.log('Logging in with ' + this.config.Account + ':' + this.config.Password);
+  private async onClick() {
     await this.auth.connect(this.config.AuthServer, this.config.Port);
   }
 
-  render() {
+  public render() {
     return <ThemeProvider theme={theme}>
       <Wrapper>
         <Title>World of Warcraft</Title>
         <Server>{this.config.AuthServer}</Server>
-        <Input label='Account Name' color='yellow' type='text' defaultValue={this.config.Account} onValueChanged={this.onAccountChanged}/>
-        <Input label='Password' color='yellow' type='password' defaultValue={this.config.Password} onValueChanged={this.onPasswordChanged}/>
+        <Input label='Account Name' color='yellow' type='text' defaultValue={this.config.Account}
+          onValueChanged={this.onAccountChanged}/>
+        <Input label='Password' color='yellow' type='password' defaultValue={this.config.Password}
+          onValueChanged={this.onPasswordChanged}/>
         <LoginButton onClick={this.onClick}/>
       </Wrapper>
-      </ThemeProvider>
+      </ThemeProvider>;
   }
 }
-

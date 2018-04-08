@@ -26,7 +26,7 @@ const TextElement = styled.text`
   padding: 0.5em 2em;
   margin-left: auto;
   margin-right: auto;
-  color: ${props => props.theme.main};
+  color: ${(props) => props.theme.main};
   text-align: center;
 `;
 
@@ -46,20 +46,20 @@ export class Input extends React.Component<InputProps, InputState> {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  componentDidUpdate(prevProps: InputProps, prevState: InputState) {
-    if(this.props.onValueChanged) {
+  public componentDidUpdate(prevProps: InputProps, prevState: InputState) {
+    if (this.props.onValueChanged) {
       this.props.onValueChanged(this.state.value);
     }
   }
 
-  handleChange(event: any) {
+  private handleChange(event: any) {
     this.setState({value: event.target.value});
   }
 
-  render() {
+  public render() {
     return<DivElement>
       <TextElement>{this.props.label}</TextElement>
       <InputElement value={this.state.value} type={this.props.type} onChange={this.handleChange}/>
-     </DivElement>
+     </DivElement>;
   }
 }

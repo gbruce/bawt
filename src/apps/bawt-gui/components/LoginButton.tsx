@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-export interface Props {
+export interface IProps {
   onClick?: () => void;
 }
 
@@ -12,18 +12,19 @@ const Button = styled.button`
   margin-right: auto;
 `;
 
-export class LoginButton extends React.Component<Props, object> {
-  constructor(props: Props) {
+export class LoginButton extends React.Component<IProps, object> {
+  constructor(props: IProps) {
     super(props);
     this.onClick = this.onClick.bind(this);
   }
 
-  onClick() {
-    if(this.props.onClick) {
+  private onClick() {
+    if (this.props.onClick) {
       this.props.onClick();
     }
   }
-  render() {
-    return <Button onClick={this.onClick}>Login</Button>
+
+  public render() {
+    return <Button onClick={this.onClick}>Login</Button>;
   }
 }

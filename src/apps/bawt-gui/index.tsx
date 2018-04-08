@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Container } from 'inversify';
 import { InitializeCommon } from 'bawt/index';
 import { WSocket } from 'bawt/net/WebSocket';
@@ -15,6 +15,6 @@ InitializeCommon(container);
 const config = container.get<IConfig>('IConfig');
 
 ReactDOM.render(
-  <LoginScreen compiler={config.AuthServer} framework="React" />,
-  document.getElementById("root")
+  <LoginScreen/>,
+  document.getElementById('root'),
 );
