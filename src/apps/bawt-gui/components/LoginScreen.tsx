@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { inject } from 'inversify';
-import styled, { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 import { LoginButton } from './LoginButton';
 import { Input } from './Input';
 import { IConfig } from 'interface/IConfig';
@@ -8,9 +8,9 @@ import { lazyInject } from 'bawt/Container';
 import { Credentials } from 'bawt/utils/Credentials';
 import AuthHandler from 'bawt/auth/AuthHandler';
 
-const theme = {
-  main: 'mediumseagreen',
-};
+export interface Props {
+  onLoggedIn?: () => void;
+}
 
 const Title = styled.h1`
   font-size: 1.5em;
@@ -29,7 +29,7 @@ const Wrapper = styled.section`
   background: black;
 `;
 
-export class LoginScreen extends React.Component<{}, object> {
+export class LoginScreen extends React.Component<Props, object> {
   @lazyInject('IConfig')
   public config!: IConfig;
   private credentials: Credentials = new Credentials();
@@ -37,7 +37,7 @@ export class LoginScreen extends React.Component<{}, object> {
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
     this.onClick = this.onClick.bind(this);
     this.onAccountChanged = this.onAccountChanged.bind(this);
@@ -54,19 +54,20 @@ export class LoginScreen extends React.Component<{}, object> {
 
   private async onClick() {
     await this.auth.connect(this.config.AuthServer, this.config.Port, this.credentials);
+    if (this.props.onLoggedIn) {
+      this.props.onLoggedIn();
+    }
   }
 
   public render() {
-    return <ThemeProvider theme={theme}>
-      <Wrapper>
+    return <Wrapper>
         <Title>World of Warcraft</Title>
-        <Server>{this.config.AuthServer}</Server>
+        <Server>server: {this.config.AuthServer}</Server>
         <Input label='Account Name' color='yellow' type='text' defaultValue={this.credentials.Account}
           onValueChanged={this.onAccountChanged}/>
         <Input label='Password' color='yellow' type='password' defaultValue={this.credentials.Password}
           onValueChanged={this.onPasswordChanged}/>
         <LoginButton onClick={this.onClick}/>
       </Wrapper>
-      </ThemeProvider>;
   }
 }

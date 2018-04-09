@@ -61,7 +61,7 @@ export async function InitializeCommon(container: Container) {
     ]),
   ).whenAnyAncestorNamed('Game');
 
-  container.bind<AuthHandler>(AuthHandler).toSelf();
-  container.bind<GameHandler>(GameHandler).toSelf();
+  container.bind<AuthHandler>(AuthHandler).toSelf().inSingletonScope();
+  container.bind<GameHandler>(GameHandler).toSelf().inSingletonScope();
   container.bind<ISession>('ISession').to(Client);
 }
