@@ -4,16 +4,31 @@ import { lazyInject } from 'bawt/Container';
 import AuthHandler from 'bawt/auth/AuthHandler';
 import { IRealm } from 'interface/IRealm';
 import ReactTable, { Column } from 'react-table';
+import { Names } from 'bawt/utils/Names';
+
+export interface Props {
+  onSelected?: (realm: IRealm) => void;
+}
 
 type State = {
   realms: IRealm [];
   selected: IRealm|null;
 };
 
+const ButtonStyled = styled.button`
+margin: 'auto',
+`;
+
 const Wrapper = styled.div`
   padding: 4em;
   background: white;
 `;
+
+const ButtonsWrapper = styled.div`
+  margin: 'auto';
+  width: '520px';
+`;
+
 const Title = styled.h3`
   text-align: center;
 `;
@@ -22,11 +37,15 @@ const CountCell = styled.div`
   text-align: center;
 `;
 
-export class RealmView extends React.Component<{}, State> {
+
+export class RealmView extends React.Component<Props, State> {
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
 
-  constructor(props: {}) {
+  @lazyInject(Names)
+  private names!: Names;
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       realms: [],
@@ -34,6 +53,7 @@ export class RealmView extends React.Component<{}, State> {
     };
 
     this.onClicked = this.onClicked.bind(this);
+    this.onOkay = this.onOkay.bind(this);
   }
 
   public async componentDidMount() {
@@ -46,6 +66,12 @@ export class RealmView extends React.Component<{}, State> {
     this.setState({
       selected: selected,
     })
+  }
+
+  private onOkay() {
+    if (this.props.onSelected && this.state.selected) {
+      this.props.onSelected(this.state.selected);
+    }
   }
 
   public render() {
@@ -63,11 +89,7 @@ export class RealmView extends React.Component<{}, State> {
         <div style={{ textAlign: 'left' }}>Type</div>
       ),
       accessor: (props: IRealm) => {
-        if(props.Type === 1) {
-          return '(PVP)';
-        }
-        
-        return 'Normal';
+        return this.names.RealmTypeToString(props);
       },
       width: 70,
       Cell: (props: any, column: any) => (
@@ -99,15 +121,7 @@ export class RealmView extends React.Component<{}, State> {
       id: 'Population',
       Header: <div style={{ textAlign: 'left' }}>Population</div>,
       accessor: (props: IRealm) => {
-        if(props.Population > 1.97) {
-          return 'High';
-        }
-
-        if(props.Population > 1.80) {
-          return 'Medium';
-        }
-
-        return 'Low';
+        return this.names.RealmPopulationToString(props);
       },
       width: 100,
       Cell: (props: any, column: any) => (
@@ -153,6 +167,10 @@ export class RealmView extends React.Component<{}, State> {
             }
           }}
         />
+        <ButtonsWrapper>
+          <ButtonStyled onClick={this.onOkay}>Okay</ButtonStyled>
+          <ButtonStyled>Cancel</ButtonStyled>          
+        </ButtonsWrapper>
       </Wrapper>
     );
   }

@@ -26,8 +26,10 @@ import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
   IHeaderDeserializer } from 'bawt/net/Deserializer';
 import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from 'bawt/net/Serializer';
 import { Config } from 'bawt/auth/Config';
+import { Names }  from 'bawt/utils/Names';
 
 export async function InitializeCommon(container: Container) {
+  container.bind<Names>(Names).toSelf().inSingletonScope();
   container.bind<IConfig>('IConfig').to(Config);
   container.bind<IHeaderSerializer>('IHeaderSerializer').to(AuthHeaderSerializer).whenParentNamed('Auth');
   container.bind<IHeaderSerializer>('IHeaderSerializer').to(GameHeaderSerializer).whenParentNamed('Game');

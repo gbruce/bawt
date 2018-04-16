@@ -6,6 +6,7 @@ import { IDeserializer } from 'interface/IDeserializer';
 import { IRealm } from 'interface/IRealm';
 import { ISerializer } from 'interface/ISerializer';
 import { ISocket } from 'interface/ISocket';
+import { ICharacter } from 'interface/ICharacter';
 import BigNum from 'bawt/crypto/BigNum';
 import SHA1 from 'bawt/crypto/hash/SHA1';
 import RC4Crypt from 'bawt/crypto/RC4Crypt';
@@ -149,7 +150,7 @@ export class GameHandler {
     return this;
   }
 
-  public async getChars() {
+  public async getChars(): Promise< ICharacter[]> {
     const charEnum = new CMsgCharEnum();
     this.serializer.Serialize(charEnum);
 
@@ -158,7 +159,7 @@ export class GameHandler {
     return characters.Characters;
   }
 
-  public async join(character: Character) {
+  public async join(character: ICharacter) {
     log.info('joining game with', character.toString());
 
     const login = new CMsgPlayerLogin();

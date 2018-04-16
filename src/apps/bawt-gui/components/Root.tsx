@@ -1,35 +1,85 @@
 import * as React from 'react';
 import { LoginScreen } from './LoginScreen';
 import { RealmView } from './RealmView';
-import { Realm } from 'bawt/auth/packets/server/RealmList';
+import { CharacterView } from './CharacterView';
+import { GameView } from './GameView';
+import { IRealm } from 'interface/IRealm';
 import { ThemeProvider } from 'styled-components';
+import { ICharacter } from 'interface/ICharacter';
 
 const theme = {
   main: 'mediumseagreen',
 };
 
 interface IState {
+  appState: AppState;
   loggedIn: boolean;
+  realm: IRealm|null;
+  character: ICharacter|null;
+}
+
+enum AppState {
+  InputtingCredentials,
+  SelectingRealm,
+  SelectingCharacter,
+  Playing
 }
 
 export class Root extends React.Component<{}, IState> {
-
   constructor(props: {}) {
     super(props);
-    this.state = { loggedIn: false};
+    this.state = { loggedIn: false, realm: null, character: null, appState: AppState.InputtingCredentials };
     this.onLoggedIn = this.onLoggedIn.bind(this);
+    this.onRealmSelected = this.onRealmSelected.bind(this);
+    this.onCharacterSelected = this.onCharacterSelected.bind(this);
   }
 
   private onLoggedIn() {
-    this.setState({ loggedIn: true });
+    this.setState({ appState: AppState.SelectingRealm });
+  }
+
+  private onRealmSelected (realm: IRealm) {
+    this.setState({ realm: realm, appState: AppState.SelectingCharacter });
+  }
+
+  private onCharacterSelected (character: ICharacter) {
+    this.setState({ character: character, appState: AppState.Playing});
+  }
+
+  private renderCharacterView() {
+    if (this.state.realm) {
+      return (<CharacterView realm={this.state.realm} onSelected={this.onCharacterSelected}/>);
+    }
+    
+    return (null);
+  }
+
+  private renderGameView() {
+    if (this.state.character) {
+      return (<GameView character={this.state.character}/>);
+    }
+
+    return (null);
   }
 
   public render() {
-    if (this.state.loggedIn) {
-      return <ThemeProvider theme={theme}><RealmView/></ThemeProvider>
-    }
-    else {
-      return <ThemeProvider theme={theme}><LoginScreen onLoggedIn={this.onLoggedIn}/></ThemeProvider>;
+    switch(this.state.appState) {
+      case AppState.InputtingCredentials:
+        return  <ThemeProvider theme={theme}>
+                  <LoginScreen onLoggedIn={this.onLoggedIn}/>
+                </ThemeProvider>;
+      case AppState.SelectingRealm:
+        return  <ThemeProvider theme={theme}>
+                  <RealmView onSelected={this.onRealmSelected}/>
+                </ThemeProvider>;
+      case AppState.SelectingCharacter:
+        return  <ThemeProvider theme={theme}>
+                  {this.renderCharacterView()}
+                </ThemeProvider>;
+      case AppState.Playing:
+        return  <ThemeProvider theme={theme}>
+                  {this.renderGameView()}
+                </ThemeProvider>;
     }
   }
 }
