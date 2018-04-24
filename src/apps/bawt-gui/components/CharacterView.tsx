@@ -7,6 +7,8 @@ import { Names } from 'bawt/utils/Names';
 import { IRealm } from 'interface/IRealm';
 import { ICharacter } from 'interface/ICharacter';
 import ReactTable, { Column, TableCellRenderer } from 'react-table';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 
 interface Props {
   realm: IRealm;
@@ -118,8 +120,26 @@ export class CharacterView extends React.Component<Props, State> {
       },
     ];
 
-    return <Wrapper>
-      <ReactTable
+    const actions = [
+      <FlatButton
+        label="Enter World"
+        primary={true}
+        onClick={this.onEnterWorld}
+        disabled={this.state.selected === null}
+      />,
+    ];
+
+    return(
+      <Dialog
+        title="World of Warcraft"
+        titleStyle={{textAlign: "center"}}
+        actions={actions}
+        modal={true}
+        open={true}
+        contentStyle={{ width: '600px'}}
+        bodyStyle={{minHeight: '450px'}}
+      >
+        <ReactTable
           pageSize={10}
           data={this.state.characters}
           columns={columns}
@@ -148,11 +168,7 @@ export class CharacterView extends React.Component<Props, State> {
             }
           }}
           >
-      </ReactTable>
-      <ButtonsWrapper>
-          <ButtonStyled onClick={this.onEnterWorld}>Enter World</ButtonStyled>
-          <ButtonStyled>Back</ButtonStyled>          
-        </ButtonsWrapper>
-    </Wrapper>;
+        </ReactTable>
+      </Dialog>);
   }
 }
