@@ -1,10 +1,11 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import { lazyInject } from 'bawt/Container';
 import AuthHandler from 'bawt/auth/AuthHandler';
 import { IRealm } from 'interface/IRealm';
-import ReactTable, { Column } from 'react-table';
 import { Names } from 'bawt/utils/Names';
+import ReactTable, { Column } from 'react-table';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 
 export interface Props {
   onSelected?: (realm: IRealm) => void;
@@ -15,29 +16,6 @@ type State = {
   selected: IRealm|null;
 };
 
-const ButtonStyled = styled.button`
-margin: 'auto',
-`;
-
-const Wrapper = styled.div`
-  padding: 4em;
-  background: white;
-`;
-
-const ButtonsWrapper = styled.div`
-  margin: 'auto';
-  width: '520px';
-`;
-
-const Title = styled.h3`
-  text-align: center;
-`;
-
-const CountCell = styled.div`
-  text-align: center;
-`;
-
-
 export class RealmView extends React.Component<Props, State> {
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
@@ -47,6 +25,7 @@ export class RealmView extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       realms: [],
       selected: null,
@@ -55,7 +34,7 @@ export class RealmView extends React.Component<Props, State> {
     this.onClicked = this.onClicked.bind(this);
     this.onOkay = this.onOkay.bind(this);
   }
-
+  
   public async componentDidMount() {
     this.auth.GetRealms().then((realms) => {
       this.setState({ realms: realms });
@@ -74,70 +53,86 @@ export class RealmView extends React.Component<Props, State> {
     }
   }
 
-  public render() {
+  render() {
     const columns: Column[] = [
-    {
-      accessor: 'Name',
-      width: 260,
-      Header: (props: any, column: any) => (
-        <div style={{ textAlign: 'left' }}>Realm Name</div>
-      )
-    },
-    {
-      id: 'Type',
-      Header: (props: any, column: any) => (
-        <div style={{ textAlign: 'left' }}>Type</div>
-      ),
-      accessor: (props: IRealm) => {
-        return this.names.RealmTypeToString(props);
+      {
+        accessor: 'Name',
+        width: 260,
+        Header: (props: any, column: any) => (
+          <div style={{ textAlign: 'left' }}>Realm Name</div>
+        )
       },
-      width: 70,
-      Cell: (props: any, column: any) => (
-        <div
-          style={{
-            textAlign: 'center',
-            color: `${props.original.Type === 1 ? 'red' : 'black'}`
-          }}
-        >{props.value}
-        </div>
-      )
-    },
-    {
-      id: 'CharacterCount',
-      Header: <div style={{ textAlign: 'left' }}>Characters</div>,
-      accessor: (props: IRealm) => {
-        if (props.CharacterCount > 0) {
-          return `(${props.CharacterCount})`;
-        }
+      {
+        id: 'Type',
+        Header: (props: any, column: any) => (
+          <div style={{ textAlign: 'left' }}>Type</div>
+        ),
+        accessor: (props: IRealm) => {
+          return this.names.RealmTypeToString(props);
+        },
+        width: 70,
+        Cell: (props: any, column: any) => (
+          <div
+            style={{
+              textAlign: 'center',
+              color: `${props.original.Type === 1 ? 'red' : 'black'}`
+            }}
+          >{props.value}
+          </div>
+        )
+      },
+      {
+        id: 'CharacterCount',
+        Header: <div style={{ textAlign: 'left' }}>Characters</div>,
+        accessor: (props: IRealm) => {
+          if (props.CharacterCount > 0) {
+            return `(${props.CharacterCount})`;
+          }
+  
+          return '';
+        },
+        width: 90,
+        Cell: row => (
+          <div>{row.value}</div>
+        )
+      },
+      {
+        id: 'Population',
+        Header: <div style={{ textAlign: 'left' }}>Population</div>,
+        accessor: (props: IRealm) => {
+          return this.names.RealmPopulationToString(props);
+        },
+        width: 100,
+        Cell: (props: any, column: any) => (
+          <div
+            style={{
+              textAlign: 'center',
+              color: `${props.original.Population > 1.97 ? 'red' : (props.original.Population < 1.80 ? 'green' : 'black')}`
+            }}
+          >{props.value}
+          </div>
+        )
+      }];
 
-        return '';
-      },
-      width: 90,
-      Cell: row => (
-        <CountCell>{row.value}</CountCell>
-      )
-    },
-    {
-      id: 'Population',
-      Header: <div style={{ textAlign: 'left' }}>Population</div>,
-      accessor: (props: IRealm) => {
-        return this.names.RealmPopulationToString(props);
-      },
-      width: 100,
-      Cell: (props: any, column: any) => (
-        <div
-          style={{
-            textAlign: 'center',
-            color: `${props.original.Population > 1.97 ? 'red' : (props.original.Population < 1.80 ? 'green' : 'black')}`
-          }}
-        >{props.value}
-        </div>
-      )
-    }];
+    const actions = [
+      <FlatButton
+        label="Okay"
+        primary={true}
+        onClick={this.onOkay}
+        disabled={this.state.selected === null}
+      />,
+    ];
 
     return(
-      <Wrapper>
-        <Title>Realm Selection</Title>
+      <Dialog
+        title="World of Warcraft"
+        titleStyle={{textAlign: "center"}}
+        modal={true}
+        open={true}
+        contentStyle={{ width: '600px'}}
+        bodyStyle={{minHeight: '200px'}}
+        actions={actions}
+      >
         <ReactTable
           pageSize={10}
           data={this.state.realms}
@@ -167,11 +162,7 @@ export class RealmView extends React.Component<Props, State> {
             }
           }}
         />
-        <ButtonsWrapper>
-          <ButtonStyled onClick={this.onOkay}>Okay</ButtonStyled>
-          <ButtonStyled>Cancel</ButtonStyled>          
-        </ButtonsWrapper>
-      </Wrapper>
-    );
+      </Dialog>
+    )
   }
 }

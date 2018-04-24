@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { LoginScreen } from './LoginScreen';
+import { LoginView } from './LoginView';
 import { RealmView } from './RealmView';
 import { CharacterView } from './CharacterView';
 import { GameView } from './GameView';
 import { IRealm } from 'interface/IRealm';
 import { ThemeProvider } from 'styled-components';
 import { ICharacter } from 'interface/ICharacter';
+import { } from 'material-ui';
+import { MuiThemeProvider } from 'material-ui/styles';
 
 const theme = {
   main: 'mediumseagreen',
@@ -66,15 +68,23 @@ export class Root extends React.Component<{}, IState> {
     switch(this.state.appState) {
       case AppState.InputtingCredentials:
         return  <ThemeProvider theme={theme}>
-                  <LoginScreen onLoggedIn={this.onLoggedIn}/>
+                  <MuiThemeProvider>
+                    <div>
+                      <LoginView onLoggedIn={this.onLoggedIn}/>
+                    </div>
+                  </MuiThemeProvider>
                 </ThemeProvider>;
       case AppState.SelectingRealm:
         return  <ThemeProvider theme={theme}>
-                  <RealmView onSelected={this.onRealmSelected}/>
+                  <MuiThemeProvider>
+                    <RealmView onSelected={this.onRealmSelected}/>
+                  </MuiThemeProvider>
                 </ThemeProvider>;
       case AppState.SelectingCharacter:
         return  <ThemeProvider theme={theme}>
-                  {this.renderCharacterView()}
+                  <MuiThemeProvider>
+                    {this.renderCharacterView()}
+                  </MuiThemeProvider>
                 </ThemeProvider>;
       case AppState.Playing:
         return  <ThemeProvider theme={theme}>
