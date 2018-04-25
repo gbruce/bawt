@@ -6,8 +6,8 @@ import { ICharacter } from 'interface/ICharacter';
 export class Names {
   private static readonly RealmTypePvp = '(PVP)';
   private static readonly RealmTypeNormal = 'Normal';
-  RealmTypeToString(realm: IRealm): string {
-    switch(realm.Type) {
+  public RealmTypeToString(realm: IRealm): string {
+    switch (realm.Type) {
       case 1: return Names.RealmTypePvp;
       default: return Names.RealmTypeNormal;
     }
@@ -16,12 +16,12 @@ export class Names {
   private static readonly RealmPopulationLow = 'Low';
   private static readonly RealmPopulationMedium = 'Medium';
   private static readonly RealmPopulationHight = 'High';
-  RealmPopulationToString(realm: IRealm): string {
-    if(realm.Population > 1.97) {
+  public RealmPopulationToString(realm: IRealm): string {
+    if (realm.Population > 1.97) {
       return 'High';
     }
 
-    if(realm.Population > 1.80) {
+    if (realm.Population > 1.80) {
       return 'Medium';
     }
 
@@ -36,8 +36,8 @@ export class Names {
   private static readonly CharacterClassPaladin = 'Pally';
   private static readonly CharacterClassMage = 'Mage';
   private static readonly CharacterClassHunter = 'Hunter';
-  CharacterClassToString(character: ICharacter): string {
-    switch(character.Class) {
+  public CharacterClassToString(character: ICharacter): string {
+    switch (character.Class) {
       case 1: return Names.CharacterClassWarrior;
       case 2: return Names.CharacterClassPaladin;
       case 3: return Names.CharacterClassHunter;
@@ -57,8 +57,8 @@ export class Names {
   private static readonly CharacterRaceOrc = 'Orc';
   private static readonly CharacterRaceTauren = 'Tauren';
   private static readonly CharacterRaceUndead = 'Undead';
-  CharacterRaceToString(character: ICharacter): string {
-    switch(character.Race) {
+  public CharacterRaceToString(character: ICharacter): string {
+    switch (character.Race) {
       case 1: return Names.CharacterRaceHuman;
       case 2: return Names.CharacterRaceOrc;
       case 3: return Names.CharacterRaceDwrf;

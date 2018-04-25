@@ -10,15 +10,15 @@ import ReactTable, { Column, TableCellRenderer } from 'react-table';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 
-interface Props {
+interface IProps {
   realm: IRealm;
   onSelected?: (Character: ICharacter) => void;
 }
 
-type State = {
+interface IState {
   characters: ICharacter [];
   selected: ICharacter|null;
-};
+}
 
 const Wrapper = styled.div`
   padding: 4em;
@@ -34,17 +34,17 @@ const ButtonStyled = styled.button`
 margin: 'auto',
 `;
 
-export class CharacterView extends React.Component<Props, State> {
+export class CharacterView extends React.Component<IProps, IState> {
   @lazyInject(GameHandler)
   private game!: GameHandler;
-  
+
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
 
   @lazyInject(Names)
   private names!: Names;
 
-  constructor(props: Props) {
+  constructor(props: IProps) {
     super(props);
     this.state = {
       characters: [],
@@ -56,23 +56,23 @@ export class CharacterView extends React.Component<Props, State> {
   }
 
   public async componentDidMount() {
-    if(this.auth.key === null) {
+    if (this.auth.key === null) {
       return;
     }
 
     await this.game.connectToRealm(this.auth.key, this.props.realm);
     const characters: ICharacter[] = await this.game.getChars();
-    this.setState({ characters: characters });
+    this.setState({ characters });
   }
 
   private onClicked(selected: ICharacter) {
     this.setState({
-      selected: selected,
-    })
+      selected,
+    });
   }
 
   private onEnterWorld() {
-    if(this.state.selected && this.props.onSelected) {
+    if (this.state.selected && this.props.onSelected) {
       this.props.onSelected(this.state.selected);
     }
   }
@@ -81,7 +81,9 @@ export class CharacterView extends React.Component<Props, State> {
     const columns: Column[] = [
       {
         Header: (props: any, column: any) => (
-          <div style={{ textAlign: 'left' }}>{this.props.realm.Name} {this.names.RealmTypeToString(this.props.realm)}</div>
+          <div style={{ textAlign: 'left' }}>
+          {this.props.realm.Name} {this.names.RealmTypeToString(this.props.realm)}
+          </div>
         ),
         columns: [
           {
@@ -90,7 +92,7 @@ export class CharacterView extends React.Component<Props, State> {
             Header: 'Name',
             Cell: (props: any, column: any) => (
               <div>{props.value}</div>
-            )
+            ),
           },
           {
             accessor: 'Class',
@@ -98,7 +100,7 @@ export class CharacterView extends React.Component<Props, State> {
             Header: 'Class',
             Cell: (props: any, column: any) => (
               <div>{this.names.CharacterClassToString(props.original)}</div>
-            )
+            ),
           },
           {
             accessor: 'Level',
@@ -106,7 +108,7 @@ export class CharacterView extends React.Component<Props, State> {
             Header: 'Level',
             Cell: (props: any, column: any) => (
               <div>Level {props.value}</div>
-            )
+            ),
           },
           {
             accessor: 'Race',
@@ -114,7 +116,7 @@ export class CharacterView extends React.Component<Props, State> {
             Header: 'Race',
             Cell: (props: any, column: any) => (
               <div>{this.names.CharacterRaceToString(props.original)}</div>
-            )
+            ),
           },
         ],
       },
@@ -122,7 +124,7 @@ export class CharacterView extends React.Component<Props, State> {
 
     const actions = [
       <FlatButton
-        label="Enter World"
+        label='Enter World'
         primary={true}
         onClick={this.onEnterWorld}
         disabled={this.state.selected === null}
@@ -131,8 +133,8 @@ export class CharacterView extends React.Component<Props, State> {
 
     return(
       <Dialog
-        title="World of Warcraft"
-        titleStyle={{textAlign: "center"}}
+        title='World of Warcraft'
+        titleStyle={{textAlign: 'center'}}
         actions={actions}
         modal={true}
         open={true}
@@ -144,7 +146,7 @@ export class CharacterView extends React.Component<Props, State> {
           data={this.state.characters}
           columns={columns}
           showPagination={false}
-          className="-highlight"
+          className='-highlight'
           style={{
             height: '400px',
             width: '520px',
@@ -156,16 +158,18 @@ export class CharacterView extends React.Component<Props, State> {
                 this.onClicked(rowInfo.original);
               },
               style: {
-                background: (this.state.selected && rowInfo && this.state.selected === rowInfo.original) ? 'SkyBlue' : 'none',
+                background: (this.state.selected && rowInfo &&
+                  this.state.selected === rowInfo.original) ? 'SkyBlue' : 'none',
               },
-            }
+            };
           }}
           getTdProps={(state: any, rowInfo: any, column: any, instance: any) => {
             return {
               style: {
-                fontWeight: (this.state.selected && rowInfo && this.state.selected === rowInfo.original) ? 'bold' : 'normal',
+                fontWeight: (this.state.selected && rowInfo &&
+                  this.state.selected === rowInfo.original) ? 'bold' : 'normal',
               },
-            }
+            };
           }}
           >
         </ReactTable>

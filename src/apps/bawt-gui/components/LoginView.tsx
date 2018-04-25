@@ -7,11 +7,11 @@ import { IConfig } from 'interface/IConfig';
 import { Credentials } from 'bawt/utils/Credentials';
 import AuthHandler from 'bawt/auth/AuthHandler';
 
-export interface Props {
+export interface IProps {
   onLoggedIn?: () => void;
 }
 
-export class LoginView extends React.Component<Props, {}> {
+export class LoginView extends React.Component<IProps, {}> {
   @lazyInject('IConfig')
   public config!: IConfig;
   private credentials: Credentials = new Credentials();
@@ -19,7 +19,7 @@ export class LoginView extends React.Component<Props, {}> {
   @lazyInject(AuthHandler)
   private auth!: AuthHandler;
 
-  constructor(props: Props) {
+  constructor(props: IProps) {
     super(props);
     this.onLogin = this.onLogin.bind(this);
     this.onAccountChanged = this.onAccountChanged.bind(this);
@@ -49,10 +49,10 @@ export class LoginView extends React.Component<Props, {}> {
     }
   }
 
-  render() {
+  public render() {
     const actions = [
       <FlatButton
-        label="Login"
+        label='Login'
         primary={true}
         onClick={this.onLogin}
       />,
@@ -60,8 +60,8 @@ export class LoginView extends React.Component<Props, {}> {
 
     return(
       <Dialog
-        title="World of Warcraft"
-        titleStyle={{textAlign: "center"}}
+        title='World of Warcraft'
+        titleStyle={{textAlign: 'center'}}
         actions={actions}
         modal={true}
         open={true}
@@ -70,18 +70,18 @@ export class LoginView extends React.Component<Props, {}> {
       >
         <TextField
           floatingLabelFixed={true}
-          floatingLabelText="Account Name"
-          type="text"
+          floatingLabelText='Account Name'
+          type='text'
           onChange={this.onAccountChanged}
         /><br></br>
         <TextField
           floatingLabelFixed={true}
-          floatingLabelText="Account Password"
-          type="password"
+          floatingLabelText='Account Password'
+          type='password'
           onChange={this.onPasswordChanged}
           onKeyPress={this.onKeypress}
         />
       </Dialog>
-    )
+    );
   }
 }
