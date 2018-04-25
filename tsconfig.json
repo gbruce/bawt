@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "jsx": "react",
     "types": ["node"],
     "baseUrl": "./src",
     "outDir": "dist",

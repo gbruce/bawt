@@ -6,6 +6,7 @@ import { IConfig } from 'interface/IConfig';
 import { ISession } from 'interface/ISession';
 import AuthHandler from 'bawt/auth/AuthHandler';
 import GameHandler from 'bawt/game/Handler';
+import { Credentials } from 'bawt/utils/Credentials';
 
 /*
 wow client packets prior to login
@@ -51,15 +52,17 @@ C->S: [Player: Account: 1] [CMSG_PLAYER_LOGIN 0x003D (61)]
 
 @injectable()
 export class Client implements ISession {
-  private container = new Container();
+  private credentials = new Credentials();
 
   constructor(@inject(AuthHandler) private auth: AuthHandler,
               @inject(GameHandler) private game: GameHandler,
               @inject('IConfig') private config: IConfig) {
+    this.credentials.Account = this.config.Account;
+    this.credentials.Password = this.config.Password;
   }
 
   public async Start() {
-    const session = await this.auth.connect(this.config.AuthServer, this.config.Port);
+    const session = await this.auth.connect(this.config.AuthServer, this.config.Port, this.credentials);
 
     const realms = await session.GetRealms();
     const selectedRealm = realms.find((realmItem): boolean => realmItem.Name === this.config.Realm);

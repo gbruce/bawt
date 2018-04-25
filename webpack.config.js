@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/apps/bawt-gui/index.ts',
+  entry: './src/apps/bawt-gui/index.tsx',
   devtool: 'source-map',
   mode: 'development',
   module: {
@@ -10,6 +10,10 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
       }
     ]
   },
@@ -26,5 +30,9 @@ module.exports = {
   },
   node: {
     fs: 'empty'
+  },
+  externals: {
+    "react": "React",
+    "react-dom": "ReactDOM"
   }
 };
