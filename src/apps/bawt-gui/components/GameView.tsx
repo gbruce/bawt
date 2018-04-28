@@ -16,19 +16,15 @@ export class GameView extends React.Component<{}, {}> {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
 
-    let axis = new THREE.AxesHelper(10);
+    const axis = new THREE.AxesHelper(10);
     this.scene.add(axis);
-    let light = new THREE.DirectionalLight(0xffffff, 1.0);
+    const light = new THREE.DirectionalLight(0xffffff, 1.0);
     light.position.set(100, 100, 100);
     this.scene.add(light);
-    let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+    const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
 
     light2.position.set(-100, 100, -100);
     this.scene.add(light2);
-    let material = new THREE.MeshBasicMaterial({
-      color: 0xaaaaaa,
-      wireframe: true,
-    });
 
     // create a box and add it to the scene
     this.scene.add(this.box);
@@ -46,15 +42,15 @@ export class GameView extends React.Component<{}, {}> {
   }
 
   public animate = (time: number) => {
-    requestAnimationFrame(this.animate)
-	  this.renderScene();
+    requestAnimationFrame(this.animate);
+    this.renderScene();
   }
 
   private renderScene = () => {
-    let timer = 0.002 * Date.now()
-	  this.box.position.y = 0.5 + 0.5 * Math.sin(timer)
-	  this.box.rotation.x += 0.1
-	  this.renderer.render(this.scene, this.camera)
+    const timer = 0.002 * Date.now();
+    this.box.position.y = 0.5 + 0.5 * Math.sin(timer);
+    this.box.rotation.x += 0.1;
+    this.renderer.render(this.scene, this.camera);
   }
 
   public render() {
