@@ -58,7 +58,7 @@ export class Root extends React.Component<{}, IState> {
 
   private renderGameView() {
     if (this.state.character) {
-      return (<GameView character={this.state.character}/>);
+      return (<GameView/>);
     }
 
     return (null);
@@ -69,9 +69,7 @@ export class Root extends React.Component<{}, IState> {
       case AppState.InputtingCredentials:
         return  <ThemeProvider theme={theme}>
                   <MuiThemeProvider>
-                    <div>
                       <LoginView onLoggedIn={this.onLoggedIn}/>
-                    </div>
                   </MuiThemeProvider>
                 </ThemeProvider>;
       case AppState.SelectingRealm:
