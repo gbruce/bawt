@@ -10,7 +10,7 @@ import Restructure = require('blizzardry/lib/restructure');
 import Archive from './archive';
 
 // import ServerConfig from '../config';
-
+//http://localhost:8000/pipeline/DUNGEONS\TEXTURES\ROOF\JACRYPTPILLAR.BLP
 declare module 'express-serve-static-core' {
   // tslint:disable-next-line
   interface Request {
@@ -28,7 +28,7 @@ class Pipeline {
     this.router.get('/:resource(*.dbc)/:id(*)?.json', this.dbc);
     this.router.get('/find/:query', this.find);
     this.router.get('/:resource', this.serve);
-    this._archive = Archive.build('/Applications/WoW-1.12.1-enUS-Mac/Data');
+    this._archive = Archive.build('/Applications/Wrath of the Lich King 3.3.5a/Data');
   }
 
   get archive() {
@@ -53,6 +53,44 @@ class Pipeline {
       res.send('resource not found');
     }
   }
+
+  // BLP
+  // http://localhost:8000/pipeline/DUNGEONS%5CTEXTURES%5CROOF%5CJACRYPTPILLAR.BLP.png
+  //
+  // WAV 
+  // http://localhost:8000/pipeline/Sound%5CInterface%5CFriendJoin.wav
+  //
+  // QUERY
+  // http://localhost:8000/pipeline/find/textures%5CMinimap%5C77156e4a1da4729243916a1acb965973.blp
+  //
+  // M2
+  // "World\NoDXT\Detail\DrkBus05.m2"
+  // "Creature\Chimera\Chimera.M2"
+  //
+  // SKIN
+  // "ITEM\OBJECTCOMPONENTS\WEAPON\Knife_1H_Coilfang_D_0100.skin"
+  //
+  // WMO
+  // "World\wmo\Outland\OrcBuildings\outlandorcbarracks01.wmo"
+  // "World\wmo\KhazModan\Cities\Ironforge\ironforge_018.wmo"
+  // "World\wmo\Kalimdor\Ogrimmar\Ogrimmar_043.wmo"
+  //
+  // anim
+  // "Creature\HighElf\HighElfMale_Hunter0103-00.anim"
+  //
+  // adt
+  // "World\Maps\EmeraldDream\EmeraldDream_36_34.adt"
+  //
+  // bls(shader)
+  // "shaders\Pixel\nvfp2\MapObjEnv.bls"
+  // "shaders\Pixel\nvfp2\Terrain3.bls"
+  //
+  // mp3
+  // "Sound\Music\ZoneMusic\IcecrownRaid\IR_WalkF_06.mp3"
+  //
+  // jpg
+  // "Blizzard Downloader.app\Contents\Resources\downloader-splash.jpg"
+
 
   private blp(req: Request, res: Response) {
     BLP.from(req.resource.data, (blp: any) => {

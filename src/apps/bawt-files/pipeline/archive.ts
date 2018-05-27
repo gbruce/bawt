@@ -39,7 +39,21 @@ class Archive {
     'patch-*.MPQ',
   ];
   private static Files = [
-    'dbc.MPQ',
+    '*/base-*.MPQ',
+    'common.MPQ',
+    'common-2.MPQ',
+    'expansion.MPQ',
+    'lichking.MPQ',
+    '*/locale-*.MPQ',
+    '*/speech-*.MPQ',
+    '*/expansion-locale-*.MPQ',
+    '*/lichking-locale-*.MPQ',
+    '*/expansion-speech-*.MPQ',
+    '*/lichking-speech-*.MPQ',
+    '*/patch-*.MPQ',
+    'patch.MPQ',
+    'patch-2.MPQ',
+    'patch-3.MPQ',
   ];
 
   public static build(root: string): MPQ|null {
