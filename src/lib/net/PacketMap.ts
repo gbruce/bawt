@@ -4,9 +4,7 @@ import { NewLogger } from 'bawt/utils/Logger';
 const log = NewLogger('net/PacketMap');
 
 export const RegisterPacket = (packetMap: PacketMap, opcode: number, factory: IFactory<IPacket>) => {
-  log.info(`RegisterPacket ${opcode}`);
   return (target: any) => {
-    log.info(`RegisterPacket ${opcode}`);
     packetMap.Set(opcode, factory);
   };
 };
@@ -14,9 +12,7 @@ export const RegisterPacket = (packetMap: PacketMap, opcode: number, factory: IF
 export class PacketMap {
   private map = new Map<number, IFactory<IPacket>>();
 
-  constructor(private name: string) {
-    log.info('PacketMap ctor');
-  }
+  constructor(private name: string) {}
 
   public Has(opcode: number) {
     return this.map.has(opcode);
@@ -25,7 +21,7 @@ export class PacketMap {
   public Set(opcode: number, factory: IFactory<IPacket>) {
     if (!this.map.has(opcode)) {
       this.map.set(opcode, factory);
-      log.info(`Registed packetMap:${this.name} opcode:${opcode}`);
+      log.info(`Registeredd packetMap:${this.name} opcode:${opcode}`);
     }
   }
 
