@@ -1,17 +1,19 @@
 
 import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from 'bawt/net/Serialization';
+import { RegisterPacket, PacketFactory, WorldPacketMap } from 'bawt/net/PacketMap';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
 import * as Long from 'long';
 import Opcode from '../../Opcode';
 
-export class NewSMsgSetProficiency implements IFactory<IPacket> {
+class Factory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgSetProficiency();
   }
 }
 
+@RegisterPacket(WorldPacketMap, Opcode.SMSG_SET_PROFICIENCY, new Factory())
 export class SMsgSetProficiency extends ServerPacket {
   constructor() {
     super(Opcode.SMSG_SET_PROFICIENCY);

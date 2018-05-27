@@ -11,6 +11,7 @@ export class NewServerPacket implements IFactory<IPacket> {
 }
 
 export class ServerPacket implements IPacket {
+  static Referenced = false;
   constructor(opcode: number) {
     this.Opcode = opcode;
     this._name = ObjectUtil.KeyByValue(GameOpcode, this.Opcode);

@@ -1,5 +1,5 @@
 import * as ByteBuffer from 'bytebuffer';
-import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
+import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, UInt64Prop, StringProp,
   StringNoNullProp, ByteArrayProp, ConstByteBufferProp } from 'bawt/net/Serialization';
 import { ClientPacket } from './ClientPacket';
 import { IFactory } from 'interface/IFactory';
@@ -19,8 +19,23 @@ export class AuthProof extends ClientPacket {
   @Serialize(StringProp())
   public Account: string = '';
 
+  @Serialize(UInt32Prop())
+  public Unk1: number = 0;
+
   @Serialize(ByteArrayProp(() => 4))
   public Seed: number[] = [];
+
+  @Serialize(UInt32Prop())
+  public Unk2: number = 0;
+
+  @Serialize(UInt32Prop())
+  public Unk3: number = 0;
+
+  @Serialize(UInt32Prop())
+  public Unk4: number = 0;
+
+  @Serialize(UInt64Prop())
+  public Unk5: number = 0;
 
   @Serialize(ByteArrayProp(() => 20))
   public Digest: number[] = [];

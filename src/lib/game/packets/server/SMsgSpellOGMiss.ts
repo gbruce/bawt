@@ -1,5 +1,6 @@
 
 import { Serialize, UInt32Prop, UInt64Prop, UInt8Prop } from 'bawt/net/Serialization';
+import { RegisterPacket, PacketFactory, WorldPacketMap } from 'bawt/net/PacketMap';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
@@ -9,12 +10,13 @@ import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('SMsgSpellOGMiss');
 
-export class NewSMsgSpellOGMiss implements IFactory<IPacket> {
+class Factory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgSpellOGMiss();
   }
 }
 
+@RegisterPacket(WorldPacketMap, Opcode.SMSG_SPELLLOGMISS, new Factory())
 export class SMsgSpellOGMiss extends ServerPacket {
   constructor() {
     super(Opcode.SMSG_SPELLLOGMISS);

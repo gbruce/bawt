@@ -1,6 +1,7 @@
 
 import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
   ArrayProp } from 'bawt/net/Serialization';
+import { RegisterPacket, PacketFactory, WorldPacketMap } from 'bawt/net/PacketMap';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
@@ -37,12 +38,13 @@ enum EquipmentSlots
     EQUIPMENT_SLOT_END          = 19,
 }
 
-export class NewSMsgCharEnum implements IFactory<IPacket> {
+class Factory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SMsgCharEnum();
   }
 }
 
+@RegisterPacket(WorldPacketMap, Opcode.SMSG_CHAR_ENUM, new Factory())
 export class SMsgCharEnum extends ServerPacket {
   constructor() {
     super(Opcode.SMSG_CHAR_ENUM);

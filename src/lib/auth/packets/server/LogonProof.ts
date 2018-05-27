@@ -1,15 +1,17 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
+import { RegisterPacket, PacketFactory, AuthPacketMap } from 'bawt/net/PacketMap';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
 import Opcode from '../../Opcode';
 
-export class NewLogonProof implements IFactory<IPacket> {
+class Factory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new SLogonProof();
   }
 }
 
+@RegisterPacket(AuthPacketMap, Opcode.LOGON_PROOF, new Factory())
 export class SLogonProof extends AuthPacket {
   constructor() {
     super(Opcode.LOGON_PROOF);

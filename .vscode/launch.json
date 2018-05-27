@@ -8,13 +8,14 @@
       "name": "Launch Program",
       "type": "node",
       "request": "launch",
-      "args": ["${workspaceRoot}/src/node.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "args": ["${workspaceRoot}/src/apps/bawt-cli/index.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register", "-r", "tsconfig-paths/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",
       "console": "internalConsole",
-      "outputCapture": "std"
+      "outputCapture": "std",
+      "internalConsoleOptions": "openOnSessionStart"
     },
     {
       "name": "Run tests",
@@ -28,6 +29,18 @@
       "protocol": "inspector",
       "console": "internalConsole",
       "outputCapture": "std"
-    }
+    },
+    {
+      "name": "Launch File Serve",
+      "type": "node",
+      "request": "launch",
+      "args": ["${workspaceRoot}/src/apps/bawt-files/index.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
+      "console": "internalConsole",
+      "outputCapture": "std"
+    },
   ]
 }

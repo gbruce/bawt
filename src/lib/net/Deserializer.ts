@@ -1,13 +1,13 @@
 import * as ByteBuffer from 'bytebuffer';
 import { inject, injectable } from 'inversify';
 import { EventList, IEvent } from 'strongly-typed-events';
-
 import { ICrypt } from 'interface/ICrypt';
 import { IDeserializer } from 'interface/IDeserializer';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
 import { BufferLength, DeserializeObjectFromBuffer } from './Serialization';
 import { NewLogger } from 'bawt/utils/Logger';
+import { PacketMap } from 'bawt/net/PacketMap';
 
 const log = NewLogger('net/Deserializer');
 
@@ -62,7 +62,7 @@ export class Deserializer implements IDeserializer {
   private events: EventList<Deserializer, IPacket> = new EventList<Deserializer, IPacket>();
 
   constructor(@inject('IHeaderDeserializer') private headerDeserializer: IHeaderDeserializer,
-              @inject('PacketMap') private map: Map<number, IFactory<IPacket>>) {}
+              @inject('PacketMap') private map: PacketMap) {}
 
   private _crypt: ICrypt|null = null;
   public set Encryption(crypt: ICrypt) {
@@ -82,6 +82,7 @@ export class Deserializer implements IDeserializer {
 
       offset += headerDesc.packetBytes;
 
+      /*
       const factory = this.map.get(headerDesc.opcode);
       if (!factory) {
         log.error(`Unknown opcode:0x${headerDesc.opcode.toString(16)}`);
@@ -89,6 +90,13 @@ export class Deserializer implements IDeserializer {
       }
 
       const obj = factory.Create(headerDesc.opcode);
+      */
+      const obj = this.map.Create(headerDesc.opcode);
+      if (!obj) {
+        log.error(`Unknown opcode:0x${headerDesc.opcode.toString(16)}`);
+        continue;
+      }
+
       const byteBuffer = new ByteBuffer();
       const packet = buffer.subarray(headerDesc.headerBytes);
       byteBuffer.append(packet);
