@@ -10,7 +10,7 @@ import Restructure = require('blizzardry/lib/restructure');
 import Archive from './archive';
 
 // import ServerConfig from '../config';
-//http://localhost:8000/pipeline/DUNGEONS\TEXTURES\ROOF\JACRYPTPILLAR.BLP
+// http://localhost:8000/pipeline/DUNGEONS\TEXTURES\ROOF\JACRYPTPILLAR.BLP
 declare module 'express-serve-static-core' {
   // tslint:disable-next-line
   interface Request {
@@ -57,7 +57,7 @@ class Pipeline {
   // BLP
   // http://localhost:8000/pipeline/DUNGEONS%5CTEXTURES%5CROOF%5CJACRYPTPILLAR.BLP.png
   //
-  // WAV 
+  // WAV
   // http://localhost:8000/pipeline/Sound%5CInterface%5CFriendJoin.wav
   //
   // QUERY
@@ -90,7 +90,6 @@ class Pipeline {
   //
   // jpg
   // "Blizzard Downloader.app\Contents\Resources\downloader-splash.jpg"
-
 
   private blp(req: Request, res: Response) {
     BLP.from(req.resource.data, (blp: any) => {
