@@ -56,3 +56,93 @@ declare module 'byte-buffer' {
 
 declare module 'winston-browser' {}
 
+declare module 'blizzardry/lib/mpq' {
+  type open = {
+    READ_ONLY: string;
+    WRITE_SHARE: string;
+  }
+
+  interface FileDetails {
+    filename: string;
+    name: string;
+    hashIndex: number;
+    blockIndex: number;
+    fileSize: number;
+    fileFlags: number;
+    compSize: number;
+    fileTimeLo: number;
+    fileTimeHi: number;
+    locale: number;
+  }
+
+  class File {
+    readonly name: string;
+    readonly opened: string;
+    readonly size: string;
+    readonly data: Buffer|null;
+    position: number;
+    close(): void;
+  }
+
+  class Files {
+    get(file: string):File;
+    contains(file: string):boolean;
+    find(pattern: string):File[];
+  }
+
+  class MPQ {
+    patch(path: string, prefix: string): MPQ;
+    readonly files: Files;
+    readonly patched: boolean;
+    readonly opened: boolean;
+    close(): void;
+  
+    static locale: string;
+    static open(path: string, flags: any): MPQ;
+    static create(path: string): MPQ;
+
+
+    static OPEN: open;
+  }
+  
+  const value: MPQ;
+  export = MPQ;
+}
+
+declare module 'blizzardry/lib/blp' {
+
+  class BLP {
+    close(): void;
+    readonly opened: boolean;
+    readonly version: number;
+    readonly mipmapCount: number;
+    readonly smallest: any;
+    readonly largest: any;
+
+    static open(path: string): BLP;
+    static from(buffer: Buffer, callback: (blp: BLP) => void ): BLP;
+  }
+
+  export = BLP;
+}
+
+declare module 'blizzardry/lib/dbc/entities' {
+  class Entity {
+    dbc: any;
+    fields: any;
+  }
+
+  const entities: { [type: string] : Entity };
+
+  export = entities;
+}
+
+declare module 'blizzardry/lib/restructure' {
+  namespace Restructure {
+    class DecodeStream {
+      constructor(buffer: Buffer)
+    }
+  }
+  const value: any;
+  export = Restructure;
+}

@@ -1,6 +1,7 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
+import { RegisterPacket, AuthPacketMap } from 'bawt/net/PacketMap';
 import { IFactory } from 'interface/IFactory';
 import { IRealm as RealmInterface } from 'interface/IRealm';
 import { ISerializable } from 'interface/ISerializable';
@@ -10,15 +11,18 @@ import { NewLogger } from 'bawt/utils/Logger';
 
 const log = NewLogger('RealmList');
 
-export class RealmListFactory implements IFactory<IPacket> {
+class Factory implements IFactory<IPacket> {
   public Create(...args: any[]) {
     return new RealmList();
   }
 }
 
 export class Realm implements ISerializable, RealmInterface {
-  @Serialize(UInt32Prop())
+  @Serialize(UInt8Prop())
   public Type: number = 0;
+
+  @Serialize(UInt8Prop())
+  public Locked: number = 0;
 
   @Serialize(UInt8Prop())
   public Flags: number = 0;
@@ -54,6 +58,7 @@ export class Realm implements ISerializable, RealmInterface {
   }
 }
 
+@RegisterPacket(AuthPacketMap, Opcode.REALM_LIST, new Factory())
 export class RealmList extends AuthPacket {
   constructor() {
     super(Opcode.REALM_LIST);
@@ -65,7 +70,7 @@ export class RealmList extends AuthPacket {
   @Serialize(UInt32Prop())
   public Unk1: number = 0;
 
-  @Serialize(UInt8Prop())
+  @Serialize(UInt16Prop())
   public RealmCount: number = 0;
 
   @Serialize(ArrayProp( (target: RealmList) => target.RealmCount,

@@ -5,7 +5,7 @@ import * as ByteBuffer from 'bytebuffer';
 import { ISerializable } from 'interface/ISerializable';
 import { NewLogger } from 'bawt/utils/Logger';
 
-const Log = NewLogger('net/Socket');
+const log = NewLogger('net/Socket');
 
 const SerializationIdentifier = 'serialization';
 const DeserializeCallbackId = 'serialization:callback';

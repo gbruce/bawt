@@ -4,6 +4,8 @@ import AuthOpcode from '../Opcode';
 import { IPacket } from 'interface/IPacket';
 
 export class AuthPacket implements IPacket {
+  public static Referenced = false;
+
   constructor(private _opcode: number) {
     this._name = ObjectUtil.KeyByValue(AuthOpcode, _opcode);
   }

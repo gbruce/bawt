@@ -71,8 +71,9 @@ export class CharacterView extends React.Component<IProps, IState> {
     });
   }
 
-  private onEnterWorld() {
+  private async onEnterWorld() {
     if (this.state.selected && this.props.onSelected) {
+      await this.game.join(this.state.selected);
       this.props.onSelected(this.state.selected);
     }
   }

@@ -74,7 +74,7 @@ export class Serializer implements ISerializer {
     SerializeObjectToBuffer(packet, b);
 
     log.info(`${packet.Name} ==> ${buffLength} bytes`);
-    this.event.dispatch(b.buffer);
+    this.event.dispatch(b.buffer as any);
   }
 
   public get OnPacketSerialized(): ISimpleEvent<ArrayBuffer>

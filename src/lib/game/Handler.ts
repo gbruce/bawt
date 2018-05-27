@@ -160,7 +160,7 @@ export class GameHandler {
   }
 
   public async join(character: ICharacter) {
-    log.info('joining game with', character.toString());
+    log.info('joining game with', character.Name);
 
     const login = new CMsgPlayerLogin();
     login.Guid = character.Guid;
