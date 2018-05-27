@@ -1,7 +1,7 @@
 import { Serialize, Float32Prop, UInt8Prop, UInt16Prop, UInt32Prop, StringProp,
   ArrayProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { RegisterPacket, PacketFactory, AuthPacketMap } from 'bawt/net/PacketMap';
+import { RegisterPacket, AuthPacketMap } from 'bawt/net/PacketMap';
 import { IFactory } from 'interface/IFactory';
 import { IRealm as RealmInterface } from 'interface/IRealm';
 import { ISerializable } from 'interface/ISerializable';
@@ -23,7 +23,7 @@ export class Realm implements ISerializable, RealmInterface {
 
   @Serialize(UInt8Prop())
   public Locked: number = 0;
-  
+
   @Serialize(UInt8Prop())
   public Flags: number = 0;
 

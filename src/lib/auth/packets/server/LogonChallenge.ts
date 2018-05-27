@@ -1,6 +1,6 @@
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, ByteArrayProp } from 'bawt/net/Serialization';
 import { AuthPacket } from '../AuthPacket';
-import { RegisterPacket, PacketFactory, AuthPacketMap } from 'bawt/net/PacketMap';
+import { RegisterPacket, AuthPacketMap } from 'bawt/net/PacketMap';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
 import Opcode from '../../Opcode';

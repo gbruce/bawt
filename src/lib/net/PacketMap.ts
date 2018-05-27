@@ -1,20 +1,14 @@
 import { IFactory } from 'interface/IFactory';
-import { IPacket } from 'interface/IPacket'; 
+import { IPacket } from 'interface/IPacket';
 import { NewLogger } from 'bawt/utils/Logger';
 const log = NewLogger('net/PacketMap');
 
 export const RegisterPacket = (packetMap: PacketMap, opcode: number, factory: IFactory<IPacket>) => {
   log.info(`RegisterPacket ${opcode}`);
-  return function(target: Function) {
+  return (target: any) => {
     log.info(`RegisterPacket ${opcode}`);
     packetMap.Set(opcode, factory);
-  }
-}
-export const Test = (opcode: number) => {
-  console.log(`Test ${opcode}`);
-  return function(target: Function) {
-    console.log(`Test ${opcode}`);
-  }
+  };
 };
 
 export class PacketMap {
@@ -24,11 +18,11 @@ export class PacketMap {
     log.info('PacketMap ctor');
   }
 
-  public Has(opcode:number) {
+  public Has(opcode: number) {
     return this.map.has(opcode);
   }
 
-  public Set(opcode:number, factory: IFactory<IPacket>) {
+  public Set(opcode: number, factory: IFactory<IPacket>) {
     if (!this.map.has(opcode)) {
       this.map.set(opcode, factory);
       log.info(`Registed packetMap:${this.name} opcode:${opcode}`);
@@ -38,7 +32,7 @@ export class PacketMap {
   public Create(opcode: number) {
     if (this.map.has(opcode)) {
       const factory = this.map.get(opcode);
-      if(factory) {
+      if (factory) {
         return factory.Create();
       }
     }

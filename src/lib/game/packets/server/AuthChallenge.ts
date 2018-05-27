@@ -1,6 +1,6 @@
 
 import { Serialize, UInt32Prop, ByteArrayProp } from 'bawt/net/Serialization';
-import { RegisterPacket, PacketFactory, WorldPacketMap } from 'bawt/net/PacketMap';
+import { RegisterPacket, WorldPacketMap } from 'bawt/net/PacketMap';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
@@ -20,7 +20,7 @@ export class SAuthChallenge extends ServerPacket {
 
   @Serialize(UInt32Prop())
   public Unk1: number = 0;
-  
+
   @Serialize(ByteArrayProp(() => 4))
   public Salt: number[] = [];
 

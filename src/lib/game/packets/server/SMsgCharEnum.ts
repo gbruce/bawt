@@ -1,7 +1,7 @@
 
 import { Serialize, UInt8Prop, StringProp, UInt64Prop, UInt32Prop, Float32Prop,
   ArrayProp } from 'bawt/net/Serialization';
-import { RegisterPacket, PacketFactory, WorldPacketMap } from 'bawt/net/PacketMap';
+import { RegisterPacket, WorldPacketMap } from 'bawt/net/PacketMap';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
