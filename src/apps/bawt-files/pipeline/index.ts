@@ -99,6 +99,7 @@ class Pipeline {
       png.data = mipmap.rgba;
 
       res.type('image/png');
+      res.set('Access-Control-Allow-Origin', '*');
       png.pack().pipe(res);
     });
   }
@@ -130,6 +131,7 @@ class Pipeline {
         }
       }
       else {
+        res.set('Access-Control-Allow-Origin', '*');
         res.send(dbc.records);
       }
     }
@@ -156,11 +158,13 @@ class Pipeline {
         link,
       };
     });
+    res.set('Access-Control-Allow-Origin', '*');
     res.send(results);
   }
 
   private serve(req: any, res: any) {
     res.type(req.resource.name);
+    res.set('Access-Control-Allow-Origin', '*');
     res.send(req.resource.data);
   }
 }

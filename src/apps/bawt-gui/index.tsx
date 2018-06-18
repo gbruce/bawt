@@ -8,10 +8,14 @@ import { ISession } from 'interface/ISession';
 import { Root } from './components/Root';
 import { IConfig } from 'interface/IConfig';
 import { GlobalContainer } from 'bawt/Container';
+import { IHttpService } from 'interface/IHttpService';
+import { HttpService } from 'bawt/utils/browser/HttpService';
+
 import 'react-table/react-table.css';
 
 const container = GlobalContainer();
 container.bind<ISocket>('ISocket').to(WSocket);
+container.bind<IHttpService>('IHttpService').to(HttpService);
 InitializeCommon(container);
 const config = container.get<IConfig>('IConfig');
 

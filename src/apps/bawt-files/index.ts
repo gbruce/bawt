@@ -19,5 +19,5 @@ export default class Server {
   }
 }
 
-const server = new Server(8000);
+const server = new Server(8080);
 server.start();
