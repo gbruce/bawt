@@ -1,9 +1,6 @@
 import * as React from 'react';
-import Dialog from 'material-ui/Dialog/Dialog';
-import DialogTitle from 'material-ui/Dialog/DialogTitle';
-import DialogContent from 'material-ui/Dialog/DialogContent';
-import DialogActions from 'material-ui/Dialog/DialogActions';
-import DialogContentText from 'material-ui/Dialog/DialogContentText';
+import Dialog from 'material-ui/Dialog';
+import { DialogTitle, DialogContent, DialogActions, DialogContentText } from 'material-ui/Dialog';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import { lazyInject } from 'bawt/Container';
