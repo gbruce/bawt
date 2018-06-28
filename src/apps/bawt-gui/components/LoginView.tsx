@@ -1,11 +1,16 @@
 import * as React from 'react';
-import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import Dialog from 'material-ui/Dialog/Dialog';
+import DialogTitle from 'material-ui/Dialog/DialogTitle';
+import DialogContent from 'material-ui/Dialog/DialogContent';
+import DialogActions from 'material-ui/Dialog/DialogActions';
+import DialogContentText from 'material-ui/Dialog/DialogContentText';
+import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import { lazyInject } from 'bawt/Container';
 import { IConfig } from 'interface/IConfig';
 import { Credentials } from 'bawt/utils/Credentials';
 import AuthHandler from 'bawt/auth/AuthHandler';
+import { ChangeEvent } from 'react';
 
 export interface IProps {
   onLoggedIn?: () => void;
@@ -27,12 +32,12 @@ export class LoginView extends React.Component<IProps, {}> {
     this.onKeypress = this.onKeypress.bind(this);
   }
 
-  private onAccountChanged(event: object, account: string) {
-    this.credentials.Account = account;
+  private onAccountChanged(event: ChangeEvent<HTMLInputElement>) {
+    this.credentials.Account = event.target.value;
   }
 
-  private onPasswordChanged(event: object, password: string) {
-    this.credentials.Password = password;
+  private onPasswordChanged(event: ChangeEvent<HTMLInputElement>) {
+    this.credentials.Password = event.target.value;
   }
 
   private onKeypress(event: any) {
@@ -50,37 +55,34 @@ export class LoginView extends React.Component<IProps, {}> {
   }
 
   public render() {
-    const actions = [
-      <FlatButton
-        label='Login'
-        primary={true}
-        onClick={this.onLogin}
-      />,
-    ];
-
     return(
       <Dialog
-        title='World of Warcraft'
-        titleStyle={{textAlign: 'center'}}
-        actions={actions}
-        modal={true}
         open={true}
-        contentStyle={{ width: '400px'}}
-        bodyStyle={{minHeight: '200px'}}
+        style={{minHeight: '200px'}}
       >
-        <TextField
-          floatingLabelFixed={true}
-          floatingLabelText='Account Name'
-          type='text'
-          onChange={this.onAccountChanged}
-        /><br></br>
-        <TextField
-          floatingLabelFixed={true}
-          floatingLabelText='Account Password'
-          type='password'
-          onChange={this.onPasswordChanged}
-          onKeyPress={this.onKeypress}
-        />
+        <DialogTitle style={{textAlign: 'center'}}>
+          {'World of Warcraft'}
+        </DialogTitle>
+        <DialogContent style={{ width: '400px', textAlign: 'center'}}>
+          <div style={{ margin: '34px'}}>
+          <DialogContentText>Account Name</DialogContentText>
+          <TextField
+            type='text'
+            onChange={this.onAccountChanged}
+          />
+          </div>
+          <DialogContentText>Account Password</DialogContentText>
+          <TextField
+            type='password'
+            onChange={this.onPasswordChanged}
+            onKeyPress={this.onKeypress}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.onLogin} color='primary'>
+            Login
+          </Button>
+        </DialogActions>
       </Dialog>
     );
   }
