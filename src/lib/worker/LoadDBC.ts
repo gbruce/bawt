@@ -12,6 +12,10 @@ export class LoadDBC {
     const components = dbcPath.split(/[\\.]+/);
     const dbcType = Entities[components[1]];
 
+    if (!dbcType) {
+      return null;
+    }
+
     const dbc = dbcType.dbc.decode(dbcStream) as any;
     const dbcReturn = new DBC(dbc, dbcType);
 

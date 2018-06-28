@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider } from 'material-ui/styles';
 import ReactTable, { Column, Filter } from 'react-table';
 import { IHttpService } from 'interface/IHttpService';
@@ -9,11 +8,7 @@ import Grid from 'material-ui/Grid';
 import { createMuiTheme } from 'material-ui/styles';
 import blue from 'material-ui/colors/blue';
 
-const theme = {
-  main: 'mediumseagreen',
-};
-
-const theme2 = createMuiTheme({
+const theme = createMuiTheme({
   palette: {
     primary: blue,
   },
@@ -75,7 +70,6 @@ export class Root extends React.Component<{}, IState> {
     const columns: Column[] = [
       {
         accessor: 'name',
-        width: 330,
         Header: (props: any, column: any) => (
           <div style={{ textAlign: 'left' }}>File Name</div>
         ),
@@ -87,37 +81,42 @@ export class Root extends React.Component<{}, IState> {
     ];
 
     return (
-      <ThemeProvider theme={theme}>
-        <MuiThemeProvider theme={theme2}>
-          <div>
-            <Grid container spacing={24}>
-              <Grid item xs>
-                <ReactTable
-                  pageSize={10}
-                  data={this.state.assets}
-                  showPagination={true}
-                  filterable
-                  className='-highlight'
-                  columns={columns}
-                  style={{
-                    height: '500px',
-                    width: '330px',
-        //            margin: 'auto',
-                  }}
-                  getTrProps={(state: any, rowInfo: any, column: any, instance: any) => {
-                    return {
-                      onClick: (e: any, handleOriginal: any) => {
-                        this.onClicked(rowInfo.original);
-                      },
-                    };
-                  }}
+      <MuiThemeProvider theme={theme}>
+        <div>
+          <Grid container spacing={24} justify={'flex-start'} >
+            <Grid item xs={12}>
+              <Grid
+                container
+                spacing={16}
+                alignItems={'flex-start'}
+                direction={'row'}
+                justify={'flex-start'}
+              >
+                <Grid item xs={3}>
+                  <ReactTable
+                    pageSize={10}
+                    data={this.state.assets}
+                    showPagination={true}
+                    filterable
+                    className='-highlight'
+                    columns={columns}
+                    getTrProps={(state: any, rowInfo: any, column: any, instance: any) => {
+                      return {
+                        onClick: (e: any, handleOriginal: any) => {
+                          this.onClicked(rowInfo.original);
+                        },
+                      };
+                    }}
                   />
                 </Grid>
+                <Grid item xs={9}>
+                  {details}
+                </Grid>
               </Grid>
-                {details}
-          </div>
-        </MuiThemeProvider>
-      </ThemeProvider>
+            </Grid>
+          </Grid>
+        </div>
+      </MuiThemeProvider>
     );
   }
 }
