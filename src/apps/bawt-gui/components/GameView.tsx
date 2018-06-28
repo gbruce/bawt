@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { lazyInject } from 'bawt/Container';
 import * as THREE from 'three';
-import { LoadM2 }  from 'bawt/worker/LoadM2';
+import { LoadM2 } from 'bawt/worker/LoadM2';
 import { IHttpService } from 'interface/IHttpService';
 import { M2Model } from 'bawt/assets/m2/index';
 
