@@ -9,10 +9,18 @@ export class HttpService implements IHttpService {
     const encodedPath = `http://localhost:8080/pipeline/${encodeURI(path)}`;
     const raw: string = await request.get({
       url: encodedPath,
-      encoding: 'binary'
+      encoding: 'binary',
     });
 
     const buffer = Buffer.from(raw, 'binary');
     return new DecodeStream(buffer);
+  }
+
+  public async getString(path: string): Promise<string> {
+    const encodedPath = `http://localhost:8080/pipeline/${encodeURI(path)}`;
+    const raw: string = await request.get({
+      url: encodedPath,
+    });
+    return raw;
   }
 }

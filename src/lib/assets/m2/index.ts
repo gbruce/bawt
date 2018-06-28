@@ -1,4 +1,5 @@
-import { Group, Bone, Vector3, Skeleton, Geometry, Vector4, Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion } from 'three';
+import { Group, Bone, Vector3, Skeleton, Geometry, Vector4,
+  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion } from 'three';
 import { Submesh } from './Submesh';
 import { Material } from './Material';
 import { AnimationManager } from './AnimationManager';
@@ -163,7 +164,7 @@ export class M2Model extends Group {
           target: bone,
           property: 'scale',
           animationBlock: boneDef.scaling,
-          trackType: 'VectorKeyframeTrack'
+          trackType: 'VectorKeyframeTrack',
         });
       }
     }
@@ -220,15 +221,15 @@ export class M2Model extends Group {
 
       geometry.vertices.push(
         // Provided as (X, Z, -Y)
-        new Vector3(position[0], position[2], -position[1])
+        new Vector3(position[0], position[2], -position[1]),
       );
 
       geometry.skinIndices.push(
-        new Vector4(...vertex.boneIndices)
+        new Vector4(...vertex.boneIndices),
       );
 
       geometry.skinWeights.push(
-        new Vector4(...vertex.boneWeights)
+        new Vector4(...vertex.boneWeights),
       );
     }
 
@@ -343,10 +344,10 @@ export class M2Model extends Group {
 
     const opts = {
       skeleton: this.skeleton,
-      geometry: geometry,
-      rootBone: rootBone,
+      geometry,
+      rootBone,
       useSkinning: this.useSkinning,
-      matrixAutoUpdate: this.matrixAutoUpdate
+      matrixAutoUpdate: this.matrixAutoUpdate,
     };
 
     const submesh = new Submesh(opts);
@@ -387,7 +388,7 @@ export class M2Model extends Group {
         target: this,
         property: 'uvAnimationValues[' + index + '].translation',
         animationBlock: translation,
-        trackType: 'VectorKeyframeTrack'
+        trackType: 'VectorKeyframeTrack',
       });
 
       // Set up event subscription to produce matrix from translation, rotation, and scaling
@@ -399,7 +400,7 @@ export class M2Model extends Group {
         animationValue.matrix = new Matrix4().compose(
           new Vector3(...animationValue.translation),
           new Quaternion(...animationValue.rotation),
-          new Vector3(...animationValue.scaling)
+          new Vector3(...animationValue.scaling),
         );
       };
 
@@ -427,7 +428,7 @@ export class M2Model extends Group {
 
         valueTransform: function(value: any) {
           return [value];
-        }
+        },
       });
     });
   }
@@ -441,7 +442,7 @@ export class M2Model extends Group {
       // Default value
       this.vertexColorAnimationValues[index] = {
         color: [1.0, 1.0, 1.0],
-        alpha: 1.0
+        alpha: 1.0,
       };
 
       const { color, alpha } = vertexColorAnimationDef;
@@ -450,7 +451,7 @@ export class M2Model extends Group {
         target: this,
         property: 'vertexColorAnimationValues[' + index + '].color',
         animationBlock: color,
-        trackType: 'VectorKeyframeTrack'
+        trackType: 'VectorKeyframeTrack',
       });
 
       this.animations.registerTrack({
@@ -461,7 +462,7 @@ export class M2Model extends Group {
 
         valueTransform: function(value: any) {
           return [value];
-        }
+        },
       });
     });
   }
@@ -509,7 +510,7 @@ export class M2Model extends Group {
       modelForward.x,   modelRight.x,   modelUp.x,  0,
       modelForward.y,   modelRight.y,   modelUp.y,  0,
       modelForward.z,   modelRight.z,   modelUp.z,  0,
-      0,                0,              0,          1
+      0,                0,              0,          1,
     );
 
     bone.rotation.setFromRotationMatrix(rotateMatrix);
@@ -538,7 +539,7 @@ export class M2Model extends Group {
       modelForward.x,   modelRight.x,   modelUp.x,  0,
       modelForward.y,   modelRight.y,   modelUp.y,  0,
       modelForward.z,   modelRight.z,   modelUp.z,  0,
-      0,                0,              0,          1
+      0,                0,              0,          1,
     );
 
     bone.rotation.setFromRotationMatrix(rotateMatrix);

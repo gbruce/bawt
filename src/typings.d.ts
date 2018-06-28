@@ -126,15 +126,74 @@ declare module 'blizzardry/lib/blp' {
   export = BLP;
 }
 
-declare module 'blizzardry/lib/dbc/entities' {
-  class Entity {
-    dbc: any;
-    fields: any;
+declare namespace blizzardry {
+  interface IField {
+    endian: string;
+    fn: string;
+    type: string;
+    encode(data:any):any;
+    decode(data:any):any;
   }
 
-  const entities: { [type: string] : Entity };
+  interface IEntity {
+    dbc: any;
+    fields: { [type: string]: IField };
+  }
+}
 
-  export = entities;
+declare module 'blizzardry/lib/dbc/entities' {
+  class blizzardry {
+    [type: string]: blizzardry.IEntity;
+  }
+
+  const b:blizzardry;
+  export = b;
+}
+
+declare module 'blizzardry/lib/dbc' {
+  namespace blizzardry {
+    export interface IAreaTable {
+      id: number;
+      mapID: number;
+      parentID: number;
+      areaBit: number;
+      flags: number;
+      soundPreferenceID: number;
+      underwaterSoundPreferenceID: number;
+      soundAmbienceID: number;
+      zoneMusicID: number;
+      zoneIntroMusicID: number;
+      level: number;
+      name: string;
+      factionGroupID: number;
+      liquidTypes: number[];
+      minElevation: number;
+      ambientMultiplier: number;
+      lightID: number; 
+    }
+
+    export interface ICreatureDisplayInfo {
+      id: number;
+      modelID: number;
+      soundID: number;
+      extraInfoID: number;
+      scale: number;
+      opacity: number;
+      skin1: string;
+      skin2: string;
+      skin3: string;
+      portraitTexture: string;
+      skips: number[];
+    }
+
+    export interface IDBC {
+      records: any[];
+    }
+
+    function decode(stream: any): IDBC;
+  }
+
+  export = blizzardry;
 }
 
 declare module 'blizzardry/lib/restructure' {
