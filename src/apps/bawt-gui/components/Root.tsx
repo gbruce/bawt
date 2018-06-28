@@ -4,14 +4,16 @@ import { RealmView } from './RealmView';
 import { CharacterView } from './CharacterView';
 import { GameView } from './GameView';
 import { IRealm } from 'interface/IRealm';
-import { ThemeProvider } from 'styled-components';
 import { ICharacter } from 'interface/ICharacter';
 import { } from 'material-ui';
-import { MuiThemeProvider } from 'material-ui/styles';
+import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
+import blue from 'material-ui/colors/blue';
 
-const theme = {
-  main: 'mediumseagreen',
-};
+const theme = createMuiTheme({
+  palette: {
+    primary: blue,
+  },
+});
 
 interface IState {
   appState: AppState;
@@ -67,27 +69,21 @@ export class Root extends React.Component<{}, IState> {
   public render() {
     switch (this.state.appState) {
       case AppState.InputtingCredentials:
-        return  <ThemeProvider theme={theme}>
-                  <MuiThemeProvider>
-                      <LoginView onLoggedIn={this.onLoggedIn}/>
-                  </MuiThemeProvider>
-                </ThemeProvider>;
+        return <MuiThemeProvider theme={theme}>
+                <LoginView onLoggedIn={this.onLoggedIn}/>
+                </MuiThemeProvider>;
       case AppState.SelectingRealm:
-        return  <ThemeProvider theme={theme}>
-                  <MuiThemeProvider>
-                    <RealmView onSelected={this.onRealmSelected}/>
-                  </MuiThemeProvider>
-                </ThemeProvider>;
+        return  <MuiThemeProvider theme={theme}>
+                  <RealmView onSelected={this.onRealmSelected}/>
+                </MuiThemeProvider>;
       case AppState.SelectingCharacter:
-        return  <ThemeProvider theme={theme}>
-                  <MuiThemeProvider>
-                    {this.renderCharacterView()}
-                  </MuiThemeProvider>
-                </ThemeProvider>;
+        return  <MuiThemeProvider theme={theme}>
+                  {this.renderCharacterView()}
+                </MuiThemeProvider>;
       case AppState.Playing:
-        return  <ThemeProvider theme={theme}>
+        return  <MuiThemeProvider theme={theme}>
                   {this.renderGameView()}
-                </ThemeProvider>;
+                </MuiThemeProvider>;
     }
   }
 }
