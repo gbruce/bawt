@@ -1,6 +1,8 @@
 import * as Entities from 'blizzardry/lib/dbc/entities';
 import { IHttpService } from 'interface/IHttpService';
 import { DBC } from 'bawt/assets/dbc';
+import { NewLogger } from 'bawt/utils/Logger';
+const log = NewLogger('worker/LoadDBC');
 
 export class LoadDBC {
   private path: string | null = null;
@@ -13,10 +15,17 @@ export class LoadDBC {
     const dbcType = Entities[components[1]];
 
     if (!dbcType) {
-      return null;
+      throw new Error(`Could not find entity for ${components[1]}`);
     }
 
-    const dbc = dbcType.dbc.decode(dbcStream) as any;
+    let dbc = null;
+    try {
+      dbc = dbcType.dbc.decode(dbcStream) as any;
+    }
+    catch (e) {
+      throw new Error(`Could not decode ${dbcPath}`);
+    }
+
     const dbcReturn = new DBC(dbc, dbcType);
 
     return dbcReturn;

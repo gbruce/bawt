@@ -10,8 +10,9 @@ interface IProps {
 }
 
 interface IState {
-  force: boolean;
   values: any[];
+  message: string|undefined;
+  loading: boolean;
 }
 
 export class DbcView extends React.Component<IProps, IState> {
@@ -24,45 +25,51 @@ export class DbcView extends React.Component<IProps, IState> {
     super(props);
 
     this.state = {
-      force: false,
       values: [],
+      message: undefined,
+      loading: false,
     };
   }
 
-  public async componentDidMount() {
+  private async loadData(filePath: string) {
+    this.setState({
+      loading: true,
+    });
+
     const loader = new LoadDBC(this.httpService);
-    const dbcAsset = await loader.Start(this.props.filePath);
+    let dbcAsset = null;
+    let message;
+    try {
+      dbcAsset = await loader.Start(filePath);
+    }
+    catch (e) {
+      message = e.message;
+    }
+
     if (dbcAsset) {
       this.fields = dbcAsset.fields;
       this.setState({
         values: dbcAsset.records,
+        loading: false,
       });
     }
     else {
       this.fields = [];
       this.setState({
         values: [],
+        message,
+        loading: false,
       });
     }
   }
 
+  public async componentDidMount() {
+    await this.loadData(this.props.filePath);
+  }
+
   public async componentWillUpdate(nextProps: IProps, nextState: IState) {
     if (nextProps.filePath !== this.props.filePath) {
-      const loader = new LoadDBC(this.httpService);
-      const dbcAsset = await loader.Start(nextProps.filePath);
-
-      if (dbcAsset) {
-        this.fields = dbcAsset.fields;
-        this.setState({
-          values: dbcAsset.records,
-        });
-      }
-      else {
-        this.fields = [];
-        this.setState({
-          values: [],
-        });
-      }
+      await this.loadData(nextProps.filePath);
     }
   }
 
@@ -77,9 +84,9 @@ export class DbcView extends React.Component<IProps, IState> {
       if (this.state.values !== null) {
         let max: number = field.length;
         this.state.values.forEach((value) => {
-          const val: string = value[field];
-          if (val) {
-            const currentMax = val.toString().length;
+          const val: any = value[field];
+          if (val !== null && val !== undefined) {
+            const currentMax = JSON.stringify(val).length;
             if (currentMax > max) {
               max = currentMax;
             }
@@ -91,14 +98,28 @@ export class DbcView extends React.Component<IProps, IState> {
     });
 
     this.fields.forEach((field) => {
+      const padding = 5;
       const maxCount = maxLines.get(field) || 5;
-      const width =  Math.max(maxCount * 10, 50);
+      const width =  Math.max(maxCount * 8, 10) + padding * 2;
+
       columns.push({
         accessor: field,
         Header: (props: any, column: any) => (
-          <div style={{ textAlign: 'left' }}>{field}</div>
+          <div>{field}</div>
+        ),
+        Cell: (props: any, column: any) => (
+          <div> {JSON.stringify(props.value)} </div>
         ),
         width,
+        style: {
+          fontFamily: 'monospace',
+          textAlign: 'left',
+          padding,
+        },
+        headerStyle: {
+          textAlign: 'left',
+          fontFamily: 'monospace',
+        },
       });
     });
 
@@ -107,8 +128,11 @@ export class DbcView extends React.Component<IProps, IState> {
         pageSize={10}
         data={this.state.values}
         showPagination={true}
-        className='-highlight'
+        className='-highlight -striped'
         columns={columns}
+        noDataText={this.state.message}
+        showPageSizeOptions={false}
+        loading={this.state.loading}
       />
     );
   }
