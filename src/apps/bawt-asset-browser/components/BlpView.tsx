@@ -33,6 +33,6 @@ export class BlpView extends React.Component<IProps, {}> {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 }
