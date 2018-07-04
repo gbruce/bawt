@@ -26,8 +26,6 @@ export class LoadDBC {
       throw new Error(`Could not decode ${dbcPath}`);
     }
 
-    const dbcReturn = new DBC(dbc, dbcType);
-
-    return dbcReturn;
+    return new DBC(dbc, dbcType);
   }
 }
