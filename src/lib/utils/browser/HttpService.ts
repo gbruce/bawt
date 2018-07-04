@@ -4,6 +4,10 @@ import { IHttpService } from 'interface/IHttpService';
 
 @injectable()
 export class HttpService implements IHttpService {
+  public urlFromPath(path: string): string {
+    return `http://localhost:8080/pipeline/${encodeURI(path)}`;
+  }
+
   public async get(path: string): Promise<DecodeStream> {
     const encodedPath = `http://localhost:8080/pipeline/${encodeURI(path)}`;
 
