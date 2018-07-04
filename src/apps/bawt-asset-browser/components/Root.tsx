@@ -4,6 +4,7 @@ import ReactTable, { Column, Filter } from 'react-table';
 import { IHttpService } from 'interface/IHttpService';
 import { lazyInject } from 'bawt/Container';
 import { DbcView } from './DbcView';
+import { BlpView } from './BlpView';
 import Grid from 'material-ui/Grid';
 import { createMuiTheme } from 'material-ui/styles';
 import blue from 'material-ui/colors/blue';
@@ -61,6 +62,9 @@ export class Root extends React.Component<{}, IState> {
     if (asset.filename.endsWith('dbc')) {
       return (<DbcView filePath={asset.filename}/>);
     }
+    else if (asset.filename.endsWith('blp') || asset.filename.endsWith('BLP')) {
+      return (<BlpView filePath={asset.filename}/>);
+    }
 
     return (null);
   }
@@ -76,6 +80,14 @@ export class Root extends React.Component<{}, IState> {
         filterMethod: (filter: Filter, row: any, column: any) => {
           const name: string = row.name;
           return name.includes(filter.value);
+        },
+        style: {
+          fontFamily: 'monospace',
+          textAlign: 'left',
+        },
+        headerStyle: {
+          textAlign: 'left',
+          fontFamily: 'monospace',
         },
       },
     ];
@@ -97,6 +109,7 @@ export class Root extends React.Component<{}, IState> {
                     pageSize={10}
                     data={this.state.assets}
                     showPagination={true}
+                    showPageSizeOptions={false}
                     filterable
                     className='-highlight'
                     columns={columns}
