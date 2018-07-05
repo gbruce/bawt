@@ -45,6 +45,28 @@ export class M2View extends React.Component<IProps, {}> {
     this.maybeReleaseRenderer();
   }
 
+  private async loadModel(filePath: string) {
+    if (this.camera === null || this.scene === null) {
+      return;
+    }
+
+    const loader = new LoadM2(this.httpService);
+    const mesh = await loader.Start(filePath);
+    this.model = new M2Model(filePath, mesh.m2, mesh.skin);
+    this.model.updateMatrix();
+    const boundingBox = new THREE.Box3();
+    const size = new THREE.Vector3();
+    boundingBox.setFromObject(this.model);
+    boundingBox.getSize(size);
+
+    const maxDimension = Math.max(size.x, size.y, size.z);
+    this.camera.position.x = maxDimension;
+    this.camera.position.y = maxDimension;
+    this.camera.position.z = maxDimension;
+
+    this.scene.add(this.model);
+  }
+
   public async componentDidMount() {
     this.renderer = new THREE.WebGLRenderer();
     const canvas = this.renderer.domElement;
@@ -72,27 +94,19 @@ export class M2View extends React.Component<IProps, {}> {
 
     this.animate(0);
 
-    const loader = new LoadM2(this.httpService);
-    const mesh = await loader.Start(this.props.filePath);
-    this.model = new M2Model(this.props.filePath, mesh.m2, mesh.skin);
-
-    this.scene.add(this.model);
+    await this.loadModel(this.props.filePath);
   }
 
   public async componentWillUpdate?(nextProps: IProps, nextState: {}, nextContext: any) {
     if (nextProps.filePath !== this.props.filePath) {
-      if (this.renderer !== null && this.scene !== null) {
+      if (this.renderer !== null && this.scene !== null && this.camera !== null) {
         if (this.model !== null) {
           this.scene.remove(this.model);
           this.model.dispose();
           this.model = null;
         }
 
-        const loader = new LoadM2(this.httpService);
-        const mesh = await loader.Start(nextProps.filePath);
-        this.model = new M2Model(nextProps.filePath, mesh.m2, mesh.skin);
-
-        this.scene.add(this.model);
+        await this.loadModel(nextProps.filePath);
       }
     }
   }
