@@ -1,4 +1,4 @@
-import { SkinnedMesh, Mesh, Group } from "three";
+import { SkinnedMesh, Mesh, Group } from 'three';
 
 export class Submesh extends Group {
   private useSkinning: boolean;
@@ -73,6 +73,9 @@ export class Submesh extends Group {
       // root bone.
       this.rootBone.skin = null;
     }
+  }
+
+  public dispose() {
   }
 
   set displayInfo(displayInfo: any) {

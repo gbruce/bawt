@@ -4,8 +4,8 @@ import { ShaderMaterial, Vector3, Matrix4, Color, BackSide, DoubleSide,
   OneMinusSrcAlphaFactor, SrcColorFactor, DstColorFactor, DstAlphaFactor,
   RepeatWrapping } from 'three';
 import { TextureLoader } from './TextureLoader';
-import vertexShader from './shader.vert';
-import fragmentShader from './shader.frag';
+import vertexShader = require('./shader.vert');
+import fragmentShader = require('./shader.frag');
 
 export class Material extends ShaderMaterial {
   private m2: any;
@@ -53,8 +53,8 @@ export class Material extends ShaderMaterial {
           new Matrix4(),
           new Matrix4(),
           new Matrix4(),
-          new Matrix4()
-        ]
+          new Matrix4(),
+        ],
       },
 
       // Managed by light manager
@@ -66,11 +66,11 @@ export class Material extends ShaderMaterial {
       fogModifier: { value: '1.0' },
       fogColor: { value: new Color(0.25, 0.5, 1.0) },
       fogStart: { value: 5.0 },
-      fogEnd: { value: 400.0 }
+      fogEnd: { value: 400.0 },
     };
 
-    this.vertexShader = vertexShader;
-    this.fragmentShader = fragmentShader;
+    this.vertexShader = vertexShader as any;
+    this.fragmentShader = fragmentShader as any;
 
     this.applyRenderFlags(def.renderFlags);
     this.applyBlendingMode(def.blendingMode);
