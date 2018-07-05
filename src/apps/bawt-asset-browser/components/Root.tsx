@@ -5,6 +5,7 @@ import { IHttpService } from 'interface/IHttpService';
 import { lazyInject } from 'bawt/Container';
 import { DbcView } from './DbcView';
 import { BlpView } from './BlpView';
+import { M2View } from './M2View';
 import Grid from 'material-ui/Grid';
 import { createMuiTheme } from 'material-ui/styles';
 import blue from 'material-ui/colors/blue';
@@ -64,6 +65,9 @@ export class Root extends React.Component<{}, IState> {
     }
     else if (asset.filename.endsWith('blp') || asset.filename.endsWith('BLP')) {
       return (<BlpView filePath={asset.filename}/>);
+    }
+    else if (asset.filename.endsWith('m2') || asset.filename.endsWith('M2')) {
+      return (<M2View filePath={asset.filename}/>);
     }
 
     return (null);
