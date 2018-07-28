@@ -378,6 +378,14 @@ declare module 'blizzardry/lib/m2/skin' {
   export = blizzardry;
 }
 
+declare module 'blizzardry/lib/adt' {
+  function ADT(wdtFlags: any): {
+    decode(stream: any): any;
+  };
+
+  export = ADT;
+}
+
 declare function importScripts(...urls: string[]): void;
 
 declare module '*.vert' {
