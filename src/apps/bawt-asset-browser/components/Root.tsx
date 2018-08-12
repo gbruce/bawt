@@ -7,6 +7,8 @@ import { DbcView } from './DbcView';
 import { BlpView } from './BlpView';
 import { M2View } from './M2View';
 import { AdtView } from './AdtView';
+import { WdtView } from './WdtView';
+import { WmoView } from './WmoView';
 import Grid from 'material-ui/Grid';
 import { createMuiTheme } from 'material-ui/styles';
 import blue from 'material-ui/colors/blue';
@@ -72,6 +74,12 @@ export class Root extends React.Component<{}, IState> {
     }
     else if (asset.filename.endsWith('adt') || asset.filename.endsWith('ADT')) {
       return (<AdtView filePath={asset.filename}/>);
+    }
+    else if (asset.filename.endsWith('wdt') || asset.filename.endsWith('WDT')) {
+      return (<WdtView filePath={asset.filename}/>);
+    }
+    else if (asset.filename.endsWith('wmo') || asset.filename.endsWith('WMO')) {
+      return (<WmoView filePath={asset.filename}/>);
     }
 
     return (null);
