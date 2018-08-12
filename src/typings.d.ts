@@ -386,6 +386,53 @@ declare module 'blizzardry/lib/adt' {
   export = ADT;
 }
 
+declare module 'blizzardry/lib/wdt' {
+  namespace blizzardry {
+    function decode(stream: any): any;
+
+    interface IWDT {
+      MAIN: {
+        id: 'NIAM';
+        size: number;
+        tiles: {
+          flags: number;
+        }[];
+      };
+
+      MPHD: {
+        id: 'DHPM';
+        flags: number;
+        size: number;
+      };
+
+      MVER: {
+        id: 'REVM';
+        size: number;
+        version: number;
+      };
+
+      MWMO: {
+        id: 'OMWM';
+        size: number;
+        filenames: string[];
+      };
+
+      tiles: number[];
+      version: number;
+    }
+  }
+
+  export = blizzardry;
+}
+
+declare module 'blizzardry/lib/wmo' {
+  namespace blizzardry {
+    function decode(stream: any): any;
+  }
+
+  export = blizzardry;
+}
+
 declare function importScripts(...urls: string[]): void;
 
 declare module '*.vert' {
