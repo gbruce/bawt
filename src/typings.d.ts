@@ -427,7 +427,314 @@ declare module 'blizzardry/lib/wdt' {
 
 declare module 'blizzardry/lib/wmo' {
   namespace blizzardry {
-    function decode(stream: any): any;
+    function decode(stream: any): IWMO;
+
+    interface IWMO {
+      version: number;
+      flags: number;
+      
+      MFOG: {
+        id: 'GOFM';
+        size: number;
+        fogs: {
+          color: number;
+          color2: number;
+          flags: number;
+          fogEnd: number;
+          fogStartMultiplier: number;
+          largerRadius: number;
+          smallerRadius: number;
+          position: {
+            x: number;
+            y: number;
+            z: number;
+          }
+        }[];
+      };
+
+      MODD: {
+        id: 'DDOM';
+        size: number;
+        doodads: any[];
+      };
+
+      MODN: {
+        id: 'NDOM';
+        size: number;
+        filenames: {};
+      };
+
+      MODS: {
+        id: 'SDOM';
+        size: number;
+        sets: {
+          doodadCount: number;
+          name: string;
+          startIndex: number;
+        }[];
+      };
+
+      MOGI: {
+        id: 'IGOM';
+        size: number;
+        groups: {
+          flags: number;
+          indoor: boolean;
+          nameOffset: number;
+          maxBoundingBox: {
+            x: number;
+            y: number;
+            z: number;
+          };
+          minBoundingBox: {
+            x: number;
+            y: number;
+            z: number;
+          };
+        }[];
+      };
+
+      MOGN: {
+        id: 'NGOM';
+        size: number;
+        names: string[];
+      };
+
+      MOHD: {
+        id: 'DHOM';
+        size: number;
+        baseColor: {
+          r: number;
+          g: number;
+          b: number;
+          a: number;
+        };
+        doodadCount: number;
+        doodadSetCount: number;
+        flags: number;
+        groupCount: number;
+        lightCount: number;
+        modelCount: number;
+        portalCount: number;
+        skipBaseColor: boolean;
+        textureCount: number;
+        wmoID: number;
+        maxBoundingBox: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        minBoundingBox: {
+          x: number;
+          y: number;
+          z: number;
+        };
+      };
+
+      MOLT: {
+        id: 'TLOW';
+        size: number;
+      };
+
+      MOMT: {
+        id: 'TMOM';
+        size: number;
+        materials: {
+          blendMode: number;
+          flags: number;
+          shader: number;
+          textures: {
+            color: {
+              r: number;
+              g: number;
+              b: number;
+              a: number;
+            };
+            flags: number;
+            offset: number;
+          }[];
+        }[];
+      };
+
+      MOPR: {
+        id: 'RPOM';
+        size: number;
+        references: {
+          groupIndex: number;
+          portalIndex: number;
+          side: number;
+          unknown1: number;
+        }[];
+      };
+
+      MOPT: {
+        id: 'TPOM';
+        size: number;
+        portals: {
+          plane: {
+            constant: number;
+            normal: number[];
+          };
+          vertexCount: number;
+          vertexoffset: number;
+        }[];
+      };
+
+      MOPV: {
+        id: 'VPOM';
+        size: number;
+        vertices: any[];
+      };
+
+      MOSB: {
+        id: 'BSOM';
+        size: number;
+        skybox: string;
+      };
+
+      MOTX: {
+        id: 'XTOM';
+        size: number;
+        filenames: string[];
+      };
+
+      MOVB: {
+        id: string;
+        size: number;
+      };
+
+      MOVV: {
+        id: string;
+        size: number;
+      };
+
+      MVER: {
+        id: 'REVM';
+        size: number;
+        version: number;
+      };
+    }
+  }
+
+  export = blizzardry;
+}
+
+declare module 'blizzardry/lib/wmo/group' {
+  namespace blizzardry {
+    function decode(stream: any): IWMOGroup;
+
+    interface IWMOGroup {
+      flags: number;
+      indoor: boolean;
+      version: number;
+
+      MOBA: {
+        id: string;
+        size: number;
+        batches: {
+          firstIndex: number;
+          firstVertex: number;
+          indexCount: number;
+          lastVertex: number;
+          materialID: number;
+        }[];
+      };
+
+      MOBN: {
+        id: string;
+        size: number;
+      };
+
+      MOBR: {
+        id: string;
+        size: number;
+      };
+
+      MOCV: {
+        id: string;
+        size: number;
+        colors: {
+          r: number;
+          g: number;
+          b: number;
+          a: number;
+        }[];
+      };
+
+      MODR: {
+        id: string;
+        size: number;
+        doodadIndices: number[];
+      };
+
+      MOGP: {
+        id: string;
+        size: number;
+        aBatchCount: number;
+        descriptionOffset: number;
+        exteriorBatchCount: number;
+        flags: number;
+        groupId: number;
+        interiorBatchCount: number;
+        nameOffset: number;
+        portalOffset: number;
+        fogOffsets: number[];
+        maxBoundingBox: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        minBoundingBox:  {
+          x: number;
+          y: number;
+          z: number;
+        };
+      };
+
+      MOLR: {
+        id: string;
+        size: number;
+      };
+
+      MONR: {
+        id: string;
+        size: number;
+        normals: number[][];
+      };
+
+      MOPY: {
+        id: string;
+        size: number;
+        triangles: {
+          flags: number;
+          materialID: number;
+        }[];
+      };
+
+      MOTV: {
+        id: string;
+        size: number;
+        textureCoords: number[][];
+      };
+
+      MOVI: {
+        id: string;
+        size: number;
+        triangles: number[];
+      };
+
+      MOVT: {
+        id: string;
+        size: number;
+        vertices: number[][];
+      };
+
+      MVER: {
+        id: string;
+        size: number;
+        version: number;
+      };
+    }
   }
 
   export = blizzardry;
