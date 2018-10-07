@@ -3,7 +3,7 @@ import { ShaderMaterial, Vector3, Matrix4, Color, BackSide, DoubleSide,
   CustomBlending, NoBlending, OneFactor, ZeroFactor, SrcAlphaFactor,
   OneMinusSrcAlphaFactor, SrcColorFactor, DstColorFactor, DstAlphaFactor,
   RepeatWrapping } from 'three';
-import { TextureLoader } from './TextureLoader';
+import { TextureLoader } from 'bawt/assets/TextureLoader';
 import vertexShader = require('./shader.vert');
 import fragmentShader = require('./shader.frag');
 
@@ -303,7 +303,7 @@ export class Material extends ShaderMaterial {
       });
     };
 
-    //animations.on('update', updater);
+    // animations.on('update', updater);
     animations.onUpdate.subscribe(() => updater());
 
     this.eventListeners.push([animations, 'update', updater]);
@@ -347,9 +347,8 @@ export class Material extends ShaderMaterial {
       targetAlpha.value = source[valueIndex].alpha;
     };
 
-    //animations.on('update', updater);
+    // animations.on('update', updater);
     animations.onUpdate.subscribe(() => updater());
-
 
     this.eventListeners.push([animations, 'update', updater]);
   }

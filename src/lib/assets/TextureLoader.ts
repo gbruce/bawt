@@ -34,7 +34,7 @@ export class TextureLoader {
 
     if (!this.cache.has(textureKey)) {
       // TODO: Promisify THREE's TextureLoader callbacks
-      this.cache.set(textureKey, this.loader.load(encodedPath, function(texture) {
+      this.cache.set(textureKey, this.loader.load(encodedPath, (texture) => {
         texture.sourceFile = path;
         (texture as any).textureKey = textureKey;
 

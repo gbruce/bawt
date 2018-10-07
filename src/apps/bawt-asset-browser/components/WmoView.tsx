@@ -2,8 +2,12 @@ import * as React from 'react';
 import * as THREE from 'three';
 import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
-import { M2Model } from 'bawt/assets/m2/index';
+import { WMOGroup } from 'bawt/assets/wmo/group/WMOGroup';
 import { LoadWMO } from 'bawt/worker/LoadWMO';
+import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
+import { WMO } from 'bawt/assets/wmo/index';
+import { Vector3 } from 'three';
+
 interface IProps {
   filePath: string;
 }
@@ -21,16 +25,17 @@ export class WmoView extends React.Component<IProps, {}> {
 
   private renderer: THREE.WebGLRenderer|null = null;
   private scene: THREE.Scene|null = null;
-  private camera: THREE.Camera|null = null;
-  private model: M2Model|null = null;
+  private camera: THREE.PerspectiveCamera|null = null;
+  private wmoGroup: WMOGroup|null = null;
+  private wmo: WMO|null = null;
 
   private maybeReleaseRenderer() {
     this.camera = null;
     this.scene = null;
 
-    if (this.model !== null) {
-      this.model!.dispose();
-      this.model = null;
+    if (this.wmoGroup !== null) {
+      this.wmoGroup!.dispose();
+      this.wmoGroup = null;
     }
 
     if (this.renderer !== null) {
@@ -49,24 +54,69 @@ export class WmoView extends React.Component<IProps, {}> {
       return;
     }
 
-    const loader = new LoadWMO(this.httpService);
-    const wdt = await loader.Start(this.props.filePath);
-    /*
-    const mesh = await loader.Start(filePath);
-    this.model = new M2Model(filePath, mesh.m2, mesh.skin);
-    this.model.updateMatrix();
-    const boundingBox = new THREE.Box3();
-    const size = new THREE.Vector3();
-    boundingBox.setFromObject(this.model);
-    boundingBox.getSize(size);
+    const regex = /.+_\d{3}/i;
+    const result = filePath.match(regex);
 
-    const maxDimension = Math.max(size.x, size.y, size.z);
-    this.camera.position.x = maxDimension;
-    this.camera.position.y = maxDimension;
-    this.camera.position.z = maxDimension;
+    // const regex = new RegExp('.+_\d{3}');
+    if (result && result.length > 0) {
+      const wmoRootFile = filePath.substring(0, filePath.length - 8) + '.wmo';
+      const wmoRootLoader = new LoadWMO(this.httpService);
+      const wmoRoot = await wmoRootLoader.Start(wmoRootFile);
+      const wmoGroupLoader = new LoadWMOGroup(this.httpService);
+      const wmoGroup = await wmoGroupLoader.Start(this.props.filePath);
+      this.wmoGroup = new WMOGroup(wmoRoot, '', wmoGroup, filePath);
+      this.wmoGroup.updateMatrix();
+    }
+    else {
+      const wmoLoader = new LoadWMO(this.httpService);
+      const wmo = await wmoLoader.Start(this.props.filePath);
+      this.wmo = new WMO(filePath, wmo);
+    }
 
-    this.scene.add(this.model);
-    */
+    if (this.wmoGroup) {
+      const boundingBox = new THREE.Box3();
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      boundingBox.setFromObject(this.wmoGroup);
+      boundingBox.getSize(size);
+      boundingBox.getCenter(center);
+
+      this.scene.add(this.wmoGroup);
+
+      this.setupCamera();
+    }
+  }
+
+  private setupCamera() {
+    if (this.wmoGroup && this.camera) {
+      const boundingBox = new THREE.Box3();
+
+      // get bounding box of object - this will be used to setup controls and camera
+      boundingBox.setFromObject(this.wmoGroup);
+
+      const center = new Vector3();
+      boundingBox.getCenter(center);
+
+      const size = new Vector3();
+      boundingBox.getSize(size);
+
+      // get the max side of the bounding box (fits to width OR height as needed )
+      const maxDim = Math.max( size.x, size.y, size.z );
+      const fov = this.camera.fov * ( Math.PI / 180 );
+      let cameraZ = Math.abs( maxDim / 4 * Math.tan( fov * 2 ) );
+
+      cameraZ *= 1.25; // zoom out a little so that objects don't fill the screen
+
+      this.camera.position.set(center.x, center.y, center.z);
+      this.camera.position.z = cameraZ;
+
+      const minZ = boundingBox.min.z;
+      const cameraToFarEdge = ( minZ < 0 ) ? -minZ + cameraZ : cameraZ - minZ;
+
+      this.camera.far = cameraToFarEdge * 3;
+      this.camera.updateProjectionMatrix();
+      this.camera.lookAt(center);
+    }
   }
 
   public async componentDidMount() {
@@ -88,11 +138,12 @@ export class WmoView extends React.Component<IProps, {}> {
     light2.position.set(-100, 100, -100);
     this.scene.add(light2);
 
-    this.camera.position.x = 2;
-    this.camera.position.y = 2;
-    this.camera.position.z = 2;
+    // this.camera.position.x = 2;
+    // this.camera.position.y = 2;
+    // this.camera.position.z = 2;
 
-    this.camera.lookAt(this.scene.position);
+    // this.camera.lookAt(this.scene.position);
+    this.setupCamera();
 
     this.animate(0);
 
@@ -102,10 +153,10 @@ export class WmoView extends React.Component<IProps, {}> {
   public async componentWillUpdate?(nextProps: IProps, nextState: {}, nextContext: any) {
     if (nextProps.filePath !== this.props.filePath) {
       if (this.renderer !== null && this.scene !== null && this.camera !== null) {
-        if (this.model !== null) {
-          this.scene.remove(this.model);
-          this.model.dispose();
-          this.model = null;
+        if (this.wmoGroup !== null) {
+          this.scene.remove(this.wmoGroup);
+          this.wmoGroup.dispose();
+          this.wmoGroup = null;
         }
 
         await this.loadModel(nextProps.filePath);
@@ -120,9 +171,9 @@ export class WmoView extends React.Component<IProps, {}> {
 
   private renderScene = () => {
     const timer = 0.002 * Date.now();
-    if (this.model !== null) {
-      this.model.rotateY(0.04);
-      this.model.updateMatrix();
+    if (this.wmoGroup !== null) {
+      // this.wmoGroup.rotateY(0.04);
+      // this.wmoGroup.updateMatrix();
     }
 
     if (this.renderer && this.scene && this.camera) {
