@@ -64,13 +64,17 @@ export class WmoView extends React.Component<IProps, {}> {
       const wmoRoot = await wmoRootLoader.Start(wmoRootFile);
       const wmoGroupLoader = new LoadWMOGroup(this.httpService);
       const wmoGroup = await wmoGroupLoader.Start(this.props.filePath);
-      this.wmoGroup = new WMOGroup(wmoRoot, '', wmoGroup, filePath);
-      this.wmoGroup.updateMatrix();
+      if (wmoRoot) {
+        this.wmoGroup = new WMOGroup(wmoRoot, '', wmoGroup, filePath);
+        this.wmoGroup.updateMatrix();
+      }
     }
     else {
       const wmoLoader = new LoadWMO(this.httpService);
       const wmo = await wmoLoader.Start(this.props.filePath);
-      this.wmo = new WMO(filePath, wmo);
+      if (wmo) {
+        this.wmo = new WMO(filePath, wmo);
+      }
     }
 
     if (this.wmoGroup) {

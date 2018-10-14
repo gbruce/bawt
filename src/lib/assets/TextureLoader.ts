@@ -30,7 +30,7 @@ export class TextureLoader {
     ++refCount;
     this.references.set(textureKey, refCount);
 
-    const encodedPath = encodeURI(`http://localhost:8080/pipeline/${path}.png`);
+    const encodedPath = encodeURI(`http://192.168.1.3:8080/pipeline/${path}.png`);
 
     if (!this.cache.has(textureKey)) {
       // TODO: Promisify THREE's TextureLoader callbacks

@@ -1,12 +1,12 @@
 import { Mesh, BufferGeometry, BufferAttribute, Matrix4, MultiMaterial } from 'three';
-
 import WMOMaterial from '../material/WMOMaterial';
+import { IWMO } from 'blizzardry/lib/wmo';
 
 export class WMOGroup extends Mesh {
   private indoor: any;
   private animated: boolean;
 
-  constructor(private wmo: any, private groupId: any, private data: any, private path: any) {
+  constructor(private wmo: IWMO, private groupId: any, private data: any, private path: any) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -71,9 +71,9 @@ export class WMOGroup extends Mesh {
 
     // Mirror geometry over X and Y axes and rotate
     const matrix = new Matrix4();
-    matrix.makeScale(-1, -1, 1);
+    // matrix.makeScale(-1, -1, 1);
     geometry.applyMatrix(matrix);
-    geometry.rotateX(-Math.PI / 2);
+    // geometry.rotateX(-Math.PI / 2);
 
     const materialIDs: any[] = [];
 

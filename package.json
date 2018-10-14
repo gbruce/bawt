@@ -16,7 +16,8 @@
     "browser-dev": "yarn proxy | yarn serve",
     "node-test": "mocha -r tsconfig-paths/register -r ts-node/register src/tests/NodeTest.ts --exit",
     "file-serve": "ts-node -r ts-node/register ./src/apps/bawt-files/index.ts",
-    "asset-browser-dev": "webpack-serve --port 9000 --config ./webpack.asset-browser.config.js"
+    "asset-browser-dev": "webpack-serve --port 9000 --config ./webpack.asset-browser.config.js",
+    "webvr-dev": "webpack-serve --port 8000 --host 0.0.0.0 --config ./webpack.webvr.config.js"
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.34",
@@ -73,6 +74,8 @@
     "style-loader": "^0.20.3",
     "styled-components": "^3.2.5",
     "three": "^0.92.0",
+    "three-vrcontrols-module": "^2.2.1",
+    "three-vreffect-module": "^2.2.0",
     "ts-loader": "^4.0.1",
     "ts-node": "^4.1.0",
     "tsconfig-paths": "^3.3.2",
@@ -81,6 +84,7 @@
     "webpack": "^4.1.0",
     "webpack-cli": "^2.0.10",
     "webpack-serve": "^0.2.0",
+    "webvr-ui": "^0.10.0",
     "winston": "^2.4.0",
     "winston-browser": "^1.0.0",
     "ws": "^3.3.2",

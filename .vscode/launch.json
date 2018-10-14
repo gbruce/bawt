@@ -56,5 +56,13 @@
       "port": "9222",
       "webRoot": "${workspaceFolder}"
     },
+    {
+      "name": "Launch WebVR",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8000/webvr.html",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+    },
   ]
 }

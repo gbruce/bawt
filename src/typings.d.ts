@@ -751,3 +751,38 @@ declare module '*.frag' {
   const content: any;
   export default content;
 }
+
+declare module 'three/examples/js/controls/VRControls' {
+
+}
+
+declare module 'webvr-ui' {
+  import { EventEmitter } from "events";
+  namespace webvrui {
+    class EnterVRButton extends EventEmitter {
+      constructor(sourceCanvas: any, options: {
+          domElement?: HTMLElement,
+          injectCSS?: boolean,
+          beforeEnter?: any,
+          beforeExit?: any,
+          onRequestStateChange?: any,
+          textEnterVRTitle?: string,
+          textVRNotFoundTitle?: string,
+          textExitVRTitle?: string,
+          color?: any,
+          background?: any,
+          corners?: any,
+          disabledOpacity?: boolean,
+          cssprefix?: string,
+        },
+      );
+
+      public requestEnterFullscreen():Promise<void>;
+      public isPresenting(): boolean;
+      public domElement: HTMLElement;
+    }
+  }
+  // const content: any;
+  // export default content;
+  export = webvrui;
+}

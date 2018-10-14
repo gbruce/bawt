@@ -4,12 +4,17 @@ import { IHttpService } from 'interface/IHttpService';
 
 @injectable()
 export class HttpService implements IHttpService {
+  private urlBase: string;
+  constructor(private host: string, private port: number) {
+    this.urlBase = `http://${host}:${port}/pipeline/`;
+  }
+
   public urlFromPath(path: string): string {
-    return `http://localhost:8080/pipeline/${encodeURI(path)}`;
+    return `${this.urlBase}${encodeURI(path)}`;
   }
 
   public async get(path: string): Promise<DecodeStream> {
-    const encodedPath = `http://localhost:8080/pipeline/${encodeURI(path)}`;
+    const encodedPath = `${this.urlBase}${encodeURI(path)}`;
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -28,7 +33,7 @@ export class HttpService implements IHttpService {
   }
 
   public async getString(path: string): Promise<string> {
-    const encodedPath = `http://localhost:8080/pipeline/${encodeURI(path)}`;
+    const encodedPath = `${this.urlBase}${encodeURI(path)}`;
 
     return new Promise<string>((resolve, reject) => {
       const xhr = new XMLHttpRequest();

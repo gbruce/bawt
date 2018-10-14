@@ -1,4 +1,5 @@
 import { Group } from 'three';
+import { IWMO } from 'blizzardry/lib/wmo';
 
 export class WMO extends Group {
   private groupCount: number;
@@ -6,7 +7,7 @@ export class WMO extends Group {
   private indoorGroupIDs: number[];
   private outdoorGroupIDs: number[];
 
-  constructor(private path: any, private data: any) {
+  constructor(private path: any, public data: IWMO) {
     super();
 
     this.matrixAutoUpdate = false;

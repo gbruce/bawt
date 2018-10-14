@@ -2594,6 +2594,10 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
 
+eventemitter3@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-2.0.3.tgz#b5e1079b59fb5e1ba2771c0a993be060a58c99ba"
+
 events@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/events/-/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
@@ -6420,6 +6424,10 @@ scoped-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/scoped-regex/-/scoped-regex-1.0.0.tgz#a346bb1acd4207ae70bd7c0c7ca9e566b6baddb8"
 
+screenfull@^3.0.2:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.3.3.tgz#8cf7e706aceac2e75131aadcb81b622acfe11d39"
+
 scroll@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/scroll/-/scroll-2.0.3.tgz#0951b785544205fd17753bc3d294738ba16fc2ab"
@@ -7065,6 +7073,14 @@ thenify-all@^1.0.0:
   dependencies:
     any-promise "^1.0.0"
 
+three-vrcontrols-module@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/three-vrcontrols-module/-/three-vrcontrols-module-2.2.1.tgz#00bf9bca96b2f0bd44592df60a22df59beaec91f"
+
+three-vreffect-module@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/three-vreffect-module/-/three-vreffect-module-2.2.0.tgz#ebe86d59ba74a30e4c9a05586ffbceb8d902a0d5"
+
 three@^0.92.0:
   version "0.92.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.92.0.tgz#8d3d1f5af890e62da7f4cb45d20c09fa51057dcd"
@@ -7642,6 +7658,13 @@ webpack@^4.1.0:
     uglifyjs-webpack-plugin "^1.2.4"
     watchpack "^1.5.0"
     webpack-sources "^1.0.1"
+
+webvr-ui@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/webvr-ui/-/webvr-ui-0.10.0.tgz#61e1be3ac1285021dcad954ca38fb860ac8d88c5"
+  dependencies:
+    eventemitter3 "^2.0.2"
+    screenfull "^3.0.2"
 
 whatwg-fetch@>=0.10.0:
   version "2.0.4"
