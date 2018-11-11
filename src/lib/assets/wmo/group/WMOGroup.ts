@@ -1,12 +1,11 @@
 import { Mesh, BufferGeometry, BufferAttribute, Matrix4, MultiMaterial } from 'three';
 import WMOMaterial from '../material/WMOMaterial';
-import { IWMO } from 'blizzardry/lib/wmo';
 
 export class WMOGroup extends Mesh {
   private indoor: any;
   private animated: boolean;
 
-  constructor(private wmo: IWMO, private groupId: any, private data: any, private path: any) {
+  constructor(private wmo: blizzardry.IWMO, private groupId: any, private data: any) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -135,7 +134,7 @@ export class WMOGroup extends Mesh {
   }
 
   public clone(): any {
-    return new WMOGroup(this.wmo, this.groupId, this.data, this.path);
+    return new WMOGroup(this.wmo, this.groupId, this.data);
   }
 
   public dispose() {

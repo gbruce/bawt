@@ -6,11 +6,11 @@ const log = NewLogger('worker/LoadDBC');
 export class LoadWMO {
   constructor(private httpService: IHttpService) {}
 
-  public async Start(wmoPath: string): Promise<WMO.IWMO|null> {
+  public async Start(wmoPath: string): Promise<blizzardry.IWMO|null> {
     log.info(`Loading ${wmoPath}`);
 
     const wmoStream = await this.httpService.get(wmoPath);
-    let decoded = null;
+    let decoded: blizzardry.IWMO|null = null;
     try {
       decoded = WMO.decode(wmoStream);
     }
@@ -18,6 +18,10 @@ export class LoadWMO {
       log.error(e);
     }
 
+    if (decoded) {
+      (decoded as any).filename = wmoPath;
+    }
+    
     return decoded;
   }
 }

@@ -1,4 +1,3 @@
-
 declare class ByteBuffer {
   writeString( str: string, offset?: number ): ByteBuffer | number;
 }
@@ -138,6 +137,523 @@ declare namespace blizzardry {
   interface IEntity {
     dbc: any;
     fields: { [type: string]: IField };
+  }
+
+  interface IWMOEntry {
+    doodadSet: number;
+    filename: string;
+    flags: number;
+    id: number;
+    index: number;
+    maxBoundingBox: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    minBoundingBox: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    nameSet: number;
+    position: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    rotation: {
+      x: number;
+      y: number;
+      z: number;
+    };
+  }
+
+  interface IMCNKs {
+    areaID: number;
+    doodadCount: number;
+    flags: number;
+    holes: number;
+    id: 'KNCM';
+    indexX: number;
+    indexY: number;
+    layerCount: number;
+    noEffectDoodad: number;
+    offsetMCAL: number;
+    offsetMCCV: number;
+    offsetMCLQ: number;
+    offsetMCLY: number;
+    offsetMCNR: number;
+    offsetMCRF: number;
+    offsetMCSE: number;
+    offsetMCSH: number;
+    offsetMCVT: number;
+    position: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    predTex: number;
+    sizeMCAL: number;
+    sizeMCLQ: number;
+    sizeMCSH: number;
+    soundEmitterCount: number;
+    unknown: number;
+    wmoCount: number;
+    MCAL: {
+      alphaMaps: Uint8Array[];
+      id: 'LACM';
+      size: number;
+    };
+    MCLY: {
+      id: 'YLCM';
+      size: number;
+      layers: {
+        compressed: number;
+        effectID: number;
+        flags: number;
+        offsetMCAL: number;
+        skip: number;
+        textureID: number;
+      }[];
+    };
+    MCNR: {
+      id: 'RNCM';
+      size: number;
+      normals: {
+        x: number;
+        y: number;
+        z: number;
+      }[];
+    };
+    MCRF: {
+      id: 'FRCM';
+      size: number;
+      doodadEntries: {
+        filename: string;
+        flags: number;
+        id: number;
+        index: number;
+        position: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        rotation: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        scale: number;
+      }[];
+      MDDFs: number[];
+      MODFs: any[];
+      wmoEntries: IWMOEntry[];
+    };
+    MCSE: {
+      id: 'ESCM';
+      size: number;
+    };
+    MCSH: {
+      id: 'HSCM';
+      size: number;
+      actualSize: number;
+    };
+    MCVT: {
+      id: 'TVCM';
+      size: number;
+      heights: number[];
+    };
+  }
+
+  interface IADT {
+    flags: number;
+    version: number;
+    wdtFlags: number;
+    MCIN: {
+      id: 'NICM';
+      size: number;
+    };
+
+    MCNKs: IMCNKs[];
+    MDDF: {
+      id: 'FDDM';
+      size: number;
+      entries: {
+        id: number;
+        filename: string;
+        flags: number;
+        index: number;
+        position: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        rotation: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        scale: number;
+      }[];
+    };
+    MH2O: {
+      id: 'O2HM';
+      size: number;
+    };
+    MHDR: {
+      id: 'RDHM';
+      size: number;
+      flags: number;
+      offsetMCIN: number;
+      offsetMDDF: number;
+      offsetMFBO: number;
+      offsetMH2O: number;
+      offsetMMDX: number;
+      offsetMMID: number;
+      offsetMODF: number;
+      offsetMTEX: number;
+      offsetMTXF: number;
+      offsetMWID: number;
+      offsetMWMO: number;
+    };
+    MMDX: {
+      id: 'XDMM';
+      size: number;
+      filenames: string[];
+    };
+    MMID: {
+      id: 'DIMM';
+      size: number;
+    };
+    MODF: {
+      id: 'FDOM';
+      size: number;
+      entries: any[];
+    };
+    MTEX: {
+      id: 'XETM';
+      size: number;
+      filenames: string[];
+    };
+    MVER: {
+      id: 'REVM';
+      size: number;
+      version: number;
+    };
+    MWID: {
+      id: 'DIWM';
+      size: number;
+    };
+    MWMO: {
+      id: 'OMWM';
+      size: number;
+      filesnames: string[];
+    };
+  }
+
+  export interface IWMO {
+    // custom property
+    filename: string;
+
+    version: number;
+    flags: number;
+    
+    MFOG: {
+      id: 'GOFM';
+      size: number;
+      fogs: {
+        color: number;
+        color2: number;
+        flags: number;
+        fogEnd: number;
+        fogStartMultiplier: number;
+        largerRadius: number;
+        smallerRadius: number;
+        position: {
+          x: number;
+          y: number;
+          z: number;
+        }
+      }[];
+    };
+
+    MODD: {
+      id: 'DDOM';
+      size: number;
+      doodads: any[];
+    };
+
+    MODN: {
+      id: 'NDOM';
+      size: number;
+      filenames: {};
+    };
+
+    MODS: {
+      id: 'SDOM';
+      size: number;
+      sets: {
+        doodadCount: number;
+        name: string;
+        startIndex: number;
+      }[];
+    };
+
+    MOGI: {
+      id: 'IGOM';
+      size: number;
+      groups: {
+        flags: number;
+        indoor: boolean;
+        nameOffset: number;
+        maxBoundingBox: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        minBoundingBox: {
+          x: number;
+          y: number;
+          z: number;
+        };
+      }[];
+    };
+
+    MOGN: {
+      id: 'NGOM';
+      size: number;
+      names: string[];
+    };
+
+    MOHD: {
+      id: 'DHOM';
+      size: number;
+      baseColor: {
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+      };
+      doodadCount: number;
+      doodadSetCount: number;
+      flags: number;
+      groupCount: number;
+      lightCount: number;
+      modelCount: number;
+      portalCount: number;
+      skipBaseColor: boolean;
+      textureCount: number;
+      wmoID: number;
+      maxBoundingBox: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      minBoundingBox: {
+        x: number;
+        y: number;
+        z: number;
+      };
+    };
+
+    MOLT: {
+      id: 'TLOW';
+      size: number;
+    };
+
+    MOMT: {
+      id: 'TMOM';
+      size: number;
+      materials: {
+        blendMode: number;
+        flags: number;
+        shader: number;
+        textures: {
+          color: {
+            r: number;
+            g: number;
+            b: number;
+            a: number;
+          };
+          flags: number;
+          offset: number;
+        }[];
+      }[];
+    };
+
+    MOPR: {
+      id: 'RPOM';
+      size: number;
+      references: {
+        groupIndex: number;
+        portalIndex: number;
+        side: number;
+        unknown1: number;
+      }[];
+    };
+
+    MOPT: {
+      id: 'TPOM';
+      size: number;
+      portals: {
+        plane: {
+          constant: number;
+          normal: number[];
+        };
+        vertexCount: number;
+        vertexoffset: number;
+      }[];
+    };
+
+    MOPV: {
+      id: 'VPOM';
+      size: number;
+      vertices: any[];
+    };
+
+    MOSB: {
+      id: 'BSOM';
+      size: number;
+      skybox: string;
+    };
+
+    MOTX: {
+      id: 'XTOM';
+      size: number;
+      filenames: string[];
+    };
+
+    MOVB: {
+      id: string;
+      size: number;
+    };
+
+    MOVV: {
+      id: string;
+      size: number;
+    };
+
+    MVER: {
+      id: 'REVM';
+      size: number;
+      version: number;
+    };
+  }
+
+  interface IWMOGroup {
+    // custom property
+    filename: string;
+
+    flags: number;
+    indoor: boolean;
+    version: number;
+
+    MOBA: {
+      id: string;
+      size: number;
+      batches: {
+        firstIndex: number;
+        firstVertex: number;
+        indexCount: number;
+        lastVertex: number;
+        materialID: number;
+      }[];
+    };
+
+    MOBN: {
+      id: string;
+      size: number;
+    };
+
+    MOBR: {
+      id: string;
+      size: number;
+    };
+
+    MOCV: {
+      id: string;
+      size: number;
+      colors: {
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+      }[];
+    };
+
+    MODR: {
+      id: string;
+      size: number;
+      doodadIndices: number[];
+    };
+
+    MOGP: {
+      id: string;
+      size: number;
+      aBatchCount: number;
+      descriptionOffset: number;
+      exteriorBatchCount: number;
+      flags: number;
+      groupId: number;
+      interiorBatchCount: number;
+      nameOffset: number;
+      portalOffset: number;
+      fogOffsets: number[];
+      maxBoundingBox: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      minBoundingBox:  {
+        x: number;
+        y: number;
+        z: number;
+      };
+    };
+
+    MOLR: {
+      id: string;
+      size: number;
+    };
+
+    MONR: {
+      id: string;
+      size: number;
+      normals: number[][];
+    };
+
+    MOPY: {
+      id: string;
+      size: number;
+      triangles: {
+        flags: number;
+        materialID: number;
+      }[];
+    };
+
+    MOTV: {
+      id: string;
+      size: number;
+      textureCoords: number[][];
+    };
+
+    MOVI: {
+      id: string;
+      size: number;
+      triangles: number[];
+    };
+
+    MOVT: {
+      id: string;
+      size: number;
+      vertices: number[][];
+    };
+
+    MVER: {
+      id: string;
+      size: number;
+      version: number;
+    };
   }
 }
 
@@ -380,7 +896,7 @@ declare module 'blizzardry/lib/m2/skin' {
 
 declare module 'blizzardry/lib/adt' {
   function ADT(wdtFlags: any): {
-    decode(stream: any): any;
+    decode(stream: any): blizzardry.IADT
   };
 
   export = ADT;
@@ -419,6 +935,7 @@ declare module 'blizzardry/lib/wdt' {
 
       tiles: number[];
       version: number;
+      flags: number;
     }
   }
 
@@ -426,318 +943,19 @@ declare module 'blizzardry/lib/wdt' {
 }
 
 declare module 'blizzardry/lib/wmo' {
-  namespace blizzardry {
-    function decode(stream: any): IWMO;
-
-    interface IWMO {
-      version: number;
-      flags: number;
-      
-      MFOG: {
-        id: 'GOFM';
-        size: number;
-        fogs: {
-          color: number;
-          color2: number;
-          flags: number;
-          fogEnd: number;
-          fogStartMultiplier: number;
-          largerRadius: number;
-          smallerRadius: number;
-          position: {
-            x: number;
-            y: number;
-            z: number;
-          }
-        }[];
-      };
-
-      MODD: {
-        id: 'DDOM';
-        size: number;
-        doodads: any[];
-      };
-
-      MODN: {
-        id: 'NDOM';
-        size: number;
-        filenames: {};
-      };
-
-      MODS: {
-        id: 'SDOM';
-        size: number;
-        sets: {
-          doodadCount: number;
-          name: string;
-          startIndex: number;
-        }[];
-      };
-
-      MOGI: {
-        id: 'IGOM';
-        size: number;
-        groups: {
-          flags: number;
-          indoor: boolean;
-          nameOffset: number;
-          maxBoundingBox: {
-            x: number;
-            y: number;
-            z: number;
-          };
-          minBoundingBox: {
-            x: number;
-            y: number;
-            z: number;
-          };
-        }[];
-      };
-
-      MOGN: {
-        id: 'NGOM';
-        size: number;
-        names: string[];
-      };
-
-      MOHD: {
-        id: 'DHOM';
-        size: number;
-        baseColor: {
-          r: number;
-          g: number;
-          b: number;
-          a: number;
-        };
-        doodadCount: number;
-        doodadSetCount: number;
-        flags: number;
-        groupCount: number;
-        lightCount: number;
-        modelCount: number;
-        portalCount: number;
-        skipBaseColor: boolean;
-        textureCount: number;
-        wmoID: number;
-        maxBoundingBox: {
-          x: number;
-          y: number;
-          z: number;
-        };
-        minBoundingBox: {
-          x: number;
-          y: number;
-          z: number;
-        };
-      };
-
-      MOLT: {
-        id: 'TLOW';
-        size: number;
-      };
-
-      MOMT: {
-        id: 'TMOM';
-        size: number;
-        materials: {
-          blendMode: number;
-          flags: number;
-          shader: number;
-          textures: {
-            color: {
-              r: number;
-              g: number;
-              b: number;
-              a: number;
-            };
-            flags: number;
-            offset: number;
-          }[];
-        }[];
-      };
-
-      MOPR: {
-        id: 'RPOM';
-        size: number;
-        references: {
-          groupIndex: number;
-          portalIndex: number;
-          side: number;
-          unknown1: number;
-        }[];
-      };
-
-      MOPT: {
-        id: 'TPOM';
-        size: number;
-        portals: {
-          plane: {
-            constant: number;
-            normal: number[];
-          };
-          vertexCount: number;
-          vertexoffset: number;
-        }[];
-      };
-
-      MOPV: {
-        id: 'VPOM';
-        size: number;
-        vertices: any[];
-      };
-
-      MOSB: {
-        id: 'BSOM';
-        size: number;
-        skybox: string;
-      };
-
-      MOTX: {
-        id: 'XTOM';
-        size: number;
-        filenames: string[];
-      };
-
-      MOVB: {
-        id: string;
-        size: number;
-      };
-
-      MOVV: {
-        id: string;
-        size: number;
-      };
-
-      MVER: {
-        id: 'REVM';
-        size: number;
-        version: number;
-      };
-    }
+  namespace wmo {
+    function decode(stream: any): blizzardry.IWMO;
   }
 
-  export = blizzardry;
+  export = wmo;
 }
 
 declare module 'blizzardry/lib/wmo/group' {
-  namespace blizzardry {
-    function decode(stream: any): IWMOGroup;
-
-    interface IWMOGroup {
-      flags: number;
-      indoor: boolean;
-      version: number;
-
-      MOBA: {
-        id: string;
-        size: number;
-        batches: {
-          firstIndex: number;
-          firstVertex: number;
-          indexCount: number;
-          lastVertex: number;
-          materialID: number;
-        }[];
-      };
-
-      MOBN: {
-        id: string;
-        size: number;
-      };
-
-      MOBR: {
-        id: string;
-        size: number;
-      };
-
-      MOCV: {
-        id: string;
-        size: number;
-        colors: {
-          r: number;
-          g: number;
-          b: number;
-          a: number;
-        }[];
-      };
-
-      MODR: {
-        id: string;
-        size: number;
-        doodadIndices: number[];
-      };
-
-      MOGP: {
-        id: string;
-        size: number;
-        aBatchCount: number;
-        descriptionOffset: number;
-        exteriorBatchCount: number;
-        flags: number;
-        groupId: number;
-        interiorBatchCount: number;
-        nameOffset: number;
-        portalOffset: number;
-        fogOffsets: number[];
-        maxBoundingBox: {
-          x: number;
-          y: number;
-          z: number;
-        };
-        minBoundingBox:  {
-          x: number;
-          y: number;
-          z: number;
-        };
-      };
-
-      MOLR: {
-        id: string;
-        size: number;
-      };
-
-      MONR: {
-        id: string;
-        size: number;
-        normals: number[][];
-      };
-
-      MOPY: {
-        id: string;
-        size: number;
-        triangles: {
-          flags: number;
-          materialID: number;
-        }[];
-      };
-
-      MOTV: {
-        id: string;
-        size: number;
-        textureCoords: number[][];
-      };
-
-      MOVI: {
-        id: string;
-        size: number;
-        triangles: number[];
-      };
-
-      MOVT: {
-        id: string;
-        size: number;
-        vertices: number[][];
-      };
-
-      MVER: {
-        id: string;
-        size: number;
-        version: number;
-      };
-    }
+  namespace wmogroup {
+    function decode(stream: any): blizzardry.IWMOGroup;
   }
 
-  export = blizzardry;
+  export = wmogroup;
 }
 
 declare function importScripts(...urls: string[]): void;

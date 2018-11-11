@@ -4,6 +4,7 @@ import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from 'bawt/assets/adt/index';
 import { M2Model } from 'bawt/assets/m2/index';
+import { Chunk } from 'bawt/assets/adt/Chunk';
 
 interface IProps {
   filePath: string;
@@ -50,7 +51,8 @@ export class AdtView extends React.Component<IProps, {}> {
       return;
     }
 
-    const adt = ADT.load(this.httpService, this.props.filePath, 0);
+    const adt = await ADT.load(this.httpService, this.props.filePath, 0);
+    
     /*
     const mesh = await loader.Start(filePath);
     this.model = new M2Model(filePath, mesh.m2, mesh.skin);

@@ -1,8 +1,8 @@
 import { ShaderMaterial, BackSide, Color, DataTexture, LuminanceFormat, LinearFilter, Texture } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { LoadTexture } from 'bawt/worker/LoadTexture';
-import fragmentShader from './shader.frag';
-import vertexShader from './shader.vert';
+import fragmentShader = require('./shader.frag');
+import vertexShader = require('./shader.vert');
 
 export class Material extends ShaderMaterial {
   private layers: any;

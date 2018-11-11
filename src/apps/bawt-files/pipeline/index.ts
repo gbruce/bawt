@@ -123,6 +123,7 @@ class Pipeline {
           return String(entity.id) === id;
         });
         if (search) {
+          res.set('Access-Control-Allow-Origin', '*');
           res.send(search);
         }
         else {

@@ -9,6 +9,12 @@ import { LoadWMO } from 'bawt/worker/LoadWMO';
 import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
 import { WMO } from 'bawt/assets/wmo/index';
 import { WMOGroup } from 'bawt/assets/wmo/group/WMOGroup';
+import { LoadWDT } from 'bawt/worker/LoadWDT';
+import { Chunk } from 'bawt/assets/adt/Chunk';
+import { chunkForTerrainCoordinate, chunksForArea }  from 'bawt/utils/Functions';
+import { WorldMap } from 'bawt/game/WorldMap';
+import { Keys } from './Keys';
+import { FirstPersonControls } from './MapControls';
 
 const boxSize = 5;
 const userHeight = 1.6;
@@ -29,6 +35,8 @@ export class VrTest {
   private cube: Mesh;
   private lastRenderTime: number = 0;
   private vrButton: webvrui.EnterVRButton;
+  private keys: Keys = new Keys();
+  private fpControls: FirstPersonControls;
 
   constructor() {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
@@ -48,6 +56,7 @@ export class VrTest {
     this.controls = new THREE.VRControls(this.camera);
     this.camera.position.y = userHeight;
 
+    this.fpControls = new FirstPersonControls(this.camera, this.renderer.domElement);
     this.effect = new VREffect(this.renderer);
     this.effect.setSize(window.innerWidth, window.innerHeight, {});
 
@@ -122,46 +131,22 @@ export class VrTest {
       }
     });
 
-    const wmoBase = `World\\wmo\\KhazModan\\Buildings\\Dwarven_Inn\\snow_Inn\\Snow_Inn`;
-    const wmoRootFile = `${wmoBase}.wmo`;
-    const wmoLoader = new LoadWMO(this.httpService);
-    const wmoData = await wmoLoader.Start(wmoRootFile);
-    
-    const zeroPad = (num: number, places: number) => {
-      var zero = places - num.toString().length + 1;
-      return Array(+(zero > 0 && zero)).join("0") + num;
-    }
+    const x = -10559;
+    const y = -1189;
+    const z = 28;
+    // this.player.worldport(0, -14354, 518, 22);
+    const worldMap = new WorldMap();
+    await worldMap.load(`World\\maps\\azeroth\\azeroth.wdt`, x, y);
+    this.scene.add(worldMap.map);
 
-    const boundingBox = new Box3();
-    if (wmoData) {
-      const wmoRoot = new WMO(wmoRootFile, wmoData);
-
-      for (let i = 0; i<wmoData.MOHD.groupCount; i++) {
-        const group = wmoData.MOGI.groups[i];
-        // boundingBox.expandByPoint(new Vector3(group.minBoundingBox.x, group.minBoundingBox.y, group.minBoundingBox.z));
-        // boundingBox.expandByPoint(new Vector3(group.maxBoundingBox.x, group.maxBoundingBox.y, group.maxBoundingBox.z));
-        if (group.indoor) {
-          const wmoGroupFile = `${wmoBase}_${zeroPad(i,3)}.wmo`;
-          const wmoGroupLoader = new LoadWMOGroup(this.httpService);
-          const wmoGroupData = await wmoGroupLoader.Start(wmoGroupFile);
-          const wmoGroup = new WMOGroup(wmoData, '', wmoGroupData, wmoGroupFile);
-          wmoGroup.updateMatrix();
-          this.scene.add(wmoGroup);
-          boundingBox.expandByObject(wmoGroup);
-
-          const box = new BoxHelper( wmoGroup, new Color(100, 100, 0));
-          this.scene.add( box );
-        }
-      }
-    }
-
-    const center = new Vector3();
-    boundingBox.getCenter(center);
-    this.camera.position.copy(center);
+    //const center = new Vector3();
+    //boundingBox.getCenter(center);
+    // this.camera.position.copy(center);
+    this.camera.position.copy(new Vector3(x, y, z));
 
     const light = new DirectionalLight(0xffffff, 1.0);
-    light.position.set(100, 100, 100);
-    // this.scene.add(light);
+//    light.position.set(x, y, z);
+    this.scene.add(light);
     const light2 = new DirectionalLight(0xffffff, 1.0);
 
     light2.position.set(-100, 100, -100);
@@ -183,7 +168,12 @@ export class VrTest {
   }
 
   private animate(timestamp: number) {
+    if (this.keys.pressed('W')) {
+
+    }
+
     const delta = Math.min(timestamp - this.lastRenderTime, 500);
+    this.fpControls.update(delta);
     this.lastRenderTime = timestamp;
     // Apply rotation to cube mesh
     this.cube.rotation.y += delta * 0.0006;

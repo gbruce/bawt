@@ -2,28 +2,27 @@ import { Mesh, BufferGeometry, BufferAttribute } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
 import { Material } from './Material';
-import { ITerrainChunk } from 'interface/Blizzardry';
 
-class Chunk extends Mesh {
-  private SIZE = 33.33333;
+const SIZE = 33.33333;
+export class Chunk extends Mesh {
   private UNIT_SIZE = 33.33333 / 8;
-  private data: any;
+  private data: blizzardry.IMCNKs;
   private holes: any;
   public material: Material;
 
-  constructor(private httpServer: IHttpService, adt: any, id: any) {
+  constructor(private httpServer: IHttpService, adt: blizzardry.IADT, id: any, tileX: number, tileY: number) {
     super();
 
     this.matrixAutoUpdate = false;
 
-    const data = this.data = adt.data.MCNKs[id];
-    const textureNames = adt.textures;
+    const data = this.data = adt.MCNKs[id];
+    const textureNames = adt.MTEX.filenames;
 
-    const size = this.SIZE;
+    const size = SIZE;
     const unitSize = this.UNIT_SIZE;
 
-    this.position.y = adt.y + -(data.indexX * size);
-    this.position.x = adt.x + -(data.indexY * size);
+    this.position.y = tileX + -(data.indexX * size);
+    this.position.x = tileY + -(data.indexY * size);
 
     this.holes = data.holes;
 
@@ -114,16 +113,11 @@ class Chunk extends Mesh {
     this.geometry.dispose();
     this.material.dispose();
   }
-
-  private chunkFor(position: any) {
-    return 32 * 16 - (position / this.SIZE) | 0;
-  }
-
-  private tileFor(chunk: number) {
+  public static tileFor(chunk: number) {
     return (chunk / 16) | 0;
   }
 
-  public async load(map: any, chunkX: number, chunkY: number): Promise<Chunk> {
+  public static async load(httpServer: IHttpService, mapName: string, wdtFlags: number, chunkX: number, chunkY: number): Promise<Chunk|null> {
     const tileX = this.tileFor(chunkX);
     const tileY = this.tileFor(chunkY);
 
@@ -132,8 +126,11 @@ class Chunk extends Mesh {
 
     const id = offsetX * 16 + offsetY;
 
-    const terrainChunk = await ADT.loadTile(this.httpServer, map.internalName, tileX, tileY, map.wdt.data.flags);
-    return new Chunk(this.httpServer, terrainChunk, id);
+    const adt = await ADT.loadTile(httpServer, mapName, tileX, tileY, wdtFlags);
+    if (adt) {
+      return new Chunk(httpServer, adt, id, tileX, tileY);
+    }
+    return null;
   }
 
 }

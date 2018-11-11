@@ -1,7 +1,6 @@
 
 import { LoadADT } from 'bawt/worker/LoadADT';
 import { IHttpService } from 'interface/IHttpService';
-import { ITerrainChunk } from 'interface/Blizzardry';
 
 export class ADT {
   private static SIZE = 533.33333;
@@ -42,17 +41,17 @@ export class ADT {
     return 32 - (position / this.SIZE) | 0;
   }
 
-  public static loadTile(httpService: IHttpService, map: any, tileX: any, tileY: any, wdtFlags: any) {
-    return ADT.load(httpService, `World\\Maps\\${map}\\${map}_${tileY}_${tileX}.adt`, wdtFlags);
+  public static loadTile(httpService: IHttpService, mapName: string, tileX: number, tileY: number, wdtFlags: number) {
+    return ADT.load(httpService, `World\\Maps\\${mapName}\\${mapName}_${tileY}_${tileX}.adt`, wdtFlags);
   }
 
-  public static loadAtCoords(httpService: IHttpService, map: any, x: any, y: any, wdtFlags: any) {
+  public static loadAtCoords(httpService: IHttpService, mapName: string, x: number, y: number, wdtFlags: number) {
     const tileX = this.tileFor(x);
     const tileY = this.tileFor(y);
-    return this.loadTile(httpService, map, tileX, tileY, wdtFlags);
+    return this.loadTile(httpService, mapName, tileX, tileY, wdtFlags);
   }
 
-  public static async load(httpService: IHttpService, path: string, wdtFlags: any): Promise<ITerrainChunk> {
+  public static async load(httpService: IHttpService, path: string, wdtFlags: number) {
     const loader = new LoadADT(httpService);
     return await loader.Start(path, wdtFlags);
   }
