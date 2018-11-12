@@ -4,7 +4,6 @@ import { NewLogger } from 'bawt/utils/Logger';
 import { Lock } from 'bawt/utils/Lock';
 
 const log = NewLogger('worker/LoadDBC');
-
 const cache: Map<string, blizzardry.IADT> = new Map();
 const lock: Lock = new Lock();
 

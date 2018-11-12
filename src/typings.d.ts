@@ -373,14 +373,31 @@ declare namespace blizzardry {
           x: number;
           y: number;
           z: number;
-        }
+        };
       }[];
     };
 
     MODD: {
       id: 'DDOM';
       size: number;
-      doodads: any[];
+      doodads: {
+        color: number;
+        filename: string;
+        filenameOffset: number;
+        flags: number;
+        position: {
+          x: number;
+          y: number;
+          z: number;
+        };
+        rotation: {
+          x: number;
+          y: number;
+          z: number;
+          w: number;
+        };
+        scale: number;
+      }[];
     };
 
     MODN: {

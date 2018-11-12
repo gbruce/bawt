@@ -1,4 +1,6 @@
 import { TextureLoader as ThreeTexLoader, RepeatWrapping, Texture } from 'three';
+import { NewLogger } from 'bawt/utils/Logger';
+const log = NewLogger('wmo/TextureLoader');
 
 export class TextureLoader {
   private cache = new Map<string, Texture>();
@@ -30,7 +32,10 @@ export class TextureLoader {
     ++refCount;
     this.references.set(textureKey, refCount);
 
-    const encodedPath = encodeURI(`http://192.168.1.3:8080/pipeline/${path}.png`);
+    const url = `http://192.168.1.3:8080/pipeline/${path}.png`;
+    const encodedPath = encodeURI(url);
+
+    log.info(`Loading ${encodedPath}`);
 
     if (!this.cache.has(textureKey)) {
       // TODO: Promisify THREE's TextureLoader callbacks

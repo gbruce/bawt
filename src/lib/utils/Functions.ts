@@ -1,4 +1,4 @@
-import { Vector3, Matrix3, Matrix4, Math } from "three";
+import { Vector3, Matrix3, Matrix4, Math, Euler } from "three";
 
 export const delay = async (ms: number) => {
   return new Promise( resolve => setTimeout(resolve, ms) );
@@ -16,29 +16,36 @@ const chunksPerRow: number = chunksPerBlock * blocksPerSide;
 const fullMapSize: number = 102400/3;
 const blockSize: number = fullMapSize / blocksPerSide;
 const chunkSize: number = blockSize / chunksPerBlock;
-const rotatex90 = new Matrix4().makeRotationX(90);
-const rotatey90 = new Matrix4().makeRotationY(90);
+const rotatex90 = new Matrix4().makeRotationX(Math.degToRad(90));
+const rotatey90 = new Matrix4().makeRotationY(Math.degToRad(90));
 const tmpPos = new Vector3();
 const tmpMatrix = new Matrix4();
+
+export const terrainPosToWorld = (position: number[]) => {
+  const returnV = new Vector3();
+  returnV.x = position[1];
+  returnV.y = position[2];
+  returnV.z =  position[0];
+  return returnV;
+}
 
 export const terrainCoordToWorld = (position: number[], rotation: number[]) => {
   tmpPos.x = (blocksPerSide / 2) * blockSize - position[0];
   tmpPos.y = position[1];
   tmpPos.z = (blocksPerSide / 2) * blockSize - position[2];
 
-  const matrix = new Matrix4();
-  matrix.identity();
-  matrix.multiply(rotatex90);
-  matrix.multiply(rotatey90);
+  const matrix = new Matrix4().makeRotationFromEuler(new Euler(rotation[0], rotation[1], rotation[2]));
+  // matrix.identity();
+  // matrix.multiply(rotatex90);
+  // matrix.multiply(rotatey90);
   matrix.setPosition(tmpPos);
 
-  tmpMatrix.makeRotationY(Math.degToRad(rotation[1] - 270));
-  matrix.multiply(tmpMatrix);
-  tmpMatrix.makeRotationZ(Math.degToRad(-rotation[0]));
-  matrix.multiply(tmpMatrix);
-  tmpMatrix.makeRotationX(Math.degToRad(rotation[2]-90));
-  matrix.multiply(tmpMatrix);
-
+  // tmpMatrix.makeRotationY(Math.degToRad(rotation[1] - 270));
+  // matrix.multiply(tmpMatrix);
+  // tmpMatrix.makeRotationZ(Math.degToRad(-rotation[0]));
+  // matrix.multiply(tmpMatrix);
+  // tmpMatrix.makeRotationX(Math.degToRad(rotation[2]-90));
+  // matrix.multiply(tmpMatrix);
   return matrix;
 };
 
@@ -59,7 +66,7 @@ export const chunksForArea = (chunkX: number, chunkY: number, radius: number): n
   const indices: number[] = [];
   for (let y = -radius; y <= radius; ++y) {
     for (let x = -radius; x <= radius; ++x) {
-      indices.push(base + y * blocksPerSide + x);
+      indices.push(base + x * chunksPerRow + y);
     }
   }
 

@@ -25,6 +25,9 @@ export class WMOGroup extends Mesh {
       positions[index * 3] = vertex[0];
       positions[index * 3 + 1] = vertex[2];
       positions[index * 3 + 2] = -vertex[1];
+      // positions[index * 3] = vertex[0];
+      // positions[index * 3 + 1] = vertex[1];
+      // positions[index * 3 + 2] = vertex[2];
 
       uvs[index * 2] = textureCoords[index][0];
       uvs[index * 2 + 1] = textureCoords[index][1];
@@ -69,10 +72,12 @@ export class WMOGroup extends Mesh {
     geometry.addAttribute('alpha', new BufferAttribute(alphas, 1));
 
     // Mirror geometry over X and Y axes and rotate
-    const matrix = new Matrix4();
+    // const matrix = new Matrix4();
     // matrix.makeScale(-1, -1, 1);
-    geometry.applyMatrix(matrix);
+    // geometry.applyMatrix(matrix);
     // geometry.rotateX(-Math.PI / 2);
+    // const m = terrainRotationToWorld([-90,0,0],1);
+    //geometry.applyMatrix(m);
 
     const materialIDs: any[] = [];
 

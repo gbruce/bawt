@@ -11,7 +11,7 @@ import { WMO } from 'bawt/assets/wmo/index';
 import { WMOGroup } from 'bawt/assets/wmo/group/WMOGroup';
 import { LoadWDT } from 'bawt/worker/LoadWDT';
 import { Chunk } from 'bawt/assets/adt/Chunk';
-import { chunkForTerrainCoordinate, chunksForArea }  from 'bawt/utils/Functions';
+import { terrainPosToWorld }  from 'bawt/utils/Functions';
 import { WorldMap } from 'bawt/game/WorldMap';
 import { Keys } from './Keys';
 import { FirstPersonControls } from './MapControls';
@@ -131,26 +131,14 @@ export class VrTest {
       }
     });
 
-    const x = -10559;
-    const y = -1189;
-    const z = 28;
+    const terrainCoords = [258, -4700, 25.2];
+    const pos = terrainPosToWorld(terrainCoords);
     // this.player.worldport(0, -14354, 518, 22);
     const worldMap = new WorldMap();
-    await worldMap.load(`World\\maps\\azeroth\\azeroth.wdt`, x, y);
+    await worldMap.load(`kalimdor`, terrainCoords[0], terrainCoords[1]);
     this.scene.add(worldMap.map);
 
-    //const center = new Vector3();
-    //boundingBox.getCenter(center);
-    // this.camera.position.copy(center);
-    this.camera.position.copy(new Vector3(x, y, z));
-
-    const light = new DirectionalLight(0xffffff, 1.0);
-//    light.position.set(x, y, z);
-    this.scene.add(light);
-    const light2 = new DirectionalLight(0xffffff, 1.0);
-
-    light2.position.set(-100, 100, -100);
-    // this.scene.add(light2);
+    this.camera.position.copy(pos);
   }
 
   private setStageDimensions(stage: VRStageParameters) {
