@@ -36,7 +36,7 @@ export class M2Model extends Group {
   private transparencyAnimationValues: any[] = [];
   private vertexColorAnimationValues: any[] = [];
 
-  constructor(private path: string, private data: M2.IModel, private skinData: Skin.ISkin, instance: any = null) {
+  constructor(public path: string, private data: M2.IModel, private skinData: Skin.ISkin, instance: any = null) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -81,6 +81,10 @@ export class M2Model extends Group {
 
     this.createMesh(this.geometry, this.skeleton, this.rootBones);
     this.createSubmeshes(data, skinData);
+  }
+
+  public async init() {
+
   }
 
   private createSkeleton(boneDefs: IBone[]) {
@@ -234,10 +238,10 @@ export class M2Model extends Group {
     }
 
     // Mirror geometry over X and Y axes and rotate
-    const matrix = new Matrix4();
-    matrix.makeScale(-1, -1, 1);
-    geometry.applyMatrix(matrix);
-    geometry.rotateX(-Math.PI / 2);
+    // const matrix = new Matrix4();
+    // matrix.makeScale(-1, -1, 1);
+    // geometry.applyMatrix(matrix);
+    // geometry.rotateX(-Math.PI / 2);
 
     // Preserve the geometry
     this.geometry = geometry;

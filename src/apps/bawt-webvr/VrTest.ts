@@ -131,11 +131,10 @@ export class VrTest {
       }
     });
 
-    const terrainCoords = [258, -4700, 25.2];
+    const terrainCoords = [10440.2, 772.8, 1325.7];
     const pos = terrainPosToWorld(terrainCoords);
-    // this.player.worldport(0, -14354, 518, 22);
     const worldMap = new WorldMap();
-    await worldMap.load(`kalimdor`, terrainCoords[0], terrainCoords[1]);
+    await worldMap.load(`kalimdor`, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
     this.scene.add(worldMap.map);
 
     this.camera.position.copy(pos);

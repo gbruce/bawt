@@ -4,14 +4,18 @@ import { lazyInject } from 'bawt/Container';
 import { chunkForTerrainCoordinate, chunksForArea, terrainCoordToWorld, blockForTerrainCoordinates } from 'bawt/utils/Functions';
 import { LoadWDT } from 'bawt/worker/LoadWDT';
 import { LoadWMO } from 'bawt/worker/LoadWMO';
+import { LoadModel } from 'bawt/worker/LoadModel';
 import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
 import { IHttpService } from 'interface/IHttpService';
 import WMOGroup from 'bawt/assets/wmo/group/WMOGroup';
-import { Object3D, BoxHelper, Color, Box3, Vector3, Quaternion, Matrix4, AxesHelper, BoundingBoxHelper } from 'three';
-import { LoadM2 } from 'bawt/worker/LoadM2';
+import { Object3D, BoxHelper, Color, Box3, Vector3, Quaternion, Matrix4, AxesHelper, BoundingBoxHelper, Euler } from 'three';
 import { M2Model } from 'bawt/assets/m2';
+import { NewLogger } from 'bawt/utils/Logger';
+
+const log = NewLogger('game/WorldMap');
 
 const loadRadius = 1;
+const doodadRadius = 80;
 
 export class WorldMap {
   @lazyInject('IHttpService')
@@ -19,7 +23,7 @@ export class WorldMap {
 
   public map: Object3D = new Object3D();
 
-  public load = async (map: string, x: number, y: number) => {
+  public load = async (map: string, x: number, y: number, z: number) => {
     const mapPath = `World\\maps\\${map}\\${map}.wdt`;
     const wdtLoader = new LoadWDT(this.httpService);
     const wdt = await wdtLoader.Start(mapPath);
@@ -79,9 +83,10 @@ export class WorldMap {
       }
     }
 
+    const playerWorldPos = new Vector3(y, z, x);
     const wmoGroups = await Promise.all(wmoGroupLoaders);
     const doodadMap: Map<string, any> = new Map();
-    const doodadLoad: Promise<any|null>[] = [];
+    const doodadLoad: Promise<M2Model>[] = [];
     for (const wmoGroup of wmoGroups) {
       if (wmoGroup) {
         const wmo = wmoGroupMap.get(wmoGroup.filename);
@@ -91,12 +96,25 @@ export class WorldMap {
             continue;
           }
 
+          const position: number[] = [wmoEntry.position.x, wmoEntry.position.y, wmoEntry.position.z];
+          const rotation: number[] = [wmoEntry.rotation.x, 270 - wmoEntry.rotation.y, wmoEntry.rotation.z]
+          const wmoM = terrainCoordToWorld(position, rotation);
           for (const doodad of wmo.MODD.doodads) {
-            const m2Loader = new LoadM2(this.httpService);
-            const newFilename = doodad.filename.replace(`MDX`, `M2`);
-            const newFilename2 = newFilename.replace(`MDL`, `M2`);
-            doodadLoad.push(m2Loader.Start(newFilename2));
-            doodadMap.set(newFilename2, doodad);
+            const d = new Vector3(doodad.position.x, doodad.position.y, doodad.position.z);
+            d.applyMatrix4(wmoM);
+            const doodadPos = [doodad.position.x + wmoEntry.position.x, doodad.position.y + wmoEntry.position.y, doodad.position.z + wmoEntry.position.z];
+            const doodadWorldM = terrainCoordToWorld(doodadPos, [0,0,0]);
+            const doodadWorldPos = new Vector3();
+            const rot = new Quaternion();
+            doodadWorldM.decompose(doodadWorldPos, rot, new Vector3());
+            const distance = d.distanceTo(playerWorldPos);
+            if(distance < doodadRadius) {
+              const modelLoader = new LoadModel(this.httpService);
+              const newFilename = doodad.filename.replace(`MDX`, `M2`);
+              const newFilename2 = newFilename.replace(`MDL`, `M2`);
+              doodadLoad.push(modelLoader.Start(newFilename2));
+              doodadMap.set(newFilename2, doodad);
+            }
           }
         }
       }
@@ -104,7 +122,17 @@ export class WorldMap {
 
     const doodads = await Promise.all(doodadLoad);
 
-    for (const wmoGroup of wmoGroups) {
+    await this.loadWmoGroups(x, y, z, wmoGroups, wmoGroupMap, wmoEntryMap, doodads, doodadMap);
+  };
+
+  private async loadWmoGroups(playerX: number, playerY: number, playerZ: number,
+                              wmoGroups: (blizzardry.IWMOGroup|null)[],
+                              wmoGroupMap: Map<string, blizzardry.IWMO>,
+                              wmoEntryMap: Map<string, blizzardry.IWMOEntry>,
+                              doodads: M2Model[],
+                              doodadMap: Map<string, any>) {
+    const playerWorldPos = new Vector3(playerY, playerZ, playerX);
+    for (let wmoGroup of wmoGroups) {
       if (wmoGroup) {
         const wmo = wmoGroupMap.get(wmoGroup.filename);
         if (wmo) {
@@ -112,40 +140,48 @@ export class WorldMap {
           if (!wmoEntry) {
             continue;
           }
-          const group = new WMOGroup(wmo, '', wmoGroup);
+          const group = new WMOGroup(this.httpService, wmo, '', wmoGroup);
+          await group.initialize();
           const position: number[] = [wmoEntry.position.x, wmoEntry.position.y, wmoEntry.position.z];
-          const rotation: number[] = [wmoEntry.rotation.x, wmoEntry.rotation.y, wmoEntry.rotation.z]
+          const rotation: number[] = [wmoEntry.rotation.x, 270 - wmoEntry.rotation.y, wmoEntry.rotation.z];
+          log.info(`place wmo:${wmoEntry.filename} rot:${rotation}`);
           const m = terrainCoordToWorld(position, rotation);
           const pos = new Vector3();
           const rot = new Quaternion();
           m.decompose(pos, rot, new Vector3());
-          group.quaternion.copy(rot);
+          //group.quaternion.copy(rot);
+          const ea = new Euler().setFromQuaternion(rot);
+          group.setRotationFromQuaternion(rot);
           group.position.copy(pos);
           group.updateMatrix();
           group.matrixAutoUpdate = false;
           this.map.add(group);
           
-          const box = new BoxHelper(group, new Color(0, 50, 0));
-          this.map.add(box);
+          // const box = new BoxHelper(group, new Color(0, 50, 0));
+          // this.map.add(box);
 
           const axis = new AxesHelper(50);
           axis.position.copy(pos);
           axis.quaternion.copy(rot);
-          this.map.add(axis);
+          // this.map.add(axis);
 
-          for (const doodad of doodads) {
-            const model = new M2Model(doodad.filename, doodad.m2, doodad.skin);
+          for (const model of doodads) {
             model.updateMatrix();
-            const doodadData = doodadMap.get(doodad.filename);
-            const pos = new Vector3(doodadData.position[0], doodadData.position[1], doodadData.position[2]);
+            const doodadData = doodadMap.get(model.path);
+            const pos = new Vector3(doodadData.position.x, doodadData.position.z, -doodadData.position.y);
+            const rot = new Quaternion(doodadData.rotation.x, doodadData.rotation.y, doodadData.rotation.z, doodadData.rotation.w);
+            const euler = new Euler().setFromQuaternion(rot);
+            const euler2 = new Euler(euler.x, euler.z, euler.y);
             model.position.copy(pos);
+            model.setRotationFromEuler(euler2);
             model.scale.copy(new Vector3(doodadData.scale, doodadData.scale, doodadData.scale));
+            model.updateMatrix();
             group.add(model);
-            const box = new BoxHelper(group, new Color(50, 0, 0));
-            this.map.add(box);
+            // const box = new BoxHelper(group, new Color(50, 0, 0));
+            // this.map.add(box);
           }
         }
       }
     }
-  };
+  }
 }

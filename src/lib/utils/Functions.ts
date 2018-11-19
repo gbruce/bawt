@@ -34,7 +34,7 @@ export const terrainCoordToWorld = (position: number[], rotation: number[]) => {
   tmpPos.y = position[1];
   tmpPos.z = (blocksPerSide / 2) * blockSize - position[2];
 
-  const matrix = new Matrix4().makeRotationFromEuler(new Euler(rotation[0], rotation[1], rotation[2]));
+  const matrix = new Matrix4().makeRotationFromEuler(new Euler(Math.degToRad(rotation[0]), Math.degToRad(-rotation[1]), Math.degToRad(rotation[2])));
   // matrix.identity();
   // matrix.multiply(rotatex90);
   // matrix.multiply(rotatey90);

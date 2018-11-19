@@ -1,11 +1,12 @@
 import { Mesh, BufferGeometry, BufferAttribute, Matrix4, MultiMaterial } from 'three';
-import WMOMaterial from '../material/WMOMaterial';
+import WMOMaterial from '../material/SimpleMaterial';
+import { IHttpService } from 'interface/IHttpService';
 
 export class WMOGroup extends Mesh {
   private indoor: any;
   private animated: boolean;
 
-  constructor(private wmo: blizzardry.IWMO, private groupId: any, private data: any) {
+  constructor(private httpService: IHttpService, private wmo: blizzardry.IWMO, private groupId: any, private data: blizzardry.IWMOGroup) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -39,19 +40,49 @@ export class WMOGroup extends Mesh {
       normals[index * 3 + 2] = -normal[1];
     });
 
-    if ('MOCV' in data) {
+    const baseColor = { r: 0, g: 0, b: 0};
+    if (this.indoor) {
+      if (wmo.MOHD.skipBaseColor) {
+        baseColor.r = 0;
+        baseColor.g = 0;
+        baseColor.b = 0;
+      }
+      else {
+        baseColor.r = wmo.MOHD.baseColor.r;
+        baseColor.g = wmo.MOHD.baseColor.g;
+        baseColor.b = wmo.MOHD.baseColor.b;
+      }
+
+      let tmpColor: number;
+      let tmpColor2: number;
+      let tmpBlend: number;
+      const computeColor = (baseColor: number, color: number, blend: number) => {
+        tmpColor = color - baseColor;
+        tmpBlend = blend / 255.0;
+        tmpColor = (tmpColor - tmpBlend * tmpColor);
+        tmpColor2 = tmpColor * blend / 64 + tmpColor - baseColor;
+        return Math.min(255.0, Math.max(tmpColor2 / 2, 0)) / 255.0;
+      };
+      const computeColor2 = (baseColor: number, color: number, blend: number) => {
+        tmpColor = color - baseColor;
+        tmpBlend = blend / 255.0;
+        tmpColor += color * tmpBlend;
+        tmpColor /= 2;
+        return Math.min(0, Math.max(tmpColor, 255.0)) / 255.0;
+      };
+      
       data.MOCV.colors.forEach((color: any, index: any) => {
-        colors[index * 3] = color.r / 255.0;
-        colors[index * 3 + 1] = color.g / 255.0;
-        colors[index * 3 + 2] = color.b / 255.0;
-        alphas[index] = color.a / 255.0;
+        colors[index * 3] = computeColor(baseColor.r, color.r, color.a);
+        colors[index * 3 + 1] = computeColor(baseColor.g, color.g, color.a);
+        colors[index * 3 + 2] = computeColor(baseColor.b, color.b, color.a);
+        alphas[index] = 0;
       });
-    } else if (this.indoor) {
-      // Default indoor vertex color: rgba(0.5, 0.5, 0.5, 1.0)
+    }
+    else {
       data.MOVT.vertices.forEach((_vertex: any, index: any) => {
-        colors[index * 3] = 127.0 / 255.0;
-        colors[index * 3 + 1] = 127.0 / 255.0;
-        colors[index * 3 + 2] = 127.0 / 255.0;
+        colors[index * 3] = 1.0;
+        colors[index * 3 + 1] = 1.0;
+        colors[index * 3 + 2] = 1.0;
         alphas[index] = 1.0;
       });
     }
@@ -75,26 +106,29 @@ export class WMOGroup extends Mesh {
     // const matrix = new Matrix4();
     // matrix.makeScale(-1, -1, 1);
     // geometry.applyMatrix(matrix);
-    // geometry.rotateX(-Math.PI / 2);
+    // geometry.rotateY(-Math.PI / 2);
     // const m = terrainRotationToWorld([-90,0,0],1);
     //geometry.applyMatrix(m);
+  }
 
+  public async initialize() {
     const materialIDs: any[] = [];
 
-    data.MOBA.batches.forEach((batch: any) => {
+    this.data.MOBA.batches.forEach((batch: any) => {
       materialIDs.push(batch.materialID);
-      geometry.addGroup(batch.firstIndex, batch.indexCount, batch.materialID);
+      (this.geometry as BufferGeometry).addGroup(batch.firstIndex, batch.indexCount, batch.materialID);
     });
 
     const materialDefs = this.wmo.MOMT.materials;
     const texturePaths = this.wmo.MOTX.filenames;
 
-    this.material = this.createMultiMaterial(materialIDs, materialDefs, texturePaths);
+    this.material = await this.createMultiMaterial(materialIDs, materialDefs, texturePaths);
   }
 
-  public createMultiMaterial(materialIDs: any[], materialDefs: any[], texturePaths: any[]) {
+  public async createMultiMaterial(materialIDs: any[], materialDefs: any[], texturePaths: any[]) {
     const multiMaterial = new MultiMaterial();
 
+    const materials: Promise<WMOMaterial>[] = [];
     materialIDs.forEach((materialID) => {
       const materialDef = materialDefs[materialID];
 
@@ -111,15 +145,19 @@ export class WMOGroup extends Mesh {
         materialDef.useBaseColor = false;
       }
 
-      const material = this.createMaterial(materialDefs[materialID], texturePaths);
-
-      multiMaterial.materials[materialID] = material;
+      materials.push(this.createMaterial(materialDefs[materialID], texturePaths, materialID));
     });
+
+    const loadedMaterials = await Promise.all(materials);
+
+    for (const material of loadedMaterials) {
+      multiMaterial.materials[material.materialId] = material;
+    }
 
     return multiMaterial;
   }
 
-  public createMaterial(materialDef: any, texturePaths: any[]) {
+  public async createMaterial(materialDef: any, texturePaths: any[], materialId: any) {
     const textureDefs: any[] = [];
 
     materialDef.textures.forEach((textureDef: any) => {
@@ -133,13 +171,14 @@ export class WMOGroup extends Mesh {
       }
     });
 
-    const material = new WMOMaterial(materialDef, textureDefs);
+    const material = new WMOMaterial(this.httpService, materialDef, textureDefs, materialId);
+    await material.initialize();
 
     return material;
   }
 
   public clone(): any {
-    return new WMOGroup(this.wmo, this.groupId, this.data);
+    return new WMOGroup(this.httpService, this.wmo, this.groupId, this.data);
   }
 
   public dispose() {

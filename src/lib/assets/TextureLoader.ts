@@ -35,7 +35,10 @@ export class TextureLoader {
     const url = `http://192.168.1.3:8080/pipeline/${path}.png`;
     const encodedPath = encodeURI(url);
 
-    log.info(`Loading ${encodedPath}`);
+    log.info(`** Loading ${encodedPath}`);
+    if (this.cache.has(textureKey)) {
+      log.info(`CACHED - ${textureKey}`);
+    }
 
     if (!this.cache.has(textureKey)) {
       // TODO: Promisify THREE's TextureLoader callbacks

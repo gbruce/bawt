@@ -3,7 +3,7 @@ import { Vector3, Math } from 'three';
 export class FirstPersonControls {
   private target = new Vector3( 0, 0, 0 );
   private enabled = true;
-  private movementSpeed = 1.0;
+  private movementSpeed = 0.05;
   private lookSpeed = 0.005;
   private lookVertical = true;
   private autoForward = false;
@@ -33,6 +33,9 @@ export class FirstPersonControls {
   private moveDown = false;
   private turnLeft = false;
   private turnRight = false;
+  private mouseEnabled = false;
+  private movementX = 0;
+  private movementY = 0;
 
   constructor(private object: any, private domElement: any) {
     if ( this.domElement !== document ) {
@@ -74,11 +77,12 @@ export class FirstPersonControls {
 		event.preventDefault();
 		event.stopPropagation();
 
+    this.mouseEnabled = true;
 		if ( this.activeLook ) {
-			switch ( event.button ) {
-				case 0: this.moveForward = true; break;
-				case 2: this.moveBackward = true; break;
-			}
+			// switch ( event.button ) {
+			// 	case 0: this.moveForward = true; break;
+			// 	case 2: this.moveBackward = true; break;
+			// }
 		}
 
 		this.mouseDragOn = true;
@@ -88,24 +92,31 @@ export class FirstPersonControls {
 		event.preventDefault();
 		event.stopPropagation();
 
+    this.mouseEnabled = false;
 		if ( this.activeLook ) {
-			switch ( event.button ) {
-				case 0: this.moveForward = false; break;
-				case 2: this.moveBackward = false; break;
-			}
+			// switch ( event.button ) {
+			// 	case 0: this.moveForward = false; break;
+			// 	case 2: this.moveBackward = false; break;
+			// }
 		}
 
 		this.mouseDragOn = false;
   }
   
-  private onMouseMove = (event: any) => {
+  private onMouseMove = (event: MouseEvent) => {
+    if (this.mouseEnabled) {
+      this.movementX = event.movementX;
+      this.movementY = event.movementY;
+    }
+
 		if ( this.domElement === document ) {
-			//this.mouseX = event.pageX - this.viewHalfX;
-			//this.mouseY = event.pageY - this.viewHalfY;
+      this.movementX = event.movementX;
+			this.mouseX = event.pageX - this.viewHalfX;
+			this.mouseY = event.pageY - this.viewHalfY;
     }
     else {
-			//this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
-			//this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
+			this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
+			this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
 		}
   }
   
@@ -185,8 +196,10 @@ export class FirstPersonControls {
 			verticalLookRatio = global.Math.PI / ( this.verticalMax - this.verticalMin );
 		}
 
-		this.lon += this.mouseX * actualLookSpeed;
-		if ( this.lookVertical ) this.lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
+    this.lon += this.movementX * actualLookSpeed;
+    this.movementX *= 0.4;
+    if ( this.lookVertical ) this.lat -= this.movementY * actualLookSpeed * verticalLookRatio;
+    this.movementY *= 0.4;
 
 		this.lat = global.Math.max( - 85, global.Math.min( 85, this.lat ) );
 		this.phi = Math.degToRad( 90 - this.lat );

@@ -1,8 +1,8 @@
 import { ShaderMaterial, Color, DoubleSide, ClampToEdgeWrapping, RepeatWrapping } from 'three';
 
 import { TextureLoader } from 'bawt/assets/TextureLoader';
-import vertexShader = require('./shader.vert');
-import fragmentShader = require('./shader.frag');
+import vertexShader = require('./simple_shader.vert');
+import fragmentShader = require('./simple_shader.frag');
 
 class WMOMaterial extends ShaderMaterial {
   private textures: any[];
