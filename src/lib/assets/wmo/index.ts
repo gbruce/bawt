@@ -1,6 +1,7 @@
 import { Group } from 'three';
+import { IObject } from 'interface/IObject';
 
-export class WMO extends Group {
+export class WMO extends Group implements IObject {
   private groupCount: number;
   private groups: Map<any, any>;
   private indoorGroupIDs: number[];
@@ -27,6 +28,9 @@ export class WMO extends Group {
       }
     }
   }
+
+  async initialize() {}
+  dispose(): void {}
 
   public doodadSet(doodadSet: any) {
     const set = this.data.MODS.sets[doodadSet];

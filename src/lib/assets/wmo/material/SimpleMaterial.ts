@@ -1,11 +1,12 @@
 import { LoadTexture } from 'bawt/worker/LoadTexture';
 import { IHttpService } from 'interface/IHttpService';
+import { IObject } from 'interface/IObject';
 import { ClampToEdgeWrapping, DoubleSide, RepeatWrapping, ShaderMaterial, Texture } from 'three';
 
 import fragmentShader = require('./simple_shader.frag');
 import vertexShader = require('./simple_shader.vert');
 
-class WMOMaterial extends ShaderMaterial {
+class WMOMaterial extends ShaderMaterial implements IObject {
   private textures: any[] = [];
   private wrapping: any;
 

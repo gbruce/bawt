@@ -1,13 +1,29 @@
-
-import { ShaderMaterial, Vector3, Matrix4, Color, BackSide, DoubleSide,
-  CustomBlending, NoBlending, OneFactor, ZeroFactor, SrcAlphaFactor,
-  OneMinusSrcAlphaFactor, SrcColorFactor, DstColorFactor, DstAlphaFactor,
-  RepeatWrapping } from 'three';
 import { TextureLoader } from 'bawt/assets/TextureLoader';
-import vertexShader = require('./shader.vert');
-import fragmentShader = require('./shader.frag');
+import { IObject } from 'interface/IObject';
+import {
+  BackSide,
+  Color,
+  CustomBlending,
+  DoubleSide,
+  DstAlphaFactor,
+  DstColorFactor,
+  Matrix4,
+  NoBlending,
+  OneFactor,
+  OneMinusSrcAlphaFactor,
+  RepeatWrapping,
+  ShaderMaterial,
+  SrcAlphaFactor,
+  SrcColorFactor,
+  Vector3,
+  ZeroFactor,
+} from 'three';
 
-export class Material extends ShaderMaterial {
+import fragmentShader = require('./shader.frag');
+import vertexShader = require('./shader.vert');
+
+
+export class Material extends ShaderMaterial implements IObject {
   private m2: any;
   private shaderID: any;
   private skins: any;
@@ -91,6 +107,7 @@ export class Material extends ShaderMaterial {
     this.registerAnimations(def);
   }
 
+  public async initialize() {}
   private vertexShaderModeFromID(shaderID: any, opCount: any) {
     if (opCount === 1) {
       return 0;

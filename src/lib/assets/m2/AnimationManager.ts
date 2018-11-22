@@ -2,8 +2,9 @@
 import { SignalDispatcher } from 'strongly-typed-events';
 import { AnimationMixer, AnimationClip, AnimationAction, KeyframeTrack, InterpolateLinear, Bone } from 'three';
 import { IAnimationBlock, ITrackOptions, IAnimation } from 'blizzardry/lib/m2';
+import { IObject } from 'interface/IObject';
 
-export class AnimationManager {
+export class AnimationManager implements IObject {
   private _onUpdate = new SignalDispatcher();
   private animationClips: AnimationClip[] = [];
   private sequenceClips: AnimationClip[] = [];
@@ -27,6 +28,9 @@ export class AnimationManager {
 
     this.length = this.animationClips.length + this.sequenceClips.length;
   }
+
+  public async initialize() {}
+  public dispose() {}
 
   public get onUpdate() {
     return this._onUpdate.asEvent();

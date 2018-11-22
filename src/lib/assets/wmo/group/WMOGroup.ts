@@ -1,8 +1,9 @@
 import { Mesh, BufferGeometry, BufferAttribute, Matrix4, MultiMaterial } from 'three';
 import WMOMaterial from '../material/SimpleMaterial';
 import { IHttpService } from 'interface/IHttpService';
+import { IObject } from 'interface/IObject';
 
-export class WMOGroup extends Mesh {
+export class WMOGroup extends Mesh implements IObject {
   private indoor: any;
   private animated: boolean;
 

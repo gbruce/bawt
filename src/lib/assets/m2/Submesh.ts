@@ -1,6 +1,7 @@
 import { SkinnedMesh, Mesh, Group } from 'three';
+import { IObject } from 'interface/IObject';
 
-export class Submesh extends Group {
+export class Submesh extends Group implements IObject {
   private useSkinning: boolean;
   private rootBone: any;
   private billboarded: boolean = false;
@@ -25,6 +26,7 @@ export class Submesh extends Group {
     this.geometry = opts.geometry;
   }
 
+  public async initialize() {}
   // Submeshes get one mesh per batch, which allows them to effectively simulate multiple
   // render passes. Batch mesh rendering order should be handled properly by the three.js
   // renderer.

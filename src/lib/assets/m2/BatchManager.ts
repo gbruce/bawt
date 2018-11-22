@@ -1,7 +1,11 @@
 import * as M2 from 'blizzardry/lib/m2';
 import * as Skin from 'blizzardry/lib/m2/skin';
+import { IObject } from 'interface/IObject';
 
-export class BatchManager {
+export class BatchManager implements IObject {
+
+  public async initialize() {}
+  public dispose() {}
   public createDefs(model: M2.IModel, skin: Skin.ISkin) {
     const defs: any[] = [];
 

@@ -3,8 +3,9 @@ import { IHttpService } from 'interface/IHttpService';
 import { LoadTexture } from 'bawt/worker/LoadTexture';
 import fragmentShader = require('./shader.frag');
 import vertexShader = require('./shader.vert');
+import { IObject } from 'interface/IObject';
 
-export class Material extends ShaderMaterial {
+export class Material extends ShaderMaterial implements IObject {
   private layers: any;
   private rawAlphaMaps: any;
   private textureNames: any;
@@ -53,6 +54,8 @@ export class Material extends ShaderMaterial {
       fogEnd: { type: 'f', value: 400.0 },
     };
   }
+
+  public async initialize() {}
 
   private loadLayers() {
     this.layerCount = this.layers.length;

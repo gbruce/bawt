@@ -2,9 +2,10 @@ import { Mesh, BufferGeometry, BufferAttribute } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
 import { Material } from './Material';
+import { IObject } from 'interface/IObject';
 
 const SIZE = 33.33333;
-export class Chunk extends Mesh {
+export class Chunk extends Mesh implements IObject {
   private UNIT_SIZE = 33.33333 / 8;
   private data: blizzardry.IMCNKs;
   private holes: any;
@@ -92,6 +93,8 @@ export class Chunk extends Mesh {
 
     this.material = new Material(httpServer, data, textureNames);
   }
+
+  public async initialize() {}
 
   get doodadEntries() {
     return this.data.MCRF.doodadEntries;

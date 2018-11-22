@@ -7,8 +7,9 @@ import { BatchManager } from './BatchManager';
 import * as M2 from 'blizzardry/lib/m2';
 import * as Skin from 'blizzardry/lib/m2/skin';
 import { IAnimationBlock, IBone } from 'blizzardry/lib/m2';
+import { IObject } from 'interface/IObject';
 
-export class M2Model extends Group {
+export class M2Model extends Group implements IObject {
   private cache = {};
   private eventListeners: any[] = [];
   private batchManager = new BatchManager();
@@ -83,9 +84,7 @@ export class M2Model extends Group {
     this.createSubmeshes(data, skinData);
   }
 
-  public async init() {
-
-  }
+  public async initialize() {}
 
   private createSkeleton(boneDefs: IBone[]) {
     const rootBones: Bone[] = [];

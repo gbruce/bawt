@@ -1,8 +1,9 @@
 
 import { LoadADT } from 'bawt/worker/LoadADT';
 import { IHttpService } from 'interface/IHttpService';
+import { IObject } from 'interface/IObject';
 
-export class ADT {
+export class ADT implements IObject {
   private static SIZE = 533.33333;
   private cache: { [path: string]: any; } = {};
   private tileX: any;
@@ -20,6 +21,9 @@ export class ADT {
     this.x = ADT.positionFor(this.tileX);
     this.y = ADT.positionFor(this.tileY);
   }
+
+  public async initialize() {}
+  public dispose() {}
 
   get wmos() {
     return this.data.MODF.entries;

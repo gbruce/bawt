@@ -1,5 +1,6 @@
+import { IObject } from "interface/IObject";
 
-export class DBC {
+export class DBC implements IObject {
   private _fields: string[]|null = null;
 
   public get numRecords() {
@@ -8,6 +9,9 @@ export class DBC {
 
   constructor(private dbc: any, private dbcTypes: blizzardry.IEntity) {
   }
+
+  public async initialize() {}
+  public dispose() {}
 
   public as<T>(): T[] {
     return this.dbc.records as T[];
