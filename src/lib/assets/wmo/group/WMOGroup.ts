@@ -113,9 +113,9 @@ export class WMOGroup extends Mesh implements IObject {
   }
 
   public async initialize() {
-    const materialIDs: any[] = [];
+    const materialIDs: number[] = [];
 
-    this.data.MOBA.batches.forEach((batch: any) => {
+    this.data.MOBA.batches.forEach((batch) => {
       materialIDs.push(batch.materialID);
     });
 
@@ -124,7 +124,7 @@ export class WMOGroup extends Mesh implements IObject {
 
     this.material = await this.createMultiMaterial(materialIDs, materialDefs, texturePaths);
 
-    this.data.MOBA.batches.forEach((batch: any) => {
+    this.data.MOBA.batches.forEach((batch) => {
       let materialIndex = -1;
       for(let i = 0; i < (this.material as WMOMaterial[]).length; i++) {
         const material = (this.material as WMOMaterial[])[i];
@@ -138,27 +138,13 @@ export class WMOGroup extends Mesh implements IObject {
     });
   }
 
-  public async createMultiMaterial(materialIDs: any[], materialDefs: any[], texturePaths: any[]) {
+  public async createMultiMaterial(materialIDs: number[], materialDefs: any[], texturePaths: any[]) {
     const materials: Material[] = [];
 
     const materialLoaders: Promise<WMOMaterial>[] = [];
     materialIDs.forEach((materialID) => {
-      const materialDef = materialDefs[materialID];
-
-      if (this.indoor) {
-        materialDef.indoor = true;
-      } else {
-        materialDef.indoor = false;
-      }
-
-      if (!this.wmo.MOHD.skipBaseColor) {
-        materialDef.useBaseColor = true;
-        materialDef.baseColor = this.wmo.MOHD.baseColor;
-      } else {
-        materialDef.useBaseColor = false;
-      }
-
-      materialLoaders.push(this.createMaterial(materialDefs[materialID], texturePaths, materialID));
+      const materialDef = this.wmo.MOMT.materials[materialID];
+      materialLoaders.push(this.createMaterial(materialDef, texturePaths, materialID));
     });
 
     const loadedMaterials = await Promise.all(materialLoaders);

@@ -144,7 +144,7 @@ export class WorldMap {
           await group.initialize();
           const position: number[] = [wmoEntry.position.x, wmoEntry.position.y, wmoEntry.position.z];
           const rotation: number[] = [wmoEntry.rotation.x, 270 - wmoEntry.rotation.y, wmoEntry.rotation.z];
-          log.info(`place wmo:${wmoEntry.filename} rot:${rotation}`);
+          // log.info(`place wmo:${wmoEntry.filename} rot:${rotation}`);
           const m = terrainCoordToWorld(position, rotation);
           const pos = new Vector3();
           const rot = new Quaternion();
