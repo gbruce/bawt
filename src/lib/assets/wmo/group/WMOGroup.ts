@@ -1,5 +1,5 @@
 import { IObject } from 'interface/IObject';
-import { BufferAttribute, BufferGeometry, Mesh, MultiMaterial } from 'three';
+import { BufferAttribute, BufferGeometry, Mesh, Material } from 'three';
 
 import WMOMaterial from '../material/SimpleMaterial';
 
@@ -117,19 +117,31 @@ export class WMOGroup extends Mesh implements IObject {
 
     this.data.MOBA.batches.forEach((batch: any) => {
       materialIDs.push(batch.materialID);
-      (this.geometry as BufferGeometry).addGroup(batch.firstIndex, batch.indexCount, batch.materialID);
     });
 
     const materialDefs = this.wmo.MOMT.materials;
     const texturePaths = this.wmo.MOTX.filenames;
 
     this.material = await this.createMultiMaterial(materialIDs, materialDefs, texturePaths);
+
+    this.data.MOBA.batches.forEach((batch: any) => {
+      let materialIndex = -1;
+      for(let i = 0; i < (this.material as WMOMaterial[]).length; i++) {
+        const material = (this.material as WMOMaterial[])[i];
+        if (material.materialId === batch.materialID) {
+          materialIndex = i;
+          break;
+        }
+      }
+
+      (this.geometry as BufferGeometry).addGroup(batch.firstIndex, batch.indexCount, materialIndex);
+    });
   }
 
   public async createMultiMaterial(materialIDs: any[], materialDefs: any[], texturePaths: any[]) {
-    const multiMaterial = new MultiMaterial();
+    const materials: Material[] = [];
 
-    const materials: Promise<WMOMaterial>[] = [];
+    const materialLoaders: Promise<WMOMaterial>[] = [];
     materialIDs.forEach((materialID) => {
       const materialDef = materialDefs[materialID];
 
@@ -146,16 +158,16 @@ export class WMOGroup extends Mesh implements IObject {
         materialDef.useBaseColor = false;
       }
 
-      materials.push(this.createMaterial(materialDefs[materialID], texturePaths, materialID));
+      materialLoaders.push(this.createMaterial(materialDefs[materialID], texturePaths, materialID));
     });
 
-    const loadedMaterials = await Promise.all(materials);
+    const loadedMaterials = await Promise.all(materialLoaders);
 
     for (const material of loadedMaterials) {
-      multiMaterial.materials[material.materialId] = material;
+      materials.push(material);
     }
 
-    return multiMaterial;
+    return materials;
   }
 
   public async createMaterial(materialDef: any, texturePaths: any[], materialId: any) {
