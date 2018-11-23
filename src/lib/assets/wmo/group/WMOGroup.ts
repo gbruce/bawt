@@ -1,13 +1,13 @@
-import { Mesh, BufferGeometry, BufferAttribute, Matrix4, MultiMaterial } from 'three';
-import WMOMaterial from '../material/SimpleMaterial';
-import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
+import { BufferAttribute, BufferGeometry, Mesh, MultiMaterial } from 'three';
+
+import WMOMaterial from '../material/SimpleMaterial';
 
 export class WMOGroup extends Mesh implements IObject {
   private indoor: any;
   private animated: boolean;
 
-  constructor(private httpService: IHttpService, private wmo: blizzardry.IWMO, private groupId: any, private data: blizzardry.IWMOGroup) {
+  constructor(private wmo: blizzardry.IWMO, private groupId: any, private data: blizzardry.IWMOGroup) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -172,14 +172,14 @@ export class WMOGroup extends Mesh implements IObject {
       }
     });
 
-    const material = new WMOMaterial(this.httpService, materialDef, textureDefs, materialId);
+    const material = new WMOMaterial(materialDef, textureDefs, materialId);
     await material.initialize();
 
     return material;
   }
 
   public clone(): any {
-    return new WMOGroup(this.httpService, this.wmo, this.groupId, this.data);
+    return new WMOGroup(this.wmo, this.groupId, this.data);
   }
 
   public dispose() {

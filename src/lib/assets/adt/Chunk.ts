@@ -11,7 +11,7 @@ export class Chunk extends Mesh implements IObject {
   private holes: any;
   public material: Material;
 
-  constructor(private httpServer: IHttpService, adt: blizzardry.IADT, id: any, tileX: number, tileY: number) {
+  constructor(adt: blizzardry.IADT, id: any, tileX: number, tileY: number) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -91,7 +91,7 @@ export class Chunk extends Mesh implements IObject {
     geometry.addAttribute('uv', new BufferAttribute(uvs, 2));
     geometry.addAttribute('uvAlpha', new BufferAttribute(uvsAlpha, 2));
 
-    this.material = new Material(httpServer, data, textureNames);
+    this.material = new Material(data, textureNames);
   }
 
   public async initialize() {}
@@ -131,7 +131,7 @@ export class Chunk extends Mesh implements IObject {
 
     const adt = await ADT.loadTile(httpServer, mapName, tileX, tileY, wdtFlags);
     if (adt) {
-      return new Chunk(httpServer, adt, id, tileX, tileY);
+      return new Chunk(adt, id, tileX, tileY);
     }
     return null;
   }

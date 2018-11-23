@@ -1,15 +1,16 @@
-
-import { Texture, TextureLoader, RepeatWrapping } from 'three';
-import { IHttpService } from 'interface/IHttpService';
-import { NewLogger } from 'bawt/utils/Logger';
+import { lazyInject } from 'bawt/Container';
 import { Lock } from 'bawt/utils/Lock';
-const log = NewLogger('worker/LoadDBC');
+import { NewLogger } from 'bawt/utils/Logger';
+import { IHttpService } from 'interface/IHttpService';
+import { RepeatWrapping, Texture, TextureLoader } from 'three';
 
+const log = NewLogger('worker/LoadDBC');
 const cache: Map<string, Texture> = new Map();
 const lock: Lock = new Lock();
 
 export class LoadTexture {
-  constructor(private httpService: IHttpService) {}
+  @lazyInject('IHttpService')
+  public httpService!: IHttpService;
 
   public async Start(rawPath: string, wrapS = RepeatWrapping, wrapT = RepeatWrapping, flipY = true) {
     const path = `${rawPath.toUpperCase()}.png`;

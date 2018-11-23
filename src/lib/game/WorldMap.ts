@@ -15,7 +15,7 @@ import { NewLogger } from 'bawt/utils/Logger';
 const log = NewLogger('game/WorldMap');
 
 const loadRadius = 1;
-const doodadRadius = 80;
+const doodadRadius = 1;
 
 export class WorldMap {
   @lazyInject('IHttpService')
@@ -140,7 +140,7 @@ export class WorldMap {
           if (!wmoEntry) {
             continue;
           }
-          const group = new WMOGroup(this.httpService, wmo, '', wmoGroup);
+          const group = new WMOGroup(wmo, '', wmoGroup);
           await group.initialize();
           const position: number[] = [wmoEntry.position.x, wmoEntry.position.y, wmoEntry.position.z];
           const rotation: number[] = [wmoEntry.rotation.x, 270 - wmoEntry.rotation.y, wmoEntry.rotation.z];

@@ -1,9 +1,9 @@
-import { ShaderMaterial, BackSide, Color, DataTexture, LuminanceFormat, LinearFilter, Texture } from 'three';
-import { IHttpService } from 'interface/IHttpService';
 import { LoadTexture } from 'bawt/worker/LoadTexture';
+import { IObject } from 'interface/IObject';
+import { BackSide, Color, DataTexture, LinearFilter, LuminanceFormat, ShaderMaterial, Texture } from 'three';
+
 import fragmentShader = require('./shader.frag');
 import vertexShader = require('./shader.vert');
-import { IObject } from 'interface/IObject';
 
 export class Material extends ShaderMaterial implements IObject {
   private layers: any;
@@ -18,10 +18,10 @@ export class Material extends ShaderMaterial implements IObject {
   public uniforms: any;
   private loader: LoadTexture;
 
-  constructor(httpService: IHttpService, data: any, textureNames: any) {
+  constructor(data: any, textureNames: any) {
     super();
 
-    this.loader = new LoadTexture(httpService);
+    this.loader = new LoadTexture();
     this.layers = data.MCLY.layers;
     this.rawAlphaMaps = data.MCAL.alphaMaps;
     this.textureNames = textureNames;

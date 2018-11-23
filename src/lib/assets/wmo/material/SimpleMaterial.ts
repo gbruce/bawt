@@ -1,5 +1,4 @@
 import { LoadTexture } from 'bawt/worker/LoadTexture';
-import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
 import { ClampToEdgeWrapping, DoubleSide, RepeatWrapping, ShaderMaterial, Texture } from 'three';
 
@@ -10,7 +9,7 @@ class WMOMaterial extends ShaderMaterial implements IObject {
   private textures: any[] = [];
   private wrapping: any;
 
-  constructor(private httpService: IHttpService, def: any, private textureDefs: any, public materialId: any) {
+  constructor(def: any, private textureDefs: any, public materialId: any) {
     super();
 
     this.uniforms = {
@@ -46,7 +45,7 @@ class WMOMaterial extends ShaderMaterial implements IObject {
     const loaders: Promise<Texture>[] = [];
     this.textureDefs.forEach((textureDef: any) => {
       if (textureDef !== null) {
-        const loader = new LoadTexture(this.httpService);
+        const loader = new LoadTexture();
         loaders.push(loader.Start(textureDef.path, this.wrapping, this.wrapping, false));
       }
     });
