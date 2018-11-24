@@ -32,7 +32,6 @@ export class VrTest {
   private camera: PerspectiveCamera;
   private vrDisplay: VRDisplay|null = null;
   private skybox: Mesh|null = null;
-  private cube: Mesh;
   private lastRenderTime: number = 0;
   private vrButton: webvrui.EnterVRButton;
   private keys: Keys = new Keys();
@@ -62,14 +61,6 @@ export class VrTest {
 
     const loader = new TextureLoader();
     loader.load('src/apps/bawt-webvr/img/box.png', this.onTextureLoaded);
-
-    const geometry = new BoxGeometry(0.5, 0.5, 0.5);
-    const material = new MeshNormalMaterial();
-    this.cube = new Mesh(geometry, material);
-
-    this.cube.position.set(0, userHeight, -1);
-
-    this.scene.add(this.cube);
 
     window.addEventListener('resize', this.onResize, true);
     window.addEventListener('vrdisplaypresentchange', this.onResize, true);
@@ -150,8 +141,6 @@ export class VrTest {
     // Place it on the floor.
     this.skybox.position.y = boxSize / 2;
     // this.scene.add(this.skybox);
-    // Place the cube in the middle of the scene, at user height.
-    this.cube.position.set(0, userHeight, 0);
   }
 
   private animate(timestamp: number) {
@@ -162,8 +151,6 @@ export class VrTest {
     const delta = Math.min(timestamp - this.lastRenderTime, 500);
     this.fpControls.update(delta);
     this.lastRenderTime = timestamp;
-    // Apply rotation to cube mesh
-    this.cube.rotation.y += delta * 0.0006;
     // Only update controls if we're presenting.
     if (this.vrButton.isPresenting()) {
       this.controls.update();
