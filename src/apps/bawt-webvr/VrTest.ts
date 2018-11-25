@@ -122,7 +122,7 @@ export class VrTest {
       }
     });
 
-    const terrainCoords = [10440.2, 772.8, 1325.7];
+    const terrainCoords = [10518.67, 785.2, 1334.05];
     const pos = terrainPosToWorld(terrainCoords);
     const worldMap = new WorldMap();
     await worldMap.load(`kalimdor`, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
