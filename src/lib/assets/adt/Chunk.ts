@@ -1,17 +1,18 @@
 import { Mesh, BufferGeometry, BufferAttribute } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
-import { Material } from './Material';
+import Material from './Material';
 import { IObject } from 'interface/IObject';
+import { terrainPosToWorld } from 'bawt/utils/Functions';
 
 const SIZE = 33.33333;
+const TILE_SIZE = 533.33333;
 export class Chunk extends Mesh implements IObject {
   private UNIT_SIZE = 33.33333 / 8;
   private data: blizzardry.IMCNKs;
   private holes: any;
-  public material: Material;
 
-  constructor(adt: blizzardry.IADT, id: any, tileX: number, tileY: number) {
+  constructor(private adt: blizzardry.IADT, id: any, tileX: number, tileY: number) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -22,9 +23,14 @@ export class Chunk extends Mesh implements IObject {
     const size = SIZE;
     const unitSize = this.UNIT_SIZE;
 
-    this.position.y = tileX + -(data.indexX * size);
-    this.position.x = tileY + -(data.indexY * size);
+    // this.position.y = tileX + -(data.indexX * size);
+    // this.position.x = tileY + -(data.indexY * size);
+    const pos = terrainPosToWorld([data.position.x, data.position.y, data.position.z]);
+    this.position.x = pos.x;
+    this.position.y = pos.y;
+    this.position.z = pos.z;
 
+    this.updateMatrix();
     this.holes = data.holes;
 
     const vertexCount = data.MCVT.heights.length;
@@ -45,9 +51,12 @@ export class Chunk extends Mesh implements IObject {
       }
 
       // Mirror geometry over X and Y axes
-      positions[index * 3] = -(y * unitSize);
-      positions[index * 3 + 1] = -(x * unitSize);
-      positions[index * 3 + 2] = data.position.z + height;
+      // positions[index * 3] = -(y * unitSize);
+      // positions[index * 3 + 1] = -(x * unitSize);
+      // positions[index * 3 + 2] = data.position.z + height;
+      positions[index * 3] = -x * unitSize;
+      positions[index * 3 + 2] = -y * unitSize;
+      positions[index * 3 + 1] = height;
 
       uvs[index * 2] = x;
       uvs[index * 2 + 1] = y;
@@ -90,11 +99,13 @@ export class Chunk extends Mesh implements IObject {
     geometry.addAttribute('normal', new BufferAttribute(normals, 3));
     geometry.addAttribute('uv', new BufferAttribute(uvs, 2));
     geometry.addAttribute('uvAlpha', new BufferAttribute(uvsAlpha, 2));
-
-    this.material = new Material(data, textureNames);
   }
 
-  public async initialize() {}
+  public async initialize() {
+    const material = new Material(this.data, this.adt.MTEX.filenames);
+    await material.initialize();
+    this.material = material;
+  }
 
   get doodadEntries() {
     return this.data.MCRF.doodadEntries;
@@ -114,7 +125,7 @@ export class Chunk extends Mesh implements IObject {
 
   public dispose() {
     this.geometry.dispose();
-    this.material.dispose();
+    // this.material.dispose();
   }
   public static tileFor(chunk: number) {
     return (chunk / 16) | 0;

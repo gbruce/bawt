@@ -11,10 +11,11 @@ import WMOGroup from 'bawt/assets/wmo/group/WMOGroup';
 import { Object3D, BoxHelper, Color, Box3, Vector3, Quaternion, Matrix4, AxesHelper, BoundingBoxHelper, Euler, Group, Mesh } from 'three';
 import { M2Model } from 'bawt/assets/m2';
 import { NewLogger } from 'bawt/utils/Logger';
+import { ADT } from 'bawt/assets/adt';
 
 const log = NewLogger('game/WorldMap');
 
-const loadRadius = 1;
+const loadRadius = 8;
 const doodadRadius = 1;
 
 export class WorldMap {
@@ -50,11 +51,17 @@ export class WorldMap {
     const wmoEntryMap: Map<string, blizzardry.IWMOEntry> = new Map();
     const wmoLoaders: Promise<blizzardry.IWMO|null>[] = [];
     for (const c of chunks) {
-      if (c && c.wmoEntries.length > 0) {
-        for (const wmo of c.wmoEntries) {
-          const wmoLoader = new LoadWMO(this.httpService);
-          wmoLoaders.push(wmoLoader.Start(wmo.filename));
-          wmoEntryMap.set(wmo.filename, wmo);
+      if (c) {
+        await c.initialize();
+        this.map.add(c);
+        // const box = new BoxHelper(c, new Color(0, 50, 0));
+        // this.map.add(box);
+        if (c.wmoEntries.length > 0) {
+          for (const wmo of c.wmoEntries) {
+            const wmoLoader = new LoadWMO(this.httpService);
+            wmoLoaders.push(wmoLoader.Start(wmo.filename));
+            wmoEntryMap.set(wmo.filename, wmo);
+          }
         }
       }
     }
@@ -123,6 +130,9 @@ export class WorldMap {
     const doodads = await Promise.all(doodadLoad);
 
     await this.loadWmoGroups(x, y, z, wmoGroups, wmoGroupMap, wmoEntryMap, doodads, doodadMap);
+
+    for (const c of chunks) {
+    }
   };
 
   private async loadWmoGroups(playerX: number, playerY: number, playerZ: number,
@@ -180,8 +190,8 @@ export class WorldMap {
           // this.map.add(axis);
 
           for (const model of doodads) {
-            model.updateMatrix();
             const doodadData = doodadMap.get(model.path);
+            log.info(`Place Doodad filename:${doodadData.filename}`);
             const pos = new Vector3(doodadData.position.x, doodadData.position.z, -doodadData.position.y);
             const rot = new Quaternion(doodadData.rotation.x, doodadData.rotation.y, doodadData.rotation.z, doodadData.rotation.w);
             const euler = new Euler().setFromQuaternion(rot);
@@ -191,7 +201,7 @@ export class WorldMap {
             model.scale.copy(new Vector3(doodadData.scale, doodadData.scale, doodadData.scale));
             model.updateMatrix();
             group.matrixAutoUpdate = false;
-            group.add(model);
+            wmoObject.add(model);
             // const box = new BoxHelper(group, new Color(50, 0, 0));
             // this.map.add(box);
           }

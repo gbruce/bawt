@@ -35,7 +35,11 @@ export class Material extends ShaderMaterial implements IObject {
     this.textures = [];
     this.alphaMaps = [];
 
-    this.loadLayers();
+    
+  }
+
+  public async initialize() {
+    await this.loadLayers();
 
     this.uniforms = {
       layerCount: { type: 'i', value: this.layerCount },
@@ -55,13 +59,11 @@ export class Material extends ShaderMaterial implements IObject {
     };
   }
 
-  public async initialize() {}
-
-  private loadLayers() {
+  private async loadLayers() {
     this.layerCount = this.layers.length;
 
     this.loadAlphaMaps();
-    this.loadTextures();
+    await this.loadTextures();
   }
 
   private loadAlphaMaps() {
@@ -87,12 +89,12 @@ export class Material extends ShaderMaterial implements IObject {
   private async loadTextures() {
     const textures: any[] = [];
 
-    this.layers.forEach((layer: any) => {
+    for (const layer of this.layers) {
       const filename = this.textureNames[layer.textureID];
-      const texture = this.loader.Start(filename);
+      const texture = await this.loader.Start(filename);
 
       textures.push(texture);
-    });
+    }
 
     this.textures = textures;
   }
