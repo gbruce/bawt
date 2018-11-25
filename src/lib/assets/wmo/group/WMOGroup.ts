@@ -138,7 +138,7 @@ export class WMOGroup extends Mesh implements IObject {
     });
   }
 
-  public async createMultiMaterial(materialIDs: number[], materialDefs: any[], texturePaths: any[]) {
+  public async createMultiMaterial(materialIDs: number[], materialDefs: any[], texturePaths: {[key: number]: string}) {
     const materials: Material[] = [];
 
     const materialLoaders: Promise<WMOMaterial>[] = [];
@@ -156,7 +156,7 @@ export class WMOGroup extends Mesh implements IObject {
     return materials;
   }
 
-  public async createMaterial(materialDef: any, texturePaths: any[], materialId: any) {
+  public async createMaterial(materialDef: any, texturePaths: {[key: number]: string}, materialId: any) {
     const textureDefs: any[] = [];
 
     materialDef.textures.forEach((textureDef: any) => {
