@@ -8,7 +8,7 @@ import { LoadModel } from 'bawt/worker/LoadModel';
 import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
 import { IHttpService } from 'interface/IHttpService';
 import WMOGroup from 'bawt/assets/wmo/group/WMOGroup';
-import { Object3D, BoxHelper, Color, Box3, Vector3, Quaternion, Matrix4, AxesHelper, BoundingBoxHelper, Euler } from 'three';
+import { Object3D, BoxHelper, Color, Box3, Vector3, Quaternion, Matrix4, AxesHelper, BoundingBoxHelper, Euler, Group, Mesh } from 'three';
 import { M2Model } from 'bawt/assets/m2';
 import { NewLogger } from 'bawt/utils/Logger';
 
@@ -132,6 +132,7 @@ export class WorldMap {
                               doodads: M2Model[],
                               doodadMap: Map<string, any>) {
     const playerWorldPos = new Vector3(playerY, playerZ, playerX);
+
     for (let wmoGroup of wmoGroups) {
       if (wmoGroup) {
         const wmo = wmoGroupMap.get(wmoGroup.filename);
@@ -140,29 +141,42 @@ export class WorldMap {
           if (!wmoEntry) {
             continue;
           }
+
+          let wmoObject: Object3D = this.map.getObjectByName(wmo.filename);
+          if (!wmoObject) {
+            wmoObject = new Group();
+            wmoObject.name = wmo.filename;
+
+            const position: number[] = [wmoEntry.position.x, wmoEntry.position.y, wmoEntry.position.z];
+            const rotation: number[] = [wmoEntry.rotation.x, 270 - wmoEntry.rotation.y, wmoEntry.rotation.z];
+            const m = terrainCoordToWorld(position, rotation);
+            const pos = new Vector3();
+            const rot = new Quaternion();
+            m.decompose(pos, rot, new Vector3());
+
+            wmoObject.setRotationFromQuaternion(rot);
+            wmoObject.position.copy(pos);
+            wmoObject.updateMatrix();
+            wmoObject.matrixAutoUpdate = false;
+
+            log.info(`Place WMO:${wmoEntry.filename} pos: ${JSON.stringify(pos)} rot:${JSON.stringify(rot)}`);
+
+            this.map.add(wmoObject);
+          }
+
+
+          // log.info(`place wmo:${wmoEntry.filename} rot:${rotation}`);
           const group = new WMOGroup(wmo, '', wmoGroup);
           await group.initialize();
-          const position: number[] = [wmoEntry.position.x, wmoEntry.position.y, wmoEntry.position.z];
-          const rotation: number[] = [wmoEntry.rotation.x, 270 - wmoEntry.rotation.y, wmoEntry.rotation.z];
-          // log.info(`place wmo:${wmoEntry.filename} rot:${rotation}`);
-          const m = terrainCoordToWorld(position, rotation);
-          const pos = new Vector3();
-          const rot = new Quaternion();
-          m.decompose(pos, rot, new Vector3());
-          //group.quaternion.copy(rot);
-          const ea = new Euler().setFromQuaternion(rot);
-          group.setRotationFromQuaternion(rot);
-          group.position.copy(pos);
-          group.updateMatrix();
           group.matrixAutoUpdate = false;
-          this.map.add(group);
+          wmoObject.add(group);
           
           // const box = new BoxHelper(group, new Color(0, 50, 0));
           // this.map.add(box);
 
-          const axis = new AxesHelper(50);
-          axis.position.copy(pos);
-          axis.quaternion.copy(rot);
+          // const axis = new AxesHelper(50);
+          // axis.position.copy(pos);
+          // axis.quaternion.copy(rot);
           // this.map.add(axis);
 
           for (const model of doodads) {
@@ -176,6 +190,7 @@ export class WorldMap {
             model.setRotationFromEuler(euler2);
             model.scale.copy(new Vector3(doodadData.scale, doodadData.scale, doodadData.scale));
             model.updateMatrix();
+            group.matrixAutoUpdate = false;
             group.add(model);
             // const box = new BoxHelper(group, new Color(50, 0, 0));
             // this.map.add(box);
