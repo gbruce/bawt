@@ -119,10 +119,9 @@ export class WMOGroup extends Mesh implements IObject {
       materialIDs.push(batch.materialID);
     });
 
-    const materialDefs = this.wmo.MOMT.materials;
     const texturePaths = this.wmo.MOTX.filenames;
 
-    this.material = await this.createMultiMaterial(materialIDs, materialDefs, texturePaths);
+    this.material = await this.createMultiMaterial(materialIDs, texturePaths);
 
     this.data.MOBA.batches.forEach((batch) => {
       let materialIndex = -1;
@@ -138,7 +137,7 @@ export class WMOGroup extends Mesh implements IObject {
     });
   }
 
-  public async createMultiMaterial(materialIDs: number[], materialDefs: any[], texturePaths: {[key: number]: string}) {
+  public async createMultiMaterial(materialIDs: number[], texturePaths: {[key: number]: string}) {
     const materials: Material[] = [];
 
     const materialLoaders: Promise<WMOMaterial>[] = [];
