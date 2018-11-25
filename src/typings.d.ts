@@ -351,6 +351,24 @@ declare namespace blizzardry {
     };
   }
 
+  export interface ITextureDef {
+    color: {
+      r: number;
+      g: number;
+      b: number;
+      a: number;
+    };
+    flags: number;
+    offset: number;
+  }
+
+  export interface IMaterialDef {
+    blendMode: number;
+    flags: number;
+    shader: number;
+    textures: ITextureDef[];
+  }
+
   export interface IWMO {
     // custom property
     filename: string;
@@ -481,21 +499,7 @@ declare namespace blizzardry {
     MOMT: {
       id: 'TMOM';
       size: number;
-      materials: {
-        blendMode: number;
-        flags: number;
-        shader: number;
-        textures: {
-          color: {
-            r: number;
-            g: number;
-            b: number;
-            a: number;
-          };
-          flags: number;
-          offset: number;
-        }[];
-      }[];
+      materials: IMaterialDef[];
     };
 
     MOPR: {
