@@ -541,7 +541,7 @@ declare namespace blizzardry {
     MOTX: {
       id: 'XTOM';
       size: number;
-      filenames: string[];
+      filenames: {[key: number]: string};
     };
 
     MOVB: {
