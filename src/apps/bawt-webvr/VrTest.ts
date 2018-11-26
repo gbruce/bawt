@@ -15,6 +15,12 @@ import { terrainPosToWorld }  from 'bawt/utils/Functions';
 import { WorldMap } from 'bawt/game/WorldMap';
 import { Keys } from './Keys';
 import { FirstPersonControls } from './MapControls';
+import { PlayerState } from 'bawt/game/PlayerState';
+import { BehaviorSubject } from 'rxjs';
+import { IVector3 } from 'interface/IVector3';
+import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
+import { equal } from 'assert';
+import { Terrain } from 'bawt/game/Terrain';
 
 const boxSize = 5;
 const userHeight = 1.6;
@@ -24,6 +30,9 @@ const testm2File = `World\\GENERIC\\PASSIVEDOODADS\\Oktoberfest\\PumpkinHead.m2`
 export class VrTest {
   @lazyInject('IHttpService')
   public httpService!: IHttpService;
+  
+  @lazyInject('PlayerState')
+  public player!: PlayerState;
 
   private renderer: WebGLRenderer;
   private scene: Scene;
@@ -36,6 +45,8 @@ export class VrTest {
   private vrButton: webvrui.EnterVRButton;
   private keys: Keys = new Keys();
   private fpControls: FirstPersonControls;
+  private positionSubject: BehaviorSubject<IVector3> = new BehaviorSubject<IVector3>(MakeVector3(0,0,0));
+  private terrain: Terrain|null = null;
 
   constructor() {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
@@ -122,13 +133,27 @@ export class VrTest {
       }
     });
 
-    const terrainCoords = [10518.67, 785.2, 1334.05];
+    // [-6176.31, 383.74, 402.13]; outside front entrance, dwarf starting area
+    // [-6086.34, 383.87, 397.88]; inside, dward starting area
+    // [-9755, 681, 200], westfall
+    // [-10509, 1033, 200]
+    // [-9278.59, -2215.9, 70.14], redridge
+    // [-10800, -442, 200];
+    // [-11884, -3223, 200], dark portal
+    const terrainCoords = [-11884, -3223, 200];
     const pos = terrainPosToWorld(terrainCoords);
     const worldMap = new WorldMap();
-    await worldMap.load(`kalimdor`, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
+    await worldMap.load(`azeroth`, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
     this.scene.add(worldMap.map);
 
     this.camera.position.copy(pos);
+
+    this.terrain = new Terrain();
+    await this.terrain.initialize();
+    this.updateSubjects();
+    this.player.source = this.positionSubject;
+
+    this.scene.add(this.terrain.root);
   }
 
   private setStageDimensions(stage: VRStageParameters) {
@@ -143,10 +168,17 @@ export class VrTest {
     // this.scene.add(this.skybox);
   }
 
-  private animate(timestamp: number) {
-    if (this.keys.pressed('W')) {
+  private updateSubjects() {
+    // Update position subject if the camera has moved enough.
+    CopyToVector3(this.positionSubject.value, this.tmp);
+    if (this.camera.position.manhattanDistanceTo(this.tmp) > 0.001) {
+      this.positionSubject.next(MakeVector3(this.camera.position.x, this.camera.position.y, this.camera.position.z));
+    } 
+  }
 
-    }
+  private tmp = new Vector3();
+  private animate(timestamp: number) {
+    this.updateSubjects();
 
     const delta = Math.min(timestamp - this.lastRenderTime, 500);
     this.fpControls.update(delta);

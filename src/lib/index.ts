@@ -29,6 +29,8 @@ import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializ
 import { Config } from 'bawt/auth/Config';
 import { Names } from 'bawt/utils/Names';
 import { AuthPacketMap, WorldPacketMap } from 'bawt/net/PacketMap';
+import { PlayerState } from 'bawt/game/PlayerState';
+import { ChunksState } from 'bawt/game/ChunksState';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -59,4 +61,10 @@ export async function InitializeCommon(container: Container) {
   container.bind<AuthHandler>(AuthHandler).toSelf().inSingletonScope();
   container.bind<GameHandler>(GameHandler).toSelf().inSingletonScope();
   container.bind<ISession>('ISession').to(Client);
+  
+  container.bind<PlayerState>('PlayerState').to(PlayerState).inSingletonScope();
+  await container.get<PlayerState>('PlayerState').initialize();
+
+  container.bind<ChunksState>('ChunksState').to(ChunksState).inSingletonScope();
+  await container.get<ChunksState>('ChunksState').initialize();
 }

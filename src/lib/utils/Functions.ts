@@ -29,6 +29,14 @@ export const terrainPosToWorld = (position: number[]) => {
   return returnV;
 }
 
+export const worldPosToTerrain = (position: number[]) => {
+  const returnV = new Vector3();
+  returnV.x = position[2];
+  returnV.y = position[0];
+  returnV.z =  position[1];
+  return returnV;
+}
+
 export const terrainCoordToWorld = (position: number[], rotation: number[]) => {
   tmpPos.x = (blocksPerSide / 2) * blockSize - position[0];
   tmpPos.y = position[1];

@@ -15,8 +15,8 @@ import { ADT } from 'bawt/assets/adt';
 
 const log = NewLogger('game/WorldMap');
 
-const loadRadius = 8;
-const doodadRadius = 1;
+const loadRadius = 1;
+const doodadRadius = 0;
 
 export class WorldMap {
   @lazyInject('IHttpService')
@@ -52,10 +52,6 @@ export class WorldMap {
     const wmoLoaders: Promise<blizzardry.IWMO|null>[] = [];
     for (const c of chunks) {
       if (c) {
-        await c.initialize();
-        this.map.add(c);
-        // const box = new BoxHelper(c, new Color(0, 50, 0));
-        // this.map.add(box);
         if (c.wmoEntries.length > 0) {
           for (const wmo of c.wmoEntries) {
             const wmoLoader = new LoadWMO(this.httpService);
