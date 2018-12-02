@@ -46,6 +46,7 @@ export class VrTest {
   private keys: Keys = new Keys();
   private fpControls: FirstPersonControls;
   private positionSubject: BehaviorSubject<IVector3> = new BehaviorSubject<IVector3>(MakeVector3(0,0,0));
+  private mapSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
   private terrain: Terrain|null = null;
 
   constructor() {
@@ -96,6 +97,8 @@ export class VrTest {
     document.getElementById('magic-window')!.addEventListener('click', () => {
       this.vrButton.requestEnterFullscreen();
     });
+    this.player.map.acquire(this.mapSubject);
+    this.player.position.acquire(this.positionSubject);
   }
 
   private onResize() {
@@ -133,6 +136,7 @@ export class VrTest {
       }
     });
 
+    // azeroth
     // [-6176.31, 383.74, 402.13]; outside front entrance, dwarf starting area
     // [-6086.34, 383.87, 397.88]; inside, dward starting area
     // [-9755, 681, 200], westfall
@@ -140,10 +144,15 @@ export class VrTest {
     // [-9278.59, -2215.9, 70.14], redridge
     // [-10800, -442, 200];
     // [-11884, -3223, 200], dark portal
-    const terrainCoords = [-11884, -3223, 200];
+    //
+    // kalimdor
+    // [-609 -4211 200] durotar starting area
+    const terrainCoords = [-609, -4211, 100];
     const pos = terrainPosToWorld(terrainCoords);
+    this.mapSubject.next('kalimdor');
+
     const worldMap = new WorldMap();
-    await worldMap.load(`azeroth`, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
+    await worldMap.load(this.mapSubject.value, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
     this.scene.add(worldMap.map);
 
     this.camera.position.copy(pos);
@@ -151,7 +160,6 @@ export class VrTest {
     this.terrain = new Terrain();
     await this.terrain.initialize();
     this.updateSubjects();
-    this.player.source = this.positionSubject;
 
     this.scene.add(this.terrain.root);
   }

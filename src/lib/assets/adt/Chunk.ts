@@ -1,4 +1,4 @@
-import { Mesh, BufferGeometry, BufferAttribute } from 'three';
+import { Mesh, BufferGeometry, BufferAttribute, EdgesGeometry, LineBasicMaterial, LineSegments } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
 import Material from './Material';
@@ -105,6 +105,13 @@ export class Chunk extends Mesh implements IObject {
     const material = new Material(this.data, this.adt.MTEX.filenames);
     await material.initialize();
     this.material = material;
+
+    const edges = new EdgesGeometry(this.geometry as BufferGeometry,1); // or WireframeGeometry
+    const edgesMat = new LineBasicMaterial({color: 0xffffff, linewidth: 2,polygonOffset: true,
+      polygonOffsetFactor: 3, // positive value pushes polygon further away
+      polygonOffsetUnits: 1});
+    const wireframe = new LineSegments(edges, edgesMat);
+    // this.add(wireframe);
   }
 
   get doodadEntries() {

@@ -7,6 +7,7 @@ import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
 import { Subscription } from 'rxjs';
 import { Object3D } from 'three';
+import { PlayerState } from 'bawt/game/PlayerState';
 
 enum ChunkLoading {
   Fetching,
@@ -28,14 +29,16 @@ export class Terrain implements IObject {
   @lazyInject('IHttpService')
   public httpService!: IHttpService;
 
-  private map: string = 'azeroth';
+  @lazyInject('PlayerState')
+  public player!: PlayerState;
+
   private wdt: WDT.IWDT|null = null;
   private chunksSub: Subscription|null = null;
   public root: Object3D = new Object3D();
   private chunks: Map<number, IChunkLoader> = new Map();
 
   public initialize = async () => {
-    const mapPath = `World\\maps\\${this.map}\\${this.map}.wdt`;
+    const mapPath = `World\\maps\\${this.player.map.subject.value}\\${this.player.map.subject.value}.wdt`;
     const wdtLoader = new LoadWDT(this.httpService);
     this.wdt = await wdtLoader.Start(mapPath);
 
@@ -65,7 +68,7 @@ export class Terrain implements IObject {
           const chunkX = (chunkIndex / chunksPerRow) | 0;
           const chunkY = chunkIndex % chunksPerRow;
 
-          const chunk = await Chunk.load(this.httpService, 'azeroth', this.wdt!.flags, chunkX, chunkY);
+          const chunk = await Chunk.load(this.httpService, this.player.map.subject.value, this.wdt!.flags, chunkX, chunkY);
           if (!chunk) {
             this.chunks.delete(chunkIndex);
             return;

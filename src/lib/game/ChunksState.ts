@@ -6,7 +6,7 @@ import { IVector3 } from 'interface/IVector3';
 import { injectable } from 'inversify';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
-const chunkRadius = 10;
+const chunkRadius = 3;
 
 @injectable()
 export class ChunksState implements IObject {
@@ -23,7 +23,7 @@ export class ChunksState implements IObject {
   }
 
   public initialize = async () => {
-    this.playerPositionSub = this.player.position.subscribe({ next: this.onPositionChanged });
+    this.playerPositionSub = this.player.position.subject.subscribe({ next: this.onPositionChanged });
   }
 
   private onPositionChanged = (position: IVector3) => {
