@@ -6,7 +6,7 @@ import * as WDT from 'blizzardry/lib/wdt';
 import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
 import { Subscription } from 'rxjs';
-import { Object3D, Vector3, Quaternion, Euler, CylinderGeometry, MeshBasicMaterial, Mesh, Box3, BoxHelper, Sphere, BoundingBoxHelper } from 'three';
+import { Object3D, Vector3, CylinderGeometry, MeshBasicMaterial, Mesh, Box3, BoxHelper, Sphere, VertexNormalsHelper } from 'three';
 import { PlayerState } from 'bawt/game/PlayerState';
 import { LoadModel } from 'bawt/worker/LoadModel';
 import { NewLogger } from 'bawt/utils/Logger';
@@ -90,11 +90,14 @@ export class Terrain implements IObject {
           chunk.name = `chunk-${chunkIndex}`;
 
           if (this.chunks.has(chunkIndex)) {
+            const vnh = new VertexNormalsHelper(chunk, 0.3, 0xff0000 );;
             this.root.add(chunk);
+            this.root.add(vnh);
           }
 
           for (const doodad of chunk.doodadEntries) {
             log.info(`Loading doodad filename:${doodad.filename}`);
+
             const modelLoader = new LoadModel(this.httpService);
             const newFilename = doodad.filename.replace(`MDX`, `M2`);
             const newFilename2 = newFilename.replace(`MDL`, `M2`);
@@ -103,29 +106,30 @@ export class Terrain implements IObject {
             const pos = new Vector3(-(doodad.position.x - 17066), doodad.position.y, -(doodad.position.z - 17066));
             model.position.copy(pos);
             model.rotateX(doodad.rotation.x * Math.PI / 180);
-            model.rotateY((doodad.rotation.y - 90) * Math.PI / 180);
-            model.rotateZ(-doodad.rotation.z * Math.PI / 180);
+            model.rotateY((doodad.rotation.y) * Math.PI / 180);
+            model.rotateZ(doodad.rotation.z * Math.PI / 180);
 
             const scale = doodad.scale / 1024;
             model.scale.copy(new Vector3(-scale, scale, -scale));
             model.updateMatrix();
             model.matrixAutoUpdate = false;
-            this.root.add(model);            
+
+            this.root.add(model);
 
             const box = new Box3();
             box.setFromObject(model);
             const sphere = new Sphere();
             box.getBoundingSphere(sphere);
 
-            const boxHelper = new BoundingBoxHelper(model);
-            // this.root.add(boxHelper);
+            const boxHelper = new BoxHelper(model);
+            //this.root.add(boxHelper);
 
             const axisRoot = new Object3D();
             axisRoot.position.copy(model.position);
             axisRoot.rotation.copy(model.rotation);
             axisRoot.updateMatrix();
             axisRoot.matrixAutoUpdate = false;
-            // this.root.add(axisRoot);
+            //this.root.add(axisRoot);
 
             const radius = 0.05;
             const height = sphere.radius * 1.1;
