@@ -146,8 +146,11 @@ export class VrTest {
     // [-11884, -3223, 200], dark portal
     //
     // kalimdor
-    // [-609 -4211 200] durotar starting area
-    const terrainCoords = [-609, -4211, 100];
+    // [-607.75, -4227.6, 40.9] durotar starting area
+    // [-823, -4907, 40.9] durotar senjin village
+    // [-42, -4936, 30] durotar, skuttel coast
+    // [292.9, -3713.6, 35.5] durotar, northern barrens
+    const terrainCoords = [1331, -4628, 35.5];
     const pos = terrainPosToWorld(terrainCoords);
     this.mapSubject.next('kalimdor');
 
