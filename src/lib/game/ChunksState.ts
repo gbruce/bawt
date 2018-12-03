@@ -6,7 +6,7 @@ import { IVector3 } from 'interface/IVector3';
 import { injectable } from 'inversify';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
-const chunkRadius = 3;
+const chunkRadius = 2;
 
 @injectable()
 export class ChunksState implements IObject {
