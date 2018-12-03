@@ -1,6 +1,6 @@
 import { LoadTexture } from 'bawt/worker/LoadTexture';
 import { IObject } from 'interface/IObject';
-import { BackSide, Color, DataTexture, LinearFilter, LuminanceFormat, ShaderMaterial, Texture } from 'three';
+import { BackSide, Color, DataTexture, LinearFilter, LuminanceFormat, ShaderMaterial, Texture, UniformsUtils, UniformsLib } from 'three';
 
 import fragmentShader = require('./shader.frag');
 import vertexShader = require('./shader.vert');
@@ -41,22 +41,27 @@ export class Material extends ShaderMaterial implements IObject {
   public async initialize() {
     await this.loadLayers();
 
-    this.uniforms = {
-      layerCount: { type: 'i', value: this.layerCount },
-      alphaMaps: { type: 'tv', value: this.alphaMaps },
-      textures: { type: 'tv', value: this.textures },
+    this.uniforms = UniformsUtils.merge([
+      UniformsLib['lights'],
+      {
+        layerCount: { type: 'i', value: this.layerCount },
+        alphaMaps: { type: 'tv', value: this.alphaMaps },
+        textures: { type: 'tv', value: this.textures },
 
-      // Managed by light manager
-      lightModifier: { type: 'f', value: '1.0' },
-      ambientLight: { type: 'c', value: new Color(0.5, 0.5, 0.5) },
-      diffuseLight: { type: 'c', value: new Color(0.25, 0.5, 1.0) },
+        // Managed by light manager
+        lightModifier: { type: 'f', value: '1.0' },
+        ambientLight: { type: 'c', value: new Color(0.5, 0.5, 0.5) },
+        diffuseLight: { type: 'c', value: new Color(0.25, 0.5, 1.0) },
 
-      // Managed by light manager
-      fogModifier: { type: 'f', value: '0.0' },
-      fogColor: { type: 'c', value: new Color(0.25, 0.5, 1.0) },
-      fogStart: { type: 'f', value: 5.0 },
-      fogEnd: { type: 'f', value: 400.0 },
-    };
+        // Managed by light manager
+        fogModifier: { type: 'f', value: '0.0' },
+        fogColor: { type: 'c', value: new Color(0.25, 0.5, 1.0) },
+        fogStart: { type: 'f', value: 5.0 },
+        fogEnd: { type: 'f', value: 400.0 },
+      },
+    ]);
+
+    this.lights = true;
   }
 
   private async loadLayers() {

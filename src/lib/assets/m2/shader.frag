@@ -26,6 +26,8 @@ uniform vec3 fogColor;
 
 uniform int blendingMode;
 
+varying vec3 direction;
+
 vec4 fragCombinersWrath1Pass(sampler2D texture1, vec2 uv1) {
   vec4 texture1Color = texture2D(texture1, uv1);
 
@@ -84,9 +86,7 @@ vec4 fragCombinersWrath2Pass(sampler2D texture1, vec2 uv1, sampler2D texture2, v
 }
 
 vec4 applyDiffuseLighting(vec4 color) {
-  vec3 lightDirection = vec3(1, 1, -1);
-
-  float light = saturate(dot(vertexWorldNormal, normalize(-lightDirection)));
+  float light = saturate(dot(vertexWorldNormal, -normalize(direction)));
 
   vec3 diffusion = diffuseLight.rgb * light;
   diffusion += ambientLight.rgb;
@@ -126,7 +126,7 @@ vec4 finalizeColor(vec4 color) {
     color = applyDiffuseLighting(color);
   }
 
-  color = applyFog(color);
+  // color = applyFog(color);
 
   return color;
 }

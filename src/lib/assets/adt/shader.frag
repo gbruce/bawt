@@ -7,6 +7,8 @@ varying vec2 vUvAlpha;
 
 varying vec3 vertexNormal;
 varying float cameraDistance;
+varying vec3 direction;
+varying vec3 vertexWorldNormal;
 
 uniform float lightModifier;
 uniform vec3 ambientLight;
@@ -41,7 +43,7 @@ vec4 finalizeColor(vec4 color) {
 
 // Given a light direction and normal, return a directed diffuse light.
 vec3 getDirectedDiffuseLight(vec3 lightDirection, vec3 lightNormal, vec3 diffuseLight) {
-  float light = dot(lightNormal, -lightDirection);
+  float light = dot(vertexWorldNormal, -direction);
 
   if (light < 0.0) {
     light = 0.0;
@@ -49,7 +51,7 @@ vec3 getDirectedDiffuseLight(vec3 lightDirection, vec3 lightNormal, vec3 diffuse
     light = 0.5 + ((light - 0.5) * 0.65);
   }
 
-  vec3 directedDiffuseLight = diffuseLight.rgb * light;
+  vec3 directedDiffuseLight = diffuseLight.rgb;
 
   return directedDiffuseLight;
 }
@@ -57,8 +59,13 @@ vec3 getDirectedDiffuseLight(vec3 lightDirection, vec3 lightNormal, vec3 diffuse
 // Given a layer, light it with diffuse and ambient light.
 vec4 lightLayer(vec4 color, vec3 diffuse, vec3 ambient) {
   if (lightModifier > 0.0) {
-    color.rgb *= diffuse + ambient;
-    color.rgb = saturate(color.rgb);
+    float light = saturate(dot(vertexWorldNormal, -normalize(direction)));
+
+    vec3 diffusion = diffuse * light;
+    diffusion += ambient;
+    diffusion = saturate(diffusion);
+
+    color.rgb *= diffusion;
   }
 
   return color;

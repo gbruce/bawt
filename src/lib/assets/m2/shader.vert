@@ -1,5 +1,18 @@
 precision highp float;
 
+#if NUM_DIR_LIGHTS > 0
+struct DirectionalLight {
+    vec3 direction;
+    vec3 color;
+    int shadow;
+    float shadowBias;
+    float shadowRadius;
+    vec2 shadowMapSize;
+    };
+    uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+#endif
+varying vec3 direction;
+
 varying vec2 uv1;
 varying vec2 uv2;
 
@@ -55,6 +68,8 @@ uniform float billboarded;
 #endif
 
 void main() {
+  direction = directionalLights[0].direction;
+
   // TODO: Use vertexShaderMode to determine coordinates
   uv1 = vec2(uv[0], uv[1]);
   uv2 = vec2(uv[0], uv[1]);
@@ -73,7 +88,7 @@ void main() {
 
   // Account for adjustments (eg. model rotation) in world space
   // TODO: Do we need to account for skinning?
-  vertexWorldNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
+  vertexWorldNormal = normalMatrix * normal;
 
   animatedVertexColor.rgb = animatedVertexColorRGB.xyz * 0.5;
   animatedVertexColor.a = animatedVertexColorAlpha;

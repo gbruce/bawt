@@ -1,6 +1,6 @@
 import { LoadTexture } from 'bawt/worker/LoadTexture';
 import { IObject } from 'interface/IObject';
-import { ClampToEdgeWrapping, DoubleSide, RepeatWrapping, ShaderMaterial, Texture } from 'three';
+import { ClampToEdgeWrapping, DoubleSide, RepeatWrapping, ShaderMaterial, Texture, UniformsUtils, UniformsLib, Color } from 'three';
 
 import fragmentShader = require('./simple_shader.frag');
 import vertexShader = require('./simple_shader.vert');
@@ -12,10 +12,16 @@ class WMOMaterial extends ShaderMaterial implements IObject {
   constructor(def: any, private textureDefs: any, public materialId: any) {
     super();
 
-    this.uniforms = {
-      textures: { value: [] },
-      textureCount: { value: 0 },
-    };
+    this.uniforms = this.uniforms = UniformsUtils.merge([
+      UniformsLib['lights'],
+      {
+        lights: { value: true },
+        textures: { value: [] },
+        textureCount: { value: 0 },
+        ambientLight: { value: new Color(0.4, 0.4, 0.4) },
+        diffuseLight: { value: new Color(1.0, 1.0, 1.0) },
+      }
+    ]);
 
     // Transparent blending
     if (def.blendMode === 1) {
@@ -35,6 +41,7 @@ class WMOMaterial extends ShaderMaterial implements IObject {
       this.wrapping = RepeatWrapping;
     }
 
+    this.lights = true;
     this.vertexShader = vertexShader as any;
     this.fragmentShader = fragmentShader as any;
   }

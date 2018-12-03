@@ -17,6 +17,8 @@ import {
   SrcColorFactor,
   Vector3,
   ZeroFactor,
+  UniformsLib,
+  UniformsUtils,
 } from 'three';
 
 import fragmentShader = require('./shader.frag');
@@ -46,44 +48,90 @@ export class Material extends ShaderMaterial implements IObject {
     const vertexShaderMode = this.vertexShaderModeFromID(def.shaderID, def.opCount);
     const fragmentShaderMode = this.fragmentShaderModeFromID(def.shaderID, def.opCount);
 
-    this.uniforms = {
-      textureCount: {value: 0 },
-      textures: { value: [] },
+    this.uniforms = UniformsUtils.merge([
+      UniformsLib['lights'],
+      {
+        lights: { value: true },
+        textureCount: {value: 0 },
+        textures: { value: [] },
+        
+        blendingMode: { value: 0 },
+        vertexShaderMode: { value: vertexShaderMode },
+        fragmentShaderMode: { value: fragmentShaderMode },
+  
+        billboarded: { value: 0.0 },
+  
+        // Animated vertex colors
+        animatedVertexColorRGB: { value: new Vector3(1.0, 1.0, 1.0) },
+        animatedVertexColorAlpha: { value: 1.0 },
+  
+        // Animated transparency
+        animatedTransparency: { value: 1.0 },
+  
+        // Animated texture coordinate transform matrices
+        animatedUVs: {
+          value: [
+            new Matrix4(),
+            new Matrix4(),
+            new Matrix4(),
+            new Matrix4(),
+          ],
+        },
+  
+        // Managed by light manager
+        lightModifier: { value: '1.0' },
+        ambientLight: { value: new Color(0.4, 0.4, 0.4) },
+        diffuseLight: { value: new Color(1.0, 1.0, 1.0) },
+  
+        // Managed by light manager
+        fogModifier: { value: '1.0' },
+        //fogColor: { value: new Color(0.25, 0.5, 1.0) },
+        fogColor: { value: new Color(1.0, 1.0, 1.0) },
+        fogStart: { value: 5.0 },
+        fogEnd: { value: 400.0 },
+      }
+    ]);
 
-      blendingMode: { value: 0 },
-      vertexShaderMode: { value: vertexShaderMode },
-      fragmentShaderMode: { value: fragmentShaderMode },
+    this.lights = true;
+    // this.uniforms = {
+    //   textureCount: {value: 0 },
+    //   textures: { value: [] },
+      
+    //   blendingMode: { value: 0 },
+    //   vertexShaderMode: { value: vertexShaderMode },
+    //   fragmentShaderMode: { value: fragmentShaderMode },
 
-      billboarded: { value: 0.0 },
+    //   billboarded: { value: 0.0 },
 
-      // Animated vertex colors
-      animatedVertexColorRGB: { value: new Vector3(1.0, 1.0, 1.0) },
-      animatedVertexColorAlpha: { value: 1.0 },
+    //   // Animated vertex colors
+    //   animatedVertexColorRGB: { value: new Vector3(1.0, 1.0, 1.0) },
+    //   animatedVertexColorAlpha: { value: 1.0 },
 
-      // Animated transparency
-      animatedTransparency: { value: 1.0 },
+    //   // Animated transparency
+    //   animatedTransparency: { value: 1.0 },
 
-      // Animated texture coordinate transform matrices
-      animatedUVs: {
-        value: [
-          new Matrix4(),
-          new Matrix4(),
-          new Matrix4(),
-          new Matrix4(),
-        ],
-      },
+    //   // Animated texture coordinate transform matrices
+    //   animatedUVs: {
+    //     value: [
+    //       new Matrix4(),
+    //       new Matrix4(),
+    //       new Matrix4(),
+    //       new Matrix4(),
+    //     ],
+    //   },
 
-      // Managed by light manager
-      lightModifier: { value: '1.0' },
-      ambientLight: { value: new Color(0.5, 0.5, 0.5) },
-      diffuseLight: { value: new Color(0.25, 0.5, 1.0) },
+    //   // Managed by light manager
+    //   lightModifier: { value: '1.0' },
+    //   ambientLight: { value: new Color(0.3, 0.3, 0.3) },
+    //   diffuseLight: { value: new Color(0.2, 0.2, 0.2) },
 
-      // Managed by light manager
-      fogModifier: { value: '1.0' },
-      fogColor: { value: new Color(0.25, 0.5, 1.0) },
-      fogStart: { value: 5.0 },
-      fogEnd: { value: 400.0 },
-    };
+    //   // Managed by light manager
+    //   fogModifier: { value: '1.0' },
+    //   //fogColor: { value: new Color(0.25, 0.5, 1.0) },
+    //   fogColor: { value: new Color(1.0, 1.0, 1.0) },
+    //   fogStart: { value: 5.0 },
+    //   fogEnd: { value: 400.0 },
+    // };
 
     this.vertexShader = vertexShader as any;
     this.fragmentShader = fragmentShader as any;
