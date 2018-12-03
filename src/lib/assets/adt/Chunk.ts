@@ -1,4 +1,4 @@
-import { Mesh, BufferGeometry, BufferAttribute, EdgesGeometry, LineBasicMaterial, LineSegments } from 'three';
+import { Mesh, BufferGeometry, BufferAttribute, EdgesGeometry, LineBasicMaterial, LineSegments, VertexNormalsHelper } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
 import Material from './Material';
@@ -67,8 +67,8 @@ export class Chunk extends Mesh implements IObject {
 
     data.MCNR.normals.forEach((normal: any, index: any) => {
       normals[index * 3] = normal.x;
-      normals[index * 3 + 1] = normal.z;
-      normals[index * 3 + 2] = normal.y;
+      normals[index * 3 + 1] = normal.y;
+      normals[index * 3 + 2] = normal.z;
     });
 
     const indices = new Uint32Array(8 * 8 * 4 * 3);
