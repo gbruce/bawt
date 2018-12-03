@@ -1,16 +1,10 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector3, DirectionalLight,
-  RepeatWrapping, BoxGeometry, MeshBasicMaterial, BackSide, Mesh, MeshNormalMaterial, Box3, BoxHelper, Color } from 'three';
+  RepeatWrapping, BoxGeometry, MeshBasicMaterial, BackSide, Mesh, MeshNormalMaterial, Box3, BoxHelper, Color, DirectionalLightHelper, Object3D } from 'three';
 import { THREE } from './VRControls';
 import { VREffect } from './VREffect';
 import * as webvrui from 'webvr-ui';
 import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
-import { LoadWMO } from 'bawt/worker/LoadWMO';
-import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
-import { WMO } from 'bawt/assets/wmo/index';
-import { WMOGroup } from 'bawt/assets/wmo/group/WMOGroup';
-import { LoadWDT } from 'bawt/worker/LoadWDT';
-import { Chunk } from 'bawt/assets/adt/Chunk';
 import { terrainPosToWorld }  from 'bawt/utils/Functions';
 import { WorldMap } from 'bawt/game/WorldMap';
 import { Keys } from './Keys';
@@ -19,7 +13,6 @@ import { PlayerState } from 'bawt/game/PlayerState';
 import { BehaviorSubject } from 'rxjs';
 import { IVector3 } from 'interface/IVector3';
 import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
-import { equal } from 'assert';
 import { Terrain } from 'bawt/game/Terrain';
 
 const boxSize = 5;
@@ -48,6 +41,7 @@ export class VrTest {
   private positionSubject: BehaviorSubject<IVector3> = new BehaviorSubject<IVector3>(MakeVector3(0,0,0));
   private mapSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
   private terrain: Terrain|null = null;
+  private light: DirectionalLight = new DirectionalLight();
 
   constructor() {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
@@ -62,6 +56,11 @@ export class VrTest {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new Scene();
+    this.light.position.copy(new Vector3(1,0.1,0));
+    this.light.intensity = 0.1;
+
+    this.scene.add(this.light);
+
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new PerspectiveCamera( 75, aspect, 0.1, 10000);
     this.controls = new THREE.VRControls(this.camera);
@@ -150,7 +149,7 @@ export class VrTest {
     // [-823, -4907, 40.9] durotar senjin village
     // [-42, -4936, 30] durotar, skuttel coast
     // [292.9, -3713.6, 35.5] durotar, northern barrens
-    const terrainCoords = [1331, -4628, 35.5];
+    const terrainCoords = [-465, -2653, 35.5];
     const pos = terrainPosToWorld(terrainCoords);
     this.mapSubject.next('kalimdor');
 
@@ -165,6 +164,10 @@ export class VrTest {
     this.updateSubjects();
 
     this.scene.add(this.terrain.root);
+
+    const lightHelper = new DirectionalLightHelper(this.light!, 5);
+    lightHelper.position.copy(new Vector3(this.positionSubject.value.x, this.positionSubject.value.y, this.positionSubject.value.z));
+    this.scene.add(lightHelper);
   }
 
   private setStageDimensions(stage: VRStageParameters) {
