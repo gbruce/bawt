@@ -1,5 +1,5 @@
 import { Group, Bone, Vector3, Skeleton, Geometry, Vector4,
-  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion } from 'three';
+  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion, VertexNormalsHelper } from 'three';
 import { Submesh } from './Submesh';
 import { Material } from './Material';
 import { AnimationManager } from './AnimationManager';
@@ -298,7 +298,9 @@ export class M2Model extends Group implements IObject {
 
       this.submeshGeometries.set(submeshIndex, submeshGeometry);
 
+      // const vnh = new VertexNormalsHelper(submesh, 0.3, 0xff0000 );
       this.add(submesh);
+      // this.add(vnh);
     }
   }
 
