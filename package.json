@@ -17,8 +17,7 @@
     "node-test": "mocha -r tsconfig-paths/register -r ts-node/register src/tests/NodeTest.ts --exit",
     "file-serve": "ts-node -r ts-node/register ./src/apps/bawt-files/index.ts",
     "asset-browser-dev": "webpack-serve --port 9000 --config ./webpack.asset-browser.config.js",
-    "webvr-dev": "webpack-serve --port 8000 --hmr false --host 0.0.0.0 --config ./webpack.webvr.config.js",
-    "webvr-dev2": "webpack-dev-server --port 8000 --host 0.0.0.0 --config ./webpack.webvr.config.js"
+    "webvr-dev": "webpack-dev-server --port 8000 --host 0.0.0.0 --config ./webpack.webvr.config.js"
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.34",
