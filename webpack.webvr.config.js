@@ -3,7 +3,10 @@ const { resolve } = require("path");
 
 module.exports = {
   // context: path.resolve(__dirname, 'src/apps/bawt-webvr'),
-  entry: './src/apps/bawt-webvr/index.tsx',
+  entry: {
+    app: './src/apps/bawt-webvr/index.tsx',
+    worker: './src/lib/worker/Worker.ts'
+  },
   devtool: 'source-map',
   mode: 'development',
   module: {
@@ -16,6 +19,10 @@ module.exports = {
       {
         test: /\.(glsl|vert|frag)$/,
         loader: "raw-loader",
+      },
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader?inline=true' }
       }
     ]
   },
@@ -23,11 +30,12 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.js' ],
     alias: {
       'bawt': path.resolve(__dirname, 'src/lib/'),
+      'interface': path.resolve(__dirname, 'src/interface/'),
       '*': path.resolve(__dirname, 'src/')
     }
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
   },
   node: {
     fs: 'empty'

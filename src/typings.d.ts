@@ -1025,3 +1025,11 @@ declare module 'webvr-ui' {
   // export default content;
   export = webvrui;
 }
+
+declare module "worker-loader!*" {
+  class WebpackWorker extends Worker {
+    constructor();
+  }
+
+  export = WebpackWorker;
+}
