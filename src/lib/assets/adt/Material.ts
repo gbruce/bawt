@@ -50,8 +50,8 @@ export class Material extends ShaderMaterial implements IObject {
 
         // Managed by light manager
         lightModifier: { type: 'f', value: '1.0' },
-        ambientLight: { type: 'c', value: new Color(0.5, 0.5, 0.5) },
-        diffuseLight: { type: 'c', value: new Color(0.25, 0.5, 1.0) },
+        ambientLight: { type: 'c', value: new Color(0.6, 0.6, 0.6) },
+        diffuseLight: { type: 'c', value: new Color(1.0, 1.0, 1.0) },
 
         // Managed by light manager
         fogModifier: { type: 'f', value: '0.0' },

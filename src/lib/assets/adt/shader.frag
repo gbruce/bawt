@@ -43,15 +43,15 @@ vec4 finalizeColor(vec4 color) {
 
 // Given a light direction and normal, return a directed diffuse light.
 vec3 getDirectedDiffuseLight(vec3 lightDirection, vec3 lightNormal, vec3 diffuseLight) {
-  float light = dot(vertexWorldNormal, -direction);
+  float light = dot(lightNormal, -lightDirection);
 
   if (light < 0.0) {
     light = 0.0;
   } else if (light > 0.5) {
-    light = 0.5 + ((light - 0.5) * 0.65);
+    // light = 0.5 + ((light - 0.5) * 1.0);
   }
 
-  vec3 directedDiffuseLight = diffuseLight.rgb;
+  vec3 directedDiffuseLight = saturate(ambientLight + diffuseLight.rgb * light);
 
   return directedDiffuseLight;
 }
@@ -59,13 +59,9 @@ vec3 getDirectedDiffuseLight(vec3 lightDirection, vec3 lightNormal, vec3 diffuse
 // Given a layer, light it with diffuse and ambient light.
 vec4 lightLayer(vec4 color, vec3 diffuse, vec3 ambient) {
   if (lightModifier > 0.0) {
-    float light = saturate(dot(vertexWorldNormal, -normalize(direction)));
-
-    vec3 diffusion = diffuse * light;
-    diffusion += ambient;
-    diffusion = saturate(diffusion);
-
-    color.rgb *= diffusion;
+    // color.rgb *= diffuse;
+    //color.rgb += ambient;
+    color.rgb = saturate(color.rgb * diffuse);
   }
 
   return color;
@@ -80,8 +76,8 @@ vec4 lightAndBlendLayer(vec4 color, vec4 layer, vec4 blend, vec3 diffuse, vec3 a
 }
 
 void main() {
-  vec3 lightDirection = normalize(vec3(-1, -1, -1));
-  vec3 lightNormal = normalize(vertexNormal);
+  vec3 lightDirection = normalize(direction);
+  vec3 lightNormal = normalize(vertexWorldNormal);
 
   vec3 directedDiffuseLight = getDirectedDiffuseLight(lightDirection, lightNormal, diffuseLight);
 
