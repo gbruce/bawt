@@ -11,7 +11,7 @@ import { injectable } from 'inversify';
 export class WdtState implements IObject {
   private mapSub: Subscription|null = null;
 
-  @lazyInject('PlayerState') private player!: PlayerState;
+  @lazyInject('Observable<ILocation>') private location!: Observable<ILocation>;
   @lazyInject('IHttpService') private httpService!: IHttpService;
 
   private _wdtSubject: BehaviorSubject<WDT.IWDT|null> = new BehaviorSubject<WDT.IWDT|null>(null);
@@ -20,7 +20,7 @@ export class WdtState implements IObject {
   }
 
   public async initialize() {
-    this.mapSub = this.player.location.subject.subscribe({ next: this.onMapChanged });
+    this.mapSub = this.location.subscribe({ next: this.onMapChanged });
   }
 
   public dispose(): void {

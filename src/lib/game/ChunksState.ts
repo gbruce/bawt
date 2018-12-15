@@ -40,8 +40,7 @@ const computeDifference = (oldChunks: number[], newChunks: number[]): IChunkColl
 
 @injectable()
 export class ChunksState implements IObject {
-  @lazyInject('Observable<ILocation>')
-  public location!: Observable<ILocation>;
+  @lazyInject('Observable<ILocation>') private location!: Observable<ILocation>;
   private locationSub: Subscription|null = null;
 
   private chunkX: number = -1;

@@ -2,7 +2,7 @@ import { MakeVector3 } from 'bawt/utils/Math';
 import { IObject } from 'interface/IObject';
 import { IVector3 } from 'interface/IVector3';
 import { injectable } from 'inversify';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 class Property<T> {
   constructor(private defaultValue: T) {}
@@ -31,7 +31,7 @@ class Property<T> {
   }
 
   private _subject: BehaviorSubject<T> = new BehaviorSubject<T>(this.defaultValue);
-  public get subject(): BehaviorSubject<T> {
+  public get observable(): Observable<T> {
     return this._subject;
   }
 }

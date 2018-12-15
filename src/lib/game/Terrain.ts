@@ -9,7 +9,7 @@ import { Object3D, Vector3, CylinderGeometry, MeshBasicMaterial, Mesh, Box3,
    BoxHelper, Sphere } from 'three';
 import { LoadModel } from 'bawt/worker/LoadModel';
 import { NewLogger } from 'bawt/utils/Logger';
-import { PlayerState } from 'bawt/game/PlayerState';
+import { ILocation } from 'bawt/game/PlayerState';
 
 const log = NewLogger('game/Terrain');
 
@@ -30,26 +30,28 @@ export class Terrain implements IObject {
   @lazyInject('ChunksState') private chunksState!: ChunksState;
   @lazyInject('IHttpService') private httpService!: IHttpService;
   @lazyInject('Observable<WDT.IWDT|null>') private wdtObs!: Observable<WDT.IWDT|null>;
-  @lazyInject('PlayerState') private player!: PlayerState;
+  @lazyInject('Observable<ILocation>') private location!: Observable<ILocation>;
 
   private chunksSub: Subscription|null = null;
   private wdtSub: Subscription|null = null;
+  private locationSub: Subscription|null = null;
   public root: Object3D = new Object3D();
   private chunks: Map<number, IChunkLoader> = new Map();
   private wdt: WDT.IWDT|null = null;
+  private map: string = '';
 
   public initialize = async () => {
-    this.wdtSub = this.wdtObs.subscribe({ next: this.onWdtChanged });
+    this.wdtSub = this.wdtObs.subscribe({ next: (wdt: WDT.IWDT|null) => {
+      this.wdt = wdt;
+    }});
     this.chunksSub = this.chunksState.chunks.subscribe({ next: this.onChunksChanged });
-  }
-
-  private onWdtChanged = (wdt: WDT.IWDT|null) => {
-    this.wdt = wdt;
-    // this.onChunksChanged(this.chunksState.chunks.value);
+    this.locationSub = this.location.subscribe({ next: (location: ILocation) => {
+      this.map = location.map;
+    }});
   }
 
   private onChunksChanged = (chunkCollection: IChunkCollection) => {
-    if (!this.wdt) {
+    if (!this.wdt || !this.map) {
       return;
     }
 
@@ -68,7 +70,7 @@ export class Terrain implements IObject {
             return;
           }
 
-          const chunk = await Chunk.load(this.httpService, this.player.location.subject.value.map,
+          const chunk = await Chunk.load(this.httpService, this.map,
             this.wdt.flags, chunkX, chunkY);
           if (!chunk) {
             this.chunks.delete(chunkIndex);
@@ -184,6 +186,11 @@ export class Terrain implements IObject {
     if (this.wdtSub) {
       this.wdtSub.unsubscribe();
       this.wdtSub = null;
+    }
+
+    if (this.locationSub) {
+      this.locationSub.unsubscribe();
+      this.locationSub = null;
     }
   }
 }
