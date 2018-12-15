@@ -15,7 +15,7 @@ class Property<T> {
       this._owner.subscribe({
         next: (x) => {
           this._subject.next(x);
-        }
+        },
       });
       this._id++;
       return this._id;
@@ -36,11 +36,18 @@ class Property<T> {
   }
 }
 
+export interface ILocation {
+  position: IVector3;
+  map: string;
+}
+
 @injectable()
 export class PlayerState implements IObject {
-  public initialize = async () => {}
-  public dispose = (): void => {}
+  public initialize = async () => {};
+  public dispose = (): void => {};
 
-  public position: Property<IVector3> = new Property(MakeVector3(0,0, 0));
-  public map: Property<string> = new Property('');
+  public location: Property<ILocation> = new Property<ILocation>({
+    position: MakeVector3(0, 0, 0),
+    map: '',
+  });
 }

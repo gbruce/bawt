@@ -1,5 +1,5 @@
 import { lazyInject } from 'bawt/Container';
-import { PlayerState } from 'bawt/game/PlayerState';
+import { PlayerState, ILocation } from 'bawt/game/PlayerState';
 import { chunkForTerrainCoordinate, chunksForArea, worldPosToTerrain } from 'bawt/utils/Functions';
 import { IObject } from 'interface/IObject';
 import { IVector3 } from 'interface/IVector3';
@@ -60,11 +60,11 @@ export class ChunksState implements IObject {
   }
 
   public initialize = async () => {
-    this.playerPositionSub = this.player.position.subject.subscribe({ next: this.onPositionChanged });
+    this.playerPositionSub = this.player.location.subject.subscribe({ next: this.onPositionChanged });
   }
 
-  private onPositionChanged = (position: IVector3) => {
-    const terrainPos = worldPosToTerrain([position.x, position.y, position.z]);
+  private onPositionChanged = (location: ILocation) => {
+    const terrainPos = worldPosToTerrain([location.position.x, location.position.y, location.position.z]);
     const chunkX = chunkForTerrainCoordinate(terrainPos.x);
     const chunkY = chunkForTerrainCoordinate(terrainPos.y);
     if (chunkX !== this.chunkX || chunkY !== this.chunkY) {

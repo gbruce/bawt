@@ -1,15 +1,15 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector3, DirectionalLight,
-  RepeatWrapping, BoxGeometry, MeshBasicMaterial, BackSide, Mesh, MeshNormalMaterial, Box3, BoxHelper, Color, DirectionalLightHelper, Object3D } from 'three';
+  RepeatWrapping, BoxGeometry, MeshBasicMaterial, BackSide, Mesh, DirectionalLightHelper } from 'three';
 import { THREE } from './VRControls';
 import { VREffect } from './VREffect';
 import * as webvrui from 'webvr-ui';
 import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
-import { terrainPosToWorld }  from 'bawt/utils/Functions';
+import { terrainPosToWorld } from 'bawt/utils/Functions';
 import { WorldMap } from 'bawt/game/WorldMap';
 import { Keys } from './Keys';
 import { FirstPersonControls } from './MapControls';
-import { PlayerState } from 'bawt/game/PlayerState';
+import { PlayerState, ILocation } from 'bawt/game/PlayerState';
 import { BehaviorSubject } from 'rxjs';
 import { IVector3 } from 'interface/IVector3';
 import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
@@ -23,7 +23,7 @@ const testm2File = `World\\GENERIC\\PASSIVEDOODADS\\Oktoberfest\\PumpkinHead.m2`
 export class VrTest {
   @lazyInject('IHttpService')
   public httpService!: IHttpService;
-  
+
   @lazyInject('PlayerState')
   public player!: PlayerState;
 
@@ -38,8 +38,10 @@ export class VrTest {
   private vrButton: webvrui.EnterVRButton;
   private keys: Keys = new Keys();
   private fpControls: FirstPersonControls;
-  private positionSubject: BehaviorSubject<IVector3> = new BehaviorSubject<IVector3>(MakeVector3(0,0,0));
-  private mapSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  private locationSubject: BehaviorSubject<ILocation> = new BehaviorSubject<ILocation>({
+    position: MakeVector3(0, 0, 0),
+    map: '',
+  });
   private terrain: Terrain|null = null;
   private light: DirectionalLight = new DirectionalLight();
 
@@ -56,7 +58,7 @@ export class VrTest {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new Scene();
-    this.light.position.copy(new Vector3(1,0.1,0));
+    this.light.position.copy(new Vector3(1, 0.6, 0));
     this.light.intensity = 0.1;
 
     this.scene.add(this.light);
@@ -96,8 +98,7 @@ export class VrTest {
     document.getElementById('magic-window')!.addEventListener('click', () => {
       this.vrButton.requestEnterFullscreen();
     });
-    this.player.map.acquire(this.mapSubject);
-    this.player.position.acquire(this.positionSubject);
+    this.player.location.acquire(this.locationSubject);
   }
 
   private onResize() {
@@ -149,12 +150,17 @@ export class VrTest {
     // [-823, -4907, 40.9] durotar senjin village
     // [-42, -4936, 30] durotar, skuttel coast
     // [292.9, -3713.6, 35.5] durotar, northern barrens
-    const terrainCoords = [-465, -2653, 35.5];
+    // [-454.4, -2649.1, 99.4] durotar, crossroads
+    const terrainCoords = [-673, -4965, 100];
+    const map = 'kalimdor';
     const pos = terrainPosToWorld(terrainCoords);
-    this.mapSubject.next('kalimdor');
+    this.locationSubject.next({
+      map,
+      position: this.locationSubject.value.position,
+    });
 
     const worldMap = new WorldMap();
-    await worldMap.load(this.mapSubject.value, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
+    await worldMap.load(this.locationSubject.value.map, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
     this.scene.add(worldMap.map);
 
     this.camera.position.copy(pos);
@@ -166,7 +172,9 @@ export class VrTest {
     this.scene.add(this.terrain.root);
 
     const lightHelper = new DirectionalLightHelper(this.light!, 5);
-    lightHelper.position.copy(new Vector3(this.positionSubject.value.x, this.positionSubject.value.y, this.positionSubject.value.z));
+    lightHelper.position.copy(new Vector3(this.locationSubject.value.position.x,
+                                          this.locationSubject.value.position.y,
+                                          this.locationSubject.value.position.z));
     this.scene.add(lightHelper);
   }
 
@@ -184,10 +192,13 @@ export class VrTest {
 
   private updateSubjects() {
     // Update position subject if the camera has moved enough.
-    CopyToVector3(this.positionSubject.value, this.tmp);
+    CopyToVector3(this.locationSubject.value.position, this.tmp);
     if (this.camera.position.manhattanDistanceTo(this.tmp) > 0.001) {
-      this.positionSubject.next(MakeVector3(this.camera.position.x, this.camera.position.y, this.camera.position.z));
-    } 
+      this.locationSubject.next({
+        map: this.locationSubject.value.map,
+        position: MakeVector3(this.camera.position.x, this.camera.position.y, this.camera.position.z),
+      });
+    }
   }
 
   private tmp = new Vector3();

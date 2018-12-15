@@ -1,5 +1,5 @@
 import { lazyInject } from 'bawt/Container';
-import { PlayerState } from 'bawt/game/PlayerState';
+import { PlayerState, ILocation } from 'bawt/game/PlayerState';
 import { LoadWDT } from 'bawt/worker/LoadWDT';
 import * as WDT from 'blizzardry/lib/wdt';
 import { IHttpService } from 'interface/IHttpService';
@@ -20,15 +20,15 @@ export class WdtState implements IObject {
   }
 
   public async initialize() {
-    this.mapSub = this.player.map.subject.subscribe({ next: this.onMapChanged });
+    this.mapSub = this.player.location.subject.subscribe({ next: this.onMapChanged });
   }
 
   public dispose(): void {
     this.mapSub!.unsubscribe();
   }
 
-  private onMapChanged = async (map: string) => {
-    const mapPath = `World\\maps\\${this.player.map.subject.value}\\${this.player.map.subject.value}.wdt`;
+  private onMapChanged = async (location: ILocation) => {
+    const mapPath = `World\\maps\\${location.map}\\${location.map}.wdt`;
     const wdtLoader = new LoadWDT(this.httpService);
     const wdt = await wdtLoader.Start(mapPath);
     this._wdtSubject.next(wdt);

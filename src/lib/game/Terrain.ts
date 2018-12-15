@@ -68,7 +68,7 @@ export class Terrain implements IObject {
             return;
           }
 
-          const chunk = await Chunk.load(this.httpService, this.player.map.subject.value,
+          const chunk = await Chunk.load(this.httpService, this.player.location.subject.value.map,
             this.wdt.flags, chunkX, chunkY);
           if (!chunk) {
             this.chunks.delete(chunkIndex);
