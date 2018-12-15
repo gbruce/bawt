@@ -12,6 +12,6 @@
     "ordered-imports": false,
     "one-line": false,
     "member-ordering": false,
-    "no-namespace": false,
+    "no-namespace": false
   }
 }
