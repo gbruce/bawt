@@ -1,4 +1,5 @@
-import { Mesh, BufferGeometry, BufferAttribute, EdgesGeometry, LineBasicMaterial, LineSegments, VertexNormalsHelper } from 'three';
+import { Mesh, BufferGeometry, BufferAttribute, EdgesGeometry, LineBasicMaterial,
+  LineSegments, VertexNormalsHelper } from 'three';
 import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
 import Material from './Material';
@@ -138,7 +139,8 @@ export class Chunk extends Mesh implements IObject {
     return (chunk / 16) | 0;
   }
 
-  public static async load(httpServer: IHttpService, mapName: string, wdtFlags: number, chunkX: number, chunkY: number): Promise<Chunk|null> {
+  public static async load( httpServer: IHttpService, mapName: string, wdtFlags: number,
+                            chunkX: number, chunkY: number): Promise<Chunk|null> {
     const tileX = this.tileFor(chunkX);
     const tileY = this.tileFor(chunkY);
 
