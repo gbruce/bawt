@@ -29,7 +29,7 @@ import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializ
 import { Config } from 'bawt/auth/Config';
 import { Names } from 'bawt/utils/Names';
 import { AuthPacketMap, WorldPacketMap } from 'bawt/net/PacketMap';
-import { PlayerState } from 'bawt/game/PlayerState';
+import { PlayerState, ILocation } from 'bawt/game/PlayerState';
 import { ChunksState } from 'bawt/game/ChunksState';
 import { WdtState } from 'bawt/game/WdtState';
 import { Observable } from 'rxjs';
@@ -66,6 +66,9 @@ export async function InitializeCommon(container: Container) {
   container.bind<ISession>('ISession').to(Client);
 
   container.bind<PlayerState>('PlayerState').to(PlayerState).inSingletonScope();
+  container.bind<Observable<ILocation>>('Observable<ILocation>').toDynamicValue((context) => {
+    return context.container.get<PlayerState>('PlayerState').location.subject;
+  });
   await container.get<PlayerState>('PlayerState').initialize();
   container.bind<Observable<WDT.IWDT|null>>('Observable<WDT.IWDT|null>').toDynamicValue((context) => {
     return context.container.get<WdtState>('WdtState').wdtSubject;

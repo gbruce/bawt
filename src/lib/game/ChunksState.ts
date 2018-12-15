@@ -1,8 +1,7 @@
 import { lazyInject } from 'bawt/Container';
-import { PlayerState, ILocation } from 'bawt/game/PlayerState';
+import { ILocation } from 'bawt/game/PlayerState';
 import { chunkForTerrainCoordinate, chunksForArea, worldPosToTerrain } from 'bawt/utils/Functions';
 import { IObject } from 'interface/IObject';
-import { IVector3 } from 'interface/IVector3';
 import { injectable } from 'inversify';
 import { BehaviorSubject, Subscription, Observable } from 'rxjs';
 
@@ -41,9 +40,9 @@ const computeDifference = (oldChunks: number[], newChunks: number[]): IChunkColl
 
 @injectable()
 export class ChunksState implements IObject {
-  @lazyInject('PlayerState')
-  public player!: PlayerState;
-  private playerPositionSub: Subscription|null = null;
+  @lazyInject('Observable<ILocation>')
+  public location!: Observable<ILocation>;
+  private locationSub: Subscription|null = null;
 
   private chunkX: number = -1;
   private chunkY: number = -1;
@@ -60,10 +59,10 @@ export class ChunksState implements IObject {
   }
 
   public initialize = async () => {
-    this.playerPositionSub = this.player.location.subject.subscribe({ next: this.onPositionChanged });
+    this.locationSub = this.location.subscribe({ next: this.onLocationChanged });
   }
 
-  private onPositionChanged = (location: ILocation) => {
+  private onLocationChanged = (location: ILocation) => {
     const terrainPos = worldPosToTerrain([location.position.x, location.position.y, location.position.z]);
     const chunkX = chunkForTerrainCoordinate(terrainPos.x);
     const chunkY = chunkForTerrainCoordinate(terrainPos.y);
@@ -78,9 +77,9 @@ export class ChunksState implements IObject {
   }
 
   public dispose = () => {
-    if (this.playerPositionSub) {
-      this.playerPositionSub.unsubscribe();
-      this.playerPositionSub = null;
+    if (this.locationSub) {
+      this.locationSub.unsubscribe();
+      this.locationSub = null;
     }
   }
 }
