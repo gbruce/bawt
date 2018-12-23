@@ -10,6 +10,7 @@ import { Object3D, Vector3, CylinderGeometry, MeshBasicMaterial, Mesh, Box3,
 import { LoadModel } from 'bawt/worker/LoadModel';
 import { NewLogger } from 'bawt/utils/Logger';
 import { ILocation } from 'bawt/game/PlayerState';
+import { IADTCollection, IADTInfo } from 'bawt/game/AdtState';
 
 const log = NewLogger('game/Terrain');
 
@@ -30,28 +31,66 @@ export class Terrain implements IObject {
   @lazyInject('ChunksState') private chunksState!: ChunksState;
   @lazyInject('IHttpService') private httpService!: IHttpService;
   @lazyInject('Observable<WDT.IWDT|null>') private wdtObs!: Observable<WDT.IWDT|null>;
-  @lazyInject('Observable<ILocation>') private location!: Observable<ILocation>;
+  @lazyInject('Observable<IADTCollection>') private adtColl!: Observable<IADTCollection>;
 
   private chunksSub: Subscription|null = null;
   private wdtSub: Subscription|null = null;
-  private locationSub: Subscription|null = null;
   public root: Object3D = new Object3D();
   private chunks: Map<number, IChunkLoader> = new Map();
   private wdt: WDT.IWDT|null = null;
-  private map: string = '';
+  private map: string = 'kalimdor';
 
   public initialize = async () => {
     this.wdtSub = this.wdtObs.subscribe({ next: (wdt: WDT.IWDT|null) => {
       this.wdt = wdt;
     }});
-    this.chunksSub = this.chunksState.chunks.subscribe({ next: this.onChunksChanged });
-    this.locationSub = this.location.subscribe({ next: (location: ILocation) => {
-      this.map = location.map;
-    }});
+    // this.chunksSub = this.chunksState.chunks.subscribe({ next: this.onChunksChanged });
+    this.adtColl.subscribe({ next: this.onAdtChanged });
+  }
+
+  private onAdtChanged = async (collection: IADTCollection) => {
+    for (const info of collection.added) {
+      const lookup = this.chunks.get(info.chunkId);
+      if (!lookup) {
+        const chunkLoader: IChunkLoader = { state: ChunkLoading.Fetching, chunk: null};
+        this.chunks.set(info.chunkId, chunkLoader);
+
+        const loading = async (adtInfo: IADTInfo, loader: IChunkLoader) => {
+          const chunk = new Chunk(adtInfo.adt, adtInfo.id, adtInfo.tileX, adtInfo.tileY);
+          loader.state = ChunkLoading.Initializing;
+          loader.chunk = chunk;
+          await chunk.initialize();
+
+          loader.state = ChunkLoading.Loaded;
+          chunk.name = `chunk-${adtInfo.chunkId}`;
+
+          if (this.chunks.has(adtInfo.chunkId)) {
+            // const vnh = new VertexNormalsHelper(chunk, 0.3, 0xff0000 );;
+            this.root.add(chunk);
+            // this.root.add(vnh);
+          }
+        };
+
+        setTimeout(loading.bind(this, info, chunkLoader) , 0);
+      }
+    }
+
+    for (const chunkId of collection.deleted) {
+      const chunkLoader = this.chunks.get(chunkId);
+      if (chunkLoader) {
+        if (chunkLoader.chunk) {
+          this.root.remove(chunkLoader.chunk);
+          chunkLoader.chunk.dispose();
+          chunkLoader.chunk = null;
+        }
+
+        this.chunks.delete(chunkId);
+      }
+    }
   }
 
   private onChunksChanged = (chunkCollection: IChunkCollection) => {
-    if (!this.wdt || !this.map) {
+    if (!this.wdt) {
       return;
     }
 
@@ -70,7 +109,7 @@ export class Terrain implements IObject {
             return;
           }
 
-          const chunk = await Chunk.load(this.httpService, this.map,
+          const chunk = await Chunk.load(this.httpService, chunkCollection.map,
             this.wdt.flags, chunkX, chunkY);
           if (!chunk) {
             this.chunks.delete(chunkIndex);
@@ -186,11 +225,6 @@ export class Terrain implements IObject {
     if (this.wdtSub) {
       this.wdtSub.unsubscribe();
       this.wdtSub = null;
-    }
-
-    if (this.locationSub) {
-      this.locationSub.unsubscribe();
-      this.locationSub = null;
     }
   }
 }

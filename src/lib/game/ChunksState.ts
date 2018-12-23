@@ -5,16 +5,18 @@ import { IObject } from 'interface/IObject';
 import { injectable } from 'inversify';
 import { BehaviorSubject, Subscription, Observable } from 'rxjs';
 
-const chunkRadius = 8;
+const chunkRadius = 5;
 
 export interface IChunkCollection {
+  map: string;
   added: number[];
   deleted: number[];
   current: number[];
 }
 
-const computeDifference = (oldChunks: number[], newChunks: number[]): IChunkCollection => {
+const computeDifference = (map: string, oldChunks: number[], newChunks: number[]): IChunkCollection => {
   const diff: IChunkCollection = {
+    map,
     added: [],
     deleted: [],
     current: [],
@@ -45,9 +47,11 @@ export class ChunksState implements IObject {
 
   private chunkX: number = -1;
   private chunkY: number = -1;
+  private map: string = '';
   private chunksCache: number[] = [];
 
   private _chunks: BehaviorSubject<IChunkCollection> = new BehaviorSubject<IChunkCollection>({
+    map: '',
     added: [],
     deleted: [],
     current: [],
@@ -62,16 +66,32 @@ export class ChunksState implements IObject {
   }
 
   private onLocationChanged = (location: ILocation) => {
+    const mapSwitched = location.map !== this.map;
     const terrainPos = worldPosToTerrain([location.position.x, location.position.y, location.position.z]);
     const chunkX = chunkForTerrainCoordinate(terrainPos.x);
     const chunkY = chunkForTerrainCoordinate(terrainPos.y);
     if (chunkX !== this.chunkX || chunkY !== this.chunkY) {
       const chunks = chunksForArea(chunkX, chunkY, chunkRadius);
-      const diff = computeDifference(this.chunksCache, chunks);
+
+      let diff: IChunkCollection;
+      if (mapSwitched) {
+        diff = {
+          added: chunks,
+          current: [],
+          deleted: this.chunksCache,
+          map: location.map,
+        };
+      }
+      else {
+        diff = computeDifference(location.map, this.chunksCache, chunks);
+        diff.map = location.map;
+      }
+
       this._chunks.next(diff);
       this.chunksCache = chunks;
       this.chunkX = chunkX;
       this.chunkY = chunkY;
+      this.map = location.map;
     }
   }
 

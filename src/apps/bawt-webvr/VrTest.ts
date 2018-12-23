@@ -6,7 +6,6 @@ import * as webvrui from 'webvr-ui';
 import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
-import { WorldMap } from 'bawt/game/WorldMap';
 import { Keys } from './Keys';
 import { FirstPersonControls } from './MapControls';
 import { PlayerState, ILocation } from 'bawt/game/PlayerState';
@@ -14,18 +13,17 @@ import { BehaviorSubject } from 'rxjs';
 import { IVector3 } from 'interface/IVector3';
 import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
 import { Terrain } from 'bawt/game/Terrain';
+import { Step, IStep } from 'bawt/utils/Step';
+import { Doodads } from 'bawt/game/Doodads';
 
 const boxSize = 5;
 const userHeight = 1.6;
 
-const testm2File = `World\\GENERIC\\PASSIVEDOODADS\\Oktoberfest\\PumpkinHead.m2`;
-
 export class VrTest {
-  @lazyInject('IHttpService')
-  public httpService!: IHttpService;
-
-  @lazyInject('PlayerState')
-  public player!: PlayerState;
+  @lazyInject('IHttpService') private httpService!: IHttpService;
+  @lazyInject('PlayerState') private player!: PlayerState;
+  @lazyInject('Step') private step!: Step;
+  @lazyInject('Doodads') private doodads!: Doodads;
 
   private renderer: WebGLRenderer;
   private scene: Scene;
@@ -42,8 +40,30 @@ export class VrTest {
     position: MakeVector3(0, 0, 0),
     map: '',
   });
+  private stepSubject: BehaviorSubject<IStep> = new BehaviorSubject<IStep>({
+    delta: 0,
+    time: 0,
+  });
   private terrain: Terrain|null = null;
   private light: DirectionalLight = new DirectionalLight();
+
+  // azeroth
+  // [-6176.31, 383.74, 402.13]; outside front entrance, dwarf starting area
+  // [-6086.34, 383.87, 397.88]; inside, dward starting area
+  // [-9755, 681, 200], westfall
+  // [-10509, 1033, 200]
+  // [-9278.59, -2215.9, 70.14], redridge
+  // [-10800, -442, 200];
+  // [-11884, -3223, 200], dark portal
+  //
+  // kalimdor
+  // [-607.75, -4227.6, 40.9] durotar starting area
+  // [-823, -4907, 40.9] durotar senjin village
+  // [-42, -4936, 30] durotar, skuttel coast
+  // [292.9, -3713.6, 35.5] durotar, northern barrens
+  // [-454.4, -2649.1, 99.4] durotar, crossroads
+  private terrainCoords = [235.2, -4565.5, 19.98];
+  private map = 'kalimdor';
 
   constructor() {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
@@ -52,7 +72,7 @@ export class VrTest {
     this.setStageDimensions = this.setStageDimensions.bind(this);
     this.animate = this.animate.bind(this);
 
-    this.renderer = new WebGLRenderer( { antialias: false });
+    this.renderer = new WebGLRenderer( { antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     document.body.appendChild(this.renderer.domElement);
@@ -98,7 +118,16 @@ export class VrTest {
     document.getElementById('magic-window')!.addEventListener('click', () => {
       this.vrButton.requestEnterFullscreen();
     });
+
+    const pos = terrainPosToWorld(this.terrainCoords);
+    this.camera.position.copy(pos);
+    this.locationSubject.next({
+      map: this.map,
+      position: new Vector3(pos.x, pos.y, pos.z),
+    });
+
     this.player.location.acquire(this.locationSubject);
+    this.step.step.acquire(this.stepSubject);
   }
 
   private onResize() {
@@ -136,46 +165,12 @@ export class VrTest {
       }
     });
 
-    // azeroth
-    // [-6176.31, 383.74, 402.13]; outside front entrance, dwarf starting area
-    // [-6086.34, 383.87, 397.88]; inside, dward starting area
-    // [-9755, 681, 200], westfall
-    // [-10509, 1033, 200]
-    // [-9278.59, -2215.9, 70.14], redridge
-    // [-10800, -442, 200];
-    // [-11884, -3223, 200], dark portal
-    //
-    // kalimdor
-    // [-607.75, -4227.6, 40.9] durotar starting area
-    // [-823, -4907, 40.9] durotar senjin village
-    // [-42, -4936, 30] durotar, skuttel coast
-    // [292.9, -3713.6, 35.5] durotar, northern barrens
-    // [-454.4, -2649.1, 99.4] durotar, crossroads
-    const terrainCoords = [-673, -4965, 100];
-    const map = 'kalimdor';
-    const pos = terrainPosToWorld(terrainCoords);
-    this.locationSubject.next({
-      map,
-      position: this.locationSubject.value.position,
-    });
-
-    const worldMap = new WorldMap();
-    await worldMap.load(this.locationSubject.value.map, terrainCoords[0], terrainCoords[1], terrainCoords[2]);
-    this.scene.add(worldMap.map);
-
-    this.camera.position.copy(pos);
-
     this.terrain = new Terrain();
     await this.terrain.initialize();
     this.updateSubjects();
 
     this.scene.add(this.terrain.root);
-
-    const lightHelper = new DirectionalLightHelper(this.light!, 5);
-    lightHelper.position.copy(new Vector3(this.locationSubject.value.position.x,
-                                          this.locationSubject.value.position.y,
-                                          this.locationSubject.value.position.z));
-    this.scene.add(lightHelper);
+    this.scene.add(this.doodads.root);
   }
 
   private setStageDimensions(stage: VRStageParameters) {
@@ -203,9 +198,13 @@ export class VrTest {
 
   private tmp = new Vector3();
   private animate(timestamp: number) {
+    const delta = Math.min(timestamp - this.lastRenderTime, 500);
+    this.stepSubject.next({
+      delta,
+      time: 0,
+    });
     this.updateSubjects();
 
-    const delta = Math.min(timestamp - this.lastRenderTime, 500);
     this.fpControls.update(delta);
     this.lastRenderTime = timestamp;
     // Only update controls if we're presenting.

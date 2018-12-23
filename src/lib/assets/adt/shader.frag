@@ -14,29 +14,29 @@ uniform float lightModifier;
 uniform vec3 ambientLight;
 uniform vec3 diffuseLight;
 
-uniform float fogModifier;
-uniform float fogStart;
-uniform float fogEnd;
-uniform vec3 fogColor;
+// uniform float fogModifier;
+// uniform float fogStart;
+// uniform float fogEnd;
+// uniform vec3 fogColor;
 
-vec4 applyFog(vec4 color) {
-  float fogFactor = (fogEnd - cameraDistance) / (fogEnd - fogStart);
-  fogFactor = fogFactor * fogModifier;
-  fogFactor = clamp(fogFactor, 0.0, 1.0);
-  color.rgb = mix(fogColor.rgb, color.rgb, fogFactor);
+// vec4 applyFog(vec4 color) {
+//   float fogFactor = (fogEnd - cameraDistance) / (fogEnd - fogStart);
+//   fogFactor = fogFactor * fogModifier;
+//   fogFactor = clamp(fogFactor, 0.0, 1.0);
+//   color.rgb = mix(fogColor.rgb, color.rgb, fogFactor);
 
-  // Ensure alpha channel is gone once a sufficient distance into the fog is reached.
-  if (cameraDistance > fogEnd * 1.5) {
-    color.a = 1.0;
-  }
+//   // Ensure alpha channel is gone once a sufficient distance into the fog is reached.
+//   if (cameraDistance > fogEnd * 1.5) {
+//     color.a = 1.0;
+//   }
 
-  return color;
-}
+//   return color;
+// }
 
 vec4 finalizeColor(vec4 color) {
-  if (fogModifier > 0.0) {
-    color = applyFog(color);
-  }
+  // if (fogModifier > 0.0) {
+  //   color = applyFog(color);
+  // }
 
   return color;
 }
@@ -59,8 +59,6 @@ vec3 getDirectedDiffuseLight(vec3 lightDirection, vec3 lightNormal, vec3 diffuse
 // Given a layer, light it with diffuse and ambient light.
 vec4 lightLayer(vec4 color, vec3 diffuse, vec3 ambient) {
   if (lightModifier > 0.0) {
-    // color.rgb *= diffuse;
-    //color.rgb += ambient;
     color.rgb = saturate(color.rgb * diffuse);
   }
 

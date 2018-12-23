@@ -28,12 +28,15 @@ import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
 import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from 'bawt/net/Serializer';
 import { Config } from 'bawt/auth/Config';
 import { Names } from 'bawt/utils/Names';
+import { Step, IStep } from 'bawt/utils/Step';
 import { AuthPacketMap, WorldPacketMap } from 'bawt/net/PacketMap';
 import { PlayerState, ILocation } from 'bawt/game/PlayerState';
-import { ChunksState } from 'bawt/game/ChunksState';
+import { ChunksState, IChunkCollection } from 'bawt/game/ChunksState';
 import { WdtState } from 'bawt/game/WdtState';
 import { Observable } from 'rxjs';
 import * as WDT from 'blizzardry/lib/wdt';
+import { AdtState, IADTCollection } from 'bawt/game/AdtState';
+import { Doodads } from 'bawt/game/Doodads';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -65,11 +68,15 @@ export async function InitializeCommon(container: Container) {
   container.bind<GameHandler>(GameHandler).toSelf().inSingletonScope();
   container.bind<ISession>('ISession').to(Client);
 
+  container.bind<Step>('Step').to(Step).inSingletonScope();
+  container.bind<Observable<IStep>>('Observable<IStep>').toDynamicValue((context) => {
+    return context.container.get<Step>('Step').step.observable;
+  });
+
   container.bind<PlayerState>('PlayerState').to(PlayerState).inSingletonScope();
   container.bind<Observable<ILocation>>('Observable<ILocation>').toDynamicValue((context) => {
-    return context.container.get<PlayerState>('PlayerState').location.subject;
+    return context.container.get<PlayerState>('PlayerState').location.observable;
   });
-  await container.get<PlayerState>('PlayerState').initialize();
   container.bind<Observable<WDT.IWDT|null>>('Observable<WDT.IWDT|null>').toDynamicValue((context) => {
     return context.container.get<WdtState>('WdtState').wdtSubject;
   });
@@ -78,5 +85,15 @@ export async function InitializeCommon(container: Container) {
   await container.get<WdtState>('WdtState').initialize();
 
   container.bind<ChunksState>('ChunksState').to(ChunksState).inSingletonScope();
+  container.bind<Observable<IChunkCollection>>('Observable<IChunkCollection>').toDynamicValue((context) => {
+    return context.container.get<ChunksState>('ChunksState').chunks;
+  });
   await container.get<ChunksState>('ChunksState').initialize();
+
+  container.bind<AdtState>(AdtState).toSelf().inSingletonScope();
+  container.bind<Observable<IADTCollection>>('Observable<IADTCollection>').toDynamicValue((context) => {
+    return context.container.get<AdtState>(AdtState).adt;
+  });
+
+  container.bind<Doodads>('Doodads').to(Doodads).inSingletonScope();
 }
