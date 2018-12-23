@@ -118,7 +118,8 @@ export class M2Model extends Group implements IObject {
 
       // Enable skinning support on this M2 if we have bone animations.
       if (boneDef.animated) {
-        this.useSkinning = true;
+        // TODO: fix skinning
+        this.useSkinning = false;
       }
 
       // Flag billboarded bones
