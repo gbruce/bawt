@@ -15,6 +15,7 @@ import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
 import { Terrain } from 'bawt/game/Terrain';
 import { Step, IStep } from 'bawt/utils/Step';
 import { Doodads } from 'bawt/game/Doodads';
+import { WorldModels } from 'bawt/game/WorldModels';
 
 const boxSize = 5;
 const userHeight = 1.6;
@@ -24,6 +25,7 @@ export class VrTest {
   @lazyInject('PlayerState') private player!: PlayerState;
   @lazyInject('Step') private step!: Step;
   @lazyInject('Doodads') private doodads!: Doodads;
+  @lazyInject('WorldModels') private worldModels!: WorldModels;
 
   private renderer: WebGLRenderer;
   private scene: Scene;
@@ -171,6 +173,7 @@ export class VrTest {
 
     this.scene.add(this.terrain.root);
     this.scene.add(this.doodads.root);
+    this.scene.add(this.worldModels.root);
   }
 
   private setStageDimensions(stage: VRStageParameters) {

@@ -5,7 +5,7 @@ import { IObject } from 'interface/IObject';
 import { injectable } from 'inversify';
 import { BehaviorSubject, Subscription, Observable } from 'rxjs';
 
-const chunkRadius = 5;
+const chunkRadius = 1;
 
 export interface IChunkCollection {
   map: string;

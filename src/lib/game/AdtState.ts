@@ -1,9 +1,8 @@
 import { IChunkCollection } from 'bawt/game/ChunksState';
 import { inject, injectable } from 'inversify';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { IHttpService } from 'interface/IHttpService';
-import { LoadADT } from 'bawt/worker/LoadADT';
 import { NewLogger } from 'bawt/utils/Logger';
+import { IAssetProvider } from 'interface/IAssetProvider';
 
 const log = NewLogger('game/AdtState');
 
@@ -15,12 +14,12 @@ interface ILoading {
 }
 
 export interface IADTInfo {
-  chunkId: number;
+  chunkId: number; // unique chunk id
   tileX: number;
   tileY: number;
   chunkX: number;
   chunkY: number;
-  id: number;
+  mcnkIndex: number; // MCNKs index
   adt: blizzardry.IADT;
 }
 
@@ -44,8 +43,9 @@ export class AdtState {
     return this.adtSubject;
   }
 
-  constructor(@inject('Observable<IChunkCollection>') private chunks: Observable<IChunkCollection>,
-              @inject('IHttpService') private httpService: IHttpService) {
+  constructor(
+    @inject('Observable<IChunkCollection>') private chunks: Observable<IChunkCollection>,
+    @inject('IAssetProvider<blizzardry.IADT>') private adtAssetProvider: IAssetProvider<blizzardry.IADT>) {
     this.chunks.subscribe(this.onCollectionChanged);
   }
 
@@ -70,10 +70,9 @@ export class AdtState {
 
           const id = offsetX * 16 + offsetY;
           const path = `World\\Maps\\${collection.map}\\${collection.map}_${tileY}_${tileX}.adt`;
-          const loader = new LoadADT(this.httpService);
 
           // TODO: add wdt flags here
-          loader.Start(path, {}).then((adt: blizzardry.IADT) => {
+          this.adtAssetProvider.start(path).then((adt: blizzardry.IADT) => {
             const loadingState = this.loading.get(chunkId);
             if (loadingState) {
               this.loading.delete(chunkId);
@@ -85,7 +84,7 @@ export class AdtState {
                   tileY,
                   chunkX,
                   chunkY,
-                  id,
+                  mcnkIndex: id,
                 };
 
                 this.adtSubject.next({

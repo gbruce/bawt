@@ -57,7 +57,7 @@ export class ADT implements IObject {
 
   public static async load(httpService: IHttpService, path: string, wdtFlags: number) {
     const loader = new LoadADT(httpService);
-    return await loader.Start(path, wdtFlags);
+    return await loader.start(path);
   }
 
 }

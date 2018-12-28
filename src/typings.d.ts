@@ -168,6 +168,24 @@ declare namespace blizzardry {
     };
   }
 
+  interface IDoodad {
+    filename: string;
+    flags: number;
+    id: number;
+    index: number;
+    position: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    rotation: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    scale: number;
+  }
+
   interface IMCNKs {
     areaID: number;
     doodadCount: number;
@@ -228,23 +246,7 @@ declare namespace blizzardry {
     MCRF: {
       id: 'FRCM';
       size: number;
-      doodadEntries: {
-        filename: string;
-        flags: number;
-        id: number;
-        index: number;
-        position: {
-          x: number;
-          y: number;
-          z: number;
-        };
-        rotation: {
-          x: number;
-          y: number;
-          z: number;
-        };
-        scale: number;
-      }[];
+      doodadEntries: IDoodad[];
       MDDFs: number[];
       MODFs: any[];
       wmoEntries: IWMOEntry[];

@@ -2,10 +2,10 @@ import { inject, injectable } from 'inversify';
 import { Observable } from 'rxjs';
 import { IADTCollection } from 'bawt/game/AdtState';
 import { NewLogger } from 'bawt/utils/Logger';
-import { IHttpService } from 'interface/IHttpService';
-import { LoadModel } from 'bawt/worker/LoadModel';
 import { Vector3, Object3D } from 'three';
 import { M2Model } from 'bawt/assets/m2';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { ISceneObject } from 'interface/ISceneObject';
 
 const log = NewLogger('game/Doodads');
 
@@ -14,7 +14,7 @@ export class Doodads {
   public root: Object3D = new Object3D();
 
   constructor(@inject('Observable<IADTCollection>') private adtColl: Observable<IADTCollection>,
-              @inject('IHttpService') private httpService: IHttpService) {
+              @inject('IAssetProvider<ISceneObject>') private modelAssetProvider: IAssetProvider<ISceneObject>) {
     this.adtColl.subscribe({ next: this.onAdtChanged });
   }
 
@@ -23,14 +23,16 @@ export class Doodads {
       const chunkRoot: Object3D = new Object3D();
       chunkRoot.name = info.chunkId.toString();
 
-      const doodadEntries = info.adt.MCNKs[info.id].MCRF.doodadEntries;
+      const doodadEntries = info.adt.MCNKs[info.mcnkIndex].MCRF.doodadEntries;
       for (const doodad of doodadEntries) {
         log.info(`Loading doodad filename:${doodad.filename}`);
+        if (doodad.flags > 0) {
+          const x = 1;
+        }
 
-        const modelLoader = new LoadModel(this.httpService);
         const newFilename = doodad.filename.replace(`MDX`, `M2`);
         const newFilename2 = newFilename.replace(`MDL`, `M2`);
-        const model = await modelLoader.Start(newFilename2);
+        const model = (await this.modelAssetProvider.start(newFilename2)).object3d;
         model.name = doodad.filename;
 
         const pos = new Vector3(-(doodad.position.x - 17066), doodad.position.y, -(doodad.position.z - 17066));

@@ -7,9 +7,9 @@ import { BatchManager } from './BatchManager';
 import * as M2 from 'blizzardry/lib/m2';
 import * as Skin from 'blizzardry/lib/m2/skin';
 import { IAnimationBlock, IBone } from 'blizzardry/lib/m2';
-import { IObject } from 'interface/IObject';
+import { ISceneObject } from 'interface/ISceneObject';
 
-export class M2Model extends Group implements IObject {
+export class M2Model extends Group implements ISceneObject {
   private cache = {};
   private eventListeners: any[] = [];
   private batchManager = new BatchManager();
@@ -36,6 +36,10 @@ export class M2Model extends Group implements IObject {
   private uvAnimationValues: any[] = [];
   private transparencyAnimationValues: any[] = [];
   private vertexColorAnimationValues: any[] = [];
+
+  public get object3d(): Object3D {
+    return this;
+  }
 
   constructor(public path: string, private data: M2.IModel, private skinData: Skin.ISkin, instance: any = null) {
     super();

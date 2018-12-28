@@ -37,6 +37,11 @@ import { Observable } from 'rxjs';
 import * as WDT from 'blizzardry/lib/wdt';
 import { AdtState, IADTCollection } from 'bawt/game/AdtState';
 import { Doodads } from 'bawt/game/Doodads';
+import { WorldModels } from 'bawt/game/WorldModels';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { LoadADT } from './worker/LoadADT';
+import { LoadModel } from './worker/LoadModel';
+import { ISceneObject } from 'interface/ISceneObject';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -96,4 +101,9 @@ export async function InitializeCommon(container: Container) {
   });
 
   container.bind<Doodads>('Doodads').to(Doodads).inSingletonScope();
+  container.bind<WorldModels>('WorldModels').to(WorldModels).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>')
+    .to(LoadADT).inSingletonScope();
+  container.bind<IAssetProvider<ISceneObject>>('IAssetProvider<ISceneObject>')
+  .to(LoadModel).inSingletonScope();
 }

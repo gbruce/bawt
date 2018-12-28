@@ -29,8 +29,8 @@ export class WMO extends Group implements IObject {
     }
   }
 
-  async initialize() {}
-  dispose(): void {}
+  public async initialize() {}
+  public dispose(): void {}
 
   public doodadSet(doodadSet: any) {
     const set = this.data.MODS.sets[doodadSet];

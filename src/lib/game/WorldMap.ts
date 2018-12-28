@@ -1,14 +1,15 @@
 import Chunk from 'bawt/assets/adt/Chunk';
 import { WMO } from 'bawt/assets/wmo';
 import { lazyInject } from 'bawt/Container';
-import { chunkForTerrainCoordinate, chunksForArea, terrainCoordToWorld, blockForTerrainCoordinates } from 'bawt/utils/Functions';
+import { chunkForTerrainCoordinate, chunksForArea, terrainCoordToWorld,
+  blockForTerrainCoordinates } from 'bawt/utils/Functions';
 import { LoadWDT } from 'bawt/worker/LoadWDT';
 import { LoadWMO } from 'bawt/worker/LoadWMO';
 import { LoadModel } from 'bawt/worker/LoadModel';
 import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
 import { IHttpService } from 'interface/IHttpService';
 import WMOGroup from 'bawt/assets/wmo/group/WMOGroup';
-import { Object3D, BoxHelper, Color, Box3, Vector3, Quaternion, Matrix4, AxesHelper, BoundingBoxHelper, Euler, Group, Mesh } from 'three';
+import { Object3D, Vector3, Quaternion, Euler, Group } from 'three';
 import { M2Model } from 'bawt/assets/m2';
 import { NewLogger } from 'bawt/utils/Logger';
 import { ADT } from 'bawt/assets/adt';
