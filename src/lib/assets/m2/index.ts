@@ -1,5 +1,5 @@
 import { Group, Bone, Vector3, Skeleton, Geometry, Vector4,
-  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion, VertexNormalsHelper } from 'three';
+  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion, VertexNormalsHelper, SphereGeometry, MeshBasicMaterial, DoubleSide } from 'three';
 import { Submesh } from './Submesh';
 import { Material } from './Material';
 import { AnimationManager } from './AnimationManager';
@@ -8,6 +8,7 @@ import * as M2 from 'blizzardry/lib/m2';
 import * as Skin from 'blizzardry/lib/m2/skin';
 import { IAnimationBlock, IBone } from 'blizzardry/lib/m2';
 import { ISceneObject } from 'interface/ISceneObject';
+import { add } from 'winston';
 
 export class M2Model extends Group implements ISceneObject {
   private cache = {};
@@ -24,7 +25,7 @@ export class M2Model extends Group implements ISceneObject {
   private mesh: Mesh|null = null;
   private submeshes: any[] = [];
   private parts: Map<any, any> = new Map();
-  private geometry: any = null;
+  private geometry: Geometry|null = null;
   private submeshGeometries: Map<any, any> = new Map();
   private skeleton: any = null;
   private bones: any[] = [];
@@ -78,6 +79,8 @@ export class M2Model extends Group implements ISceneObject {
       this.batches = instance.batches;
       this.geometry = instance.geometry;
       this.submeshGeometries = instance.submeshGeometries;
+      this.geometry!.computeBoundingSphere();
+
     } else {
       this.createTextureAnimations(data);
       this.createBatches(data, skinData);
@@ -86,6 +89,15 @@ export class M2Model extends Group implements ISceneObject {
 
     this.createMesh(this.geometry, this.skeleton, this.rootBones);
     this.createSubmeshes(data, skinData);
+    // if (this.geometry) {
+    //   this.geometry.computeBoundingSphere();
+    //   const mesh = new Mesh(
+    //     new SphereGeometry( this.geometry.boundingSphere.radius, 20, 10 ),
+    //     new MeshBasicMaterial( { color: 0x00FF00, transparent: true,
+    //       opacity: 0.2, side: DoubleSide, wireframe: true }));
+    //   mesh.position.copy(this.geometry.boundingSphere.center);
+    //   this.add(mesh);
+    // }
   }
 
   public async initialize() {}
@@ -310,6 +322,10 @@ export class M2Model extends Group implements ISceneObject {
   }
 
   private createSubmeshGeometry(submeshDef: any, indices: any, triangles: any, vertices: any) {
+    if (!this.geometry) {
+      return;
+    }
+
     const geometry = this.geometry.clone();
 
     // TODO: Figure out why this isn't cloned by the line above
@@ -572,7 +588,9 @@ export class M2Model extends Group implements ISceneObject {
     this.detachEventListeners();
     this.eventListeners = [];
 
-    this.geometry.dispose();
+    if (this.geometry){
+      this.geometry.dispose();
+    }
     if (this.mesh) {
       this.mesh.geometry.dispose();
     }

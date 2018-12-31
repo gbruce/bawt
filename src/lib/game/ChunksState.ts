@@ -4,8 +4,11 @@ import { chunkForTerrainCoordinate, chunksForArea, worldPosToTerrain } from 'baw
 import { IObject } from 'interface/IObject';
 import { injectable } from 'inversify';
 import { BehaviorSubject, Subscription, Observable } from 'rxjs';
+import { NewLogger } from 'bawt/utils/Logger';
 
-const chunkRadius = 1;
+const log = NewLogger('game/ChunkState');
+
+const chunkRadius = 5;
 
 export interface IChunkCollection {
   map: string;
@@ -66,11 +69,26 @@ export class ChunksState implements IObject {
   }
 
   private onLocationChanged = (location: ILocation) => {
+    log.info(`onLocationChanged ${JSON.stringify(location)}`);
     const mapSwitched = location.map !== this.map;
+    if (location.map === '') {
+      this._chunks.next({
+        added: [],
+        current: [],
+        deleted: this.chunksCache,
+        map: location.map,
+      });
+      this.chunksCache = [];
+      this.map = location.map;
+      this.chunkX = -1;
+      this.chunkY = -1;
+      return;
+    }
+
     const terrainPos = worldPosToTerrain([location.position.x, location.position.y, location.position.z]);
     const chunkX = chunkForTerrainCoordinate(terrainPos.x);
     const chunkY = chunkForTerrainCoordinate(terrainPos.y);
-    if (chunkX !== this.chunkX || chunkY !== this.chunkY) {
+    if (chunkX !== this.chunkX || chunkY !== this.chunkY || mapSwitched) {
       const chunks = chunksForArea(chunkX, chunkY, chunkRadius);
 
       let diff: IChunkCollection;

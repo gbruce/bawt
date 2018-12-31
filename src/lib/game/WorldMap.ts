@@ -20,6 +20,7 @@ const loadRadius = 1;
 const doodadRadius = 0;
 
 export class WorldMap {
+  /*
   @lazyInject('IHttpService')
   public httpService!: IHttpService;
 
@@ -206,4 +207,5 @@ export class WorldMap {
       }
     }
   }
+  */
 }

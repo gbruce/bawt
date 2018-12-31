@@ -20,6 +20,7 @@ export interface IDoodadCollection {
 }
 
 class DoodadItem {
+  public count: number = 0;
   public model: ISceneObject|null = null;
 
   constructor(  public doodad: blizzardry.IDoodad,
@@ -44,7 +45,7 @@ export class DoodadLoader {
   }
 
   private loadDoodad = async (chunkId: number, item: DoodadItem) => {
-    log.info(`Loading doodad filename:${item.doodad.filename}`);
+    log.info(`Loading doodad filename:${item.doodad.filename} id:${item.doodad.id}`);
 
     const newFilename = item.doodad.filename.replace(`MDX`, `M2`);
     const newFilename2 = newFilename.replace(`MDL`, `M2`);
@@ -54,12 +55,14 @@ export class DoodadLoader {
     if (item.canceled) {
       this.doodads.delete(item.doodad.id);
       const byChunk = this.chunkMap.get(item.chunkId);
-      const index = byChunk!.findIndex((value: DoodadItem) => {
-        return value.doodad.id === item.doodad.id;
-      });
+      if (byChunk) {
+        const index = byChunk.findIndex((value: DoodadItem) => {
+          return value.doodad.id === item.doodad.id;
+        });
 
-      if (index !== -1) {
-        byChunk!.splice(index, 1);
+        if (index !== -1) {
+          byChunk!.splice(index, 1);
+        }
       }
       return;
     }
@@ -76,6 +79,7 @@ export class DoodadLoader {
     const scale = item.doodad.scale / 1024;
     model.scale.copy(new Vector3(-scale, scale, -scale));
     model.updateMatrix();
+    model.updateMatrixWorld(false);
     model.matrixAutoUpdate = false;
 
     const doodadInfo: IDoodadInfo = { id: item.doodad.id, model: asset };
@@ -92,6 +96,18 @@ export class DoodadLoader {
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {
+    /*
+    const k = JSON.stringify(collection, (key: string, value: any) => {
+      if (key === 'adt') {
+        return undefined;
+      }
+
+      return value;
+    });
+
+    log.info(`onAdtChanged ${k}`);
+    */
+
     for (const info of collection.added) {
       const doodadEntries = info.adt.MCNKs[info.mcnkIndex].MCRF.doodadEntries;
 
@@ -108,10 +124,13 @@ export class DoodadLoader {
           doodadItem = new DoodadItem(doodadEntry, info.chunkId);
           this.doodads.set(doodadEntry.id, doodadItem);
         }
+        doodadItem.count++;
 
         chunkLookup.push(doodadItem);
 
-        (this.loadDoodad)(info.chunkId, doodadItem);
+        if (doodadItem.count === 1) {
+          (this.loadDoodad)(info.chunkId, doodadItem);
+        }
       }
     }
 
@@ -123,11 +142,16 @@ export class DoodadLoader {
           const doodads = this.chunkMap.get(chunkId);
           if (doodads) {
             for (const doodadItem of doodads) {
-              if (doodadItem.model) {
-                deleted.push(doodadItem.doodad.id);
-              }
-              else {
-                doodadItem.canceled = true;
+              doodadItem.count--;
+              if (doodadItem.count === 0) {
+                if (doodadItem.model) {
+                  deleted.push(doodadItem.doodad.id);
+                }
+                else {
+                  log.info(`Canceling doodad filename:${doodadItem.doodad.filename} id:${doodadItem.doodad.id}`);
+                  doodadItem.canceled = true;
+                }
+                this.chunkMap.delete(chunkId);
               }
             }
           }
@@ -137,6 +161,7 @@ export class DoodadLoader {
       for (const deletedId of deleted) {
         const doodadInfo = this.doodads.get(deletedId);
         if (doodadInfo) {
+          log.info(`Unloading doodad filename:${doodadInfo.doodad.filename} id:${doodadInfo.doodad.id}`);
           if (doodadInfo.model) {
             doodadInfo.model.dispose();
             doodadInfo.model = null;

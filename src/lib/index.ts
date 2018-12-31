@@ -42,6 +42,8 @@ import { IAssetProvider } from 'interface/IAssetProvider';
 import { LoadADT } from './worker/LoadADT';
 import { LoadModel } from './worker/LoadModel';
 import { ISceneObject } from 'interface/ISceneObject';
+import { DoodadLoader, IDoodadCollection } from 'bawt/game/DoodadLoader';
+import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -98,6 +100,12 @@ export async function InitializeCommon(container: Container) {
   container.bind<AdtState>(AdtState).toSelf().inSingletonScope();
   container.bind<Observable<IADTCollection>>('Observable<IADTCollection>').toDynamicValue((context) => {
     return context.container.get<AdtState>(AdtState).adt;
+  });
+
+  container.bind<DoodadVisibility>('DoodadVisibility').to(DoodadVisibility).inSingletonScope();
+  container.bind<DoodadLoader>('DoodadLoader').to(DoodadLoader).inSingletonScope();
+  container.bind<Observable<IDoodadCollection>>('Observable<IDoodadCollection>').toDynamicValue((context) => {
+    return context.container.get<DoodadLoader>('DoodadLoader').doodadSubject;
   });
 
   container.bind<Doodads>('Doodads').to(Doodads).inSingletonScope();

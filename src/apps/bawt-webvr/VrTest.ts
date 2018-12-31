@@ -3,30 +3,26 @@ import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector
 import { THREE } from './VRControls';
 import { VREffect } from './VREffect';
 import * as webvrui from 'webvr-ui';
-import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
 import { Keys } from './Keys';
 import { FirstPersonControls } from './MapControls';
 import { PlayerState, ILocation } from 'bawt/game/PlayerState';
 import { BehaviorSubject } from 'rxjs';
-import { IVector3 } from 'interface/IVector3';
 import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
 import { Terrain } from 'bawt/game/Terrain';
 import { Step, IStep } from 'bawt/utils/Step';
 import { Doodads } from 'bawt/game/Doodads';
 import { WorldModels } from 'bawt/game/WorldModels';
+import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
+import { inject, injectable } from 'inversify';
+import { VrHud } from './VrHud';
 
 const boxSize = 5;
 const userHeight = 1.6;
 
+@injectable()
 export class VrTest {
-  @lazyInject('IHttpService') private httpService!: IHttpService;
-  @lazyInject('PlayerState') private player!: PlayerState;
-  @lazyInject('Step') private step!: Step;
-  @lazyInject('Doodads') private doodads!: Doodads;
-  @lazyInject('WorldModels') private worldModels!: WorldModels;
-
   private renderer: WebGLRenderer;
   private scene: Scene;
   private controls: THREE.VRControls;
@@ -48,6 +44,7 @@ export class VrTest {
   });
   private terrain: Terrain|null = null;
   private light: DirectionalLight = new DirectionalLight();
+  private vrHud: VrHud;
 
   // azeroth
   // [-6176.31, 383.74, 402.13]; outside front entrance, dwarf starting area
@@ -67,7 +64,14 @@ export class VrTest {
   private terrainCoords = [235.2, -4565.5, 19.98];
   private map = 'kalimdor';
 
-  constructor() {
+  constructor(
+    @inject('IHttpService') private httpService: IHttpService,
+    @inject('PlayerState') private player: PlayerState,
+    @inject('Step') private step: Step,
+    @inject('Doodads') private doodads: Doodads,
+    @inject('WorldModels') private worldModels: WorldModels,
+    @inject('DoodadVisibility') private doodadVis: DoodadVisibility,
+  ) {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
     this.onResize = this.onResize.bind(this);
     this.setupStage = this.setupStage.bind(this);
@@ -87,6 +91,7 @@ export class VrTest {
 
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new PerspectiveCamera( 75, aspect, 0.1, 10000);
+    this.scene.add(this.camera);
     this.controls = new THREE.VRControls(this.camera);
     this.camera.position.y = userHeight;
 
@@ -130,6 +135,9 @@ export class VrTest {
 
     this.player.location.acquire(this.locationSubject);
     this.step.step.acquire(this.stepSubject);
+
+    this.vrHud = new VrHud(this.renderer);
+    this.camera.add(this.vrHud.mesh);
   }
 
   private onResize() {
@@ -172,8 +180,9 @@ export class VrTest {
     this.updateSubjects();
 
     this.scene.add(this.terrain.root);
-    this.scene.add(this.doodads.root);
+    // this.scene.add(this.doodads.root);
     this.scene.add(this.worldModels.root);
+    this.scene.add(this.doodadVis.root);
   }
 
   private setStageDimensions(stage: VRStageParameters) {
@@ -207,6 +216,7 @@ export class VrTest {
       time: 0,
     });
     this.updateSubjects();
+    this.vrHud.update(timestamp);
 
     this.fpControls.update(delta);
     this.lastRenderTime = timestamp;

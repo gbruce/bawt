@@ -18,7 +18,7 @@ export class WorldModels {
 
   constructor(@inject('Observable<IADTCollection>') private adtColl: Observable<IADTCollection>,
               @inject('IHttpService') private httpService: IHttpService) {
-    this.adtColl.subscribe({ next: this.onAdtChanged });
+    // this.adtColl.subscribe({ next: this.onAdtChanged });
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {
@@ -26,7 +26,7 @@ export class WorldModels {
       const chunkRoot: Object3D = new Object3D();
       chunkRoot.name = info.chunkId.toString();
 
-      const wmoEntries = info.adt.MCNKs[info.id].MCRF.wmoEntries;
+      const wmoEntries = info.adt.MCNKs[info.mcnkIndex].MCRF.wmoEntries;
       for (const wmoEntry of wmoEntries) {
         log.info(`Loading wmo filename:${wmoEntry.filename}`);
 
@@ -81,16 +81,16 @@ export class WorldModels {
         }
       }
 
-      for (const chunkId of collection.deleted) {
-        const chunkRoot = this.root.getObjectByName(chunkId.toString());
-        for (let i = chunkRoot.children.length - 1; i >= 0; i--) {
-          const model: M2Model = chunkRoot.children[i] as M2Model;
-          log.info(`Unloading doodad filename:${model.name}`);
-          model.dispose();
-          this.root.remove(model);
-        }
-        this.root.remove(chunkRoot);
-      }
+      // for (const chunkId of collection.deleted) {
+      //   const chunkRt = this.root.getObjectByName(chunkId.toString());
+      //   for (let i = chunkRt.children.length - 1; i >= 0; i--) {
+      //     const model: M2Model = chunkRt.children[i] as M2Model;
+      //     log.info(`Unloading doodad filename:${model.name}`);
+      //     model.dispose();
+      //     this.root.remove(model);
+      //   }
+      //   this.root.remove(chunkRt);
+      // }
       log.debug(`chunks:${this.root.children.length}`);
       this.root.add(chunkRoot);
     }

@@ -56,7 +56,7 @@ export class Terrain implements IObject {
         this.chunks.set(info.chunkId, chunkLoader);
 
         const loading = async (adtInfo: IADTInfo, loader: IChunkLoader) => {
-          const chunk = new Chunk(adtInfo.adt, adtInfo.id, adtInfo.tileX, adtInfo.tileY);
+          const chunk = new Chunk(adtInfo.adt, adtInfo.mcnkIndex, adtInfo.tileX, adtInfo.tileY);
           loader.state = ChunkLoading.Initializing;
           loader.chunk = chunk;
           await chunk.initialize();
@@ -135,7 +135,8 @@ export class Terrain implements IObject {
             const modelLoader = new LoadModel(this.httpService);
             const newFilename = doodad.filename.replace(`MDX`, `M2`);
             const newFilename2 = newFilename.replace(`MDL`, `M2`);
-            const model = await modelLoader.Start(newFilename2);
+            const asset = await modelLoader.start(newFilename2);
+            const model = asset.object3d;
 
             const pos = new Vector3(-(doodad.position.x - 17066), doodad.position.y, -(doodad.position.z - 17066));
             model.position.copy(pos);
