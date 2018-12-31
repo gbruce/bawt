@@ -50,7 +50,7 @@ export class AdtView extends React.Component<IProps, {}> {
     }
 
     const adt = await this.adtProvider.start(this.props.filePath);
-    
+
     /*
     const mesh = await loader.Start(filePath);
     this.model = new M2Model(filePath, mesh.m2, mesh.skin);
