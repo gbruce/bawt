@@ -15,7 +15,7 @@ export class Doodads {
 
   constructor(@inject('Observable<IADTCollection>') private adtColl: Observable<IADTCollection>,
               @inject('IAssetProvider<ISceneObject>') private modelAssetProvider: IAssetProvider<ISceneObject>) {
-    this.adtColl.subscribe({ next: this.onAdtChanged });
+    // this.adtColl.subscribe({ next: this.onAdtChanged });
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {
@@ -53,6 +53,9 @@ export class Doodads {
 
     for (const chunkId of collection.deleted) {
       const chunkRoot = this.root.getObjectByName(chunkId.toString());
+      if (!chunkRoot) {
+        continue;
+      }
       for (let i = chunkRoot.children.length - 1; i >= 0; i--) {
         const model: M2Model = chunkRoot.children[i] as M2Model;
         log.info(`Unloading doodad filename:${model.name}`);
