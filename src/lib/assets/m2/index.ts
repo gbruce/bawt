@@ -122,9 +122,10 @@ export class M2Model extends Group implements ISceneObject {
         parent.add(bone);
 
         // Correct bone positioning relative to parent
-        let up = bone;
-        while (up = up.parent) {
+        let up = bone.parent;
+        while (up) {
           bone.position.sub(up.position);
+          up = up.parent;
         }
       } else {
         bone.userData.isRoot = true;
@@ -153,7 +154,7 @@ export class M2Model extends Group implements ISceneObject {
           animationBlock: boneDef.translation,
           trackType: 'VectorKeyframeTrack',
 
-          valueTransform: function(value: any) {
+          valueTransform: (value: any) => {
             return [
               bone.position.x + -value[0],
               bone.position.y + -value[1],
@@ -171,7 +172,7 @@ export class M2Model extends Group implements ISceneObject {
           animationBlock: boneDef.rotation,
           trackType: 'QuaternionKeyframeTrack',
 
-          valueTransform: function(value: any) {
+          valueTransform: (value: any) => {
             return [value[0], value[1], -value[2], -value[3]];
           },
         });
@@ -451,7 +452,7 @@ export class M2Model extends Group implements ISceneObject {
         animationBlock: transparencyAnimationDef,
         trackType: 'NumberKeyframeTrack',
 
-        valueTransform: function(value: any) {
+        valueTransform: (value: any) => {
           return [value];
         },
       });
@@ -485,7 +486,7 @@ export class M2Model extends Group implements ISceneObject {
         animationBlock: alpha,
         trackType: 'NumberKeyframeTrack',
 
-        valueTransform: function(value: any) {
+        valueTransform: (value: any) => {
           return [value];
         },
       });
