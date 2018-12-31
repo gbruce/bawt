@@ -1,4 +1,3 @@
-import * as M2 from 'blizzardry/lib/m2';
 import * as Skin from 'blizzardry/lib/m2/skin';
 import { IObject } from 'interface/IObject';
 
@@ -6,7 +5,7 @@ export class BatchManager implements IObject {
 
   public async initialize() {}
   public dispose() {}
-  public createDefs(model: M2.IModel, skin: Skin.ISkin) {
+  public createDefs(model: blizzardry.IModel, skin: Skin.ISkin) {
     const defs: any[] = [];
 
     skin.batches.forEach((batchData) => {
@@ -17,7 +16,7 @@ export class BatchManager implements IObject {
     return defs;
   }
 
-  public createDef(model: M2.IModel, batchData: Skin.IBatch) {
+  public createDef(model: blizzardry.IModel, batchData: Skin.IBatch) {
     const def = this.stubDef();
 
     const { textures } = model;
@@ -98,7 +97,7 @@ export class BatchManager implements IObject {
     return def;
   }
 
-  private resolveTextureIndices(model: M2.IModel, batchData: Skin.IBatch) {
+  private resolveTextureIndices(model: blizzardry.IModel, batchData: Skin.IBatch) {
     batchData.textureIndices = [];
 
     for (let opIndex = 0; opIndex < batchData.opCount; opIndex++) {
@@ -107,7 +106,7 @@ export class BatchManager implements IObject {
     }
   }
 
-  private resolveUVAnimationIndices(model: M2.IModel, batchData: Skin.IBatch) {
+  private resolveUVAnimationIndices(model: blizzardry.IModel, batchData: Skin.IBatch) {
     batchData.uvAnimationIndices = [];
 
     for (let opIndex = 0; opIndex < batchData.opCount; opIndex++) {

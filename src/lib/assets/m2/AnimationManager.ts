@@ -1,7 +1,6 @@
 
 import { SignalDispatcher } from 'strongly-typed-events';
 import { AnimationMixer, AnimationClip, AnimationAction, KeyframeTrack, InterpolateLinear, Bone } from 'three';
-import { IAnimationBlock, ITrackOptions, IAnimation } from 'blizzardry/lib/m2';
 import { IObject } from 'interface/IObject';
 
 export class AnimationManager implements IObject {
@@ -13,7 +12,7 @@ export class AnimationManager implements IObject {
   private mixer: AnimationMixer;
   private length: number;
 
-  constructor(root: any, private animations: IAnimation[], private sequences: any[]) {
+  constructor(root: any, private animations: blizzardry.IAnimation[], private sequences: any[]) {
     this.mixer = new AnimationMixer(root);
     // M2 animations are keyframed in milliseconds.
     this.mixer.timeScale = 1000.0;
@@ -127,9 +126,9 @@ export class AnimationManager implements IObject {
     });
   }
 
-  public registerTrack(opts: ITrackOptions): string {
+  public registerTrack(opts: blizzardry.ITrackOptions): string {
     let id: string;
-   
+
     if (opts.animationBlock.globalSequenceID > -1) {
       id = this.registerSequenceTrack(opts);
     }
@@ -206,7 +205,7 @@ export class AnimationManager implements IObject {
         }
       });
 
-      //const track = new THREE[opts.trackType](trackName, timestamps, values);
+      // const track = new THREE[opts.trackType](trackName, timestamps, values);
       const track: KeyframeTrack = new KeyframeTrack(trackName, timestamps, values, InterpolateLinear);
 
       const clip = this.sequenceClips[animationBlock.globalSequenceID];

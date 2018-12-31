@@ -117,6 +117,133 @@ declare module 'blizzardry/lib/blp' {
 }
 
 declare namespace blizzardry {
+  export interface IMaterial {
+    blendingMode: number;
+    renderFlags: number;
+  }
+
+  export interface IBone {
+    animated: boolean;
+    billboardType: any;
+    billboarded: boolean;
+    flags: any;
+    keyBoneID: number;
+    parentID: number;
+    pivotPoint: number[];
+    rotation: IAnimationBlock;
+    scaling: IAnimationBlock;
+    submeshID: number;
+    translation: IAnimationBlock;
+  }
+
+  export interface ITrackOptions {
+    target: any;
+    property: string;
+    animationBlock: IAnimationBlock;
+    trackType: string;
+    valueTransform?: (value: any) => any[];
+  }
+  
+  export interface IAnimationBlock {
+    animated: boolean;
+    empty: boolean;
+    firstKeyframe: any;
+    globalSequenceID: number;
+    interpolationType: any;
+    keyframeCount: number;
+    maxTrackLength: number;
+    timestamps: any[];
+    trackCount: number;
+    tracks: any[];
+    values: any[];
+    parent: any;
+  }
+
+  export interface IAnimation {
+    alias: number;
+    blendTime: number;
+    boundingRadius: number;
+    flags: number;
+    id: number;
+    length: number;
+    maxBoundingBox: {x: number, y: number, z: number};
+    minBoundingBox: {x: number, y: number, z: number};
+    movementSpeed: number;
+    nextAnimationID: number;
+    probability: number;
+    subID: number;
+    parent: any;
+  }
+
+  export interface ITexture {
+    filename: string;
+    flags: number;
+    length: number;
+    type: number;
+    parent: any;
+  }
+
+  export interface IVertex {
+    boneIndices: number[];
+    boneWeights: number[];
+    normal: number[];
+    position: number[];
+    textureCoords: number[][2];
+  }
+
+  export interface IPoint3 {
+    x: number;
+    y: number;
+    z: number;
+  }
+
+  export interface IModel {
+    animated: boolean;
+    animationLookups: number;
+    animations: IAnimation[];
+    attachmentLookups: number;
+    attachments: any[];
+    boneLookups: number[];
+    bones: IBone[];
+    boundingNormals: number;
+    boundingRadius: number;
+    boundTriangles: number;
+    boundingVertices: number;
+    cameraLookups: number;
+    cameras: number;
+    canInstance: boolean;
+    events: any;
+    flags: any;
+    keyBoneLookups: number[];
+    lights: any;
+    materials: IMaterial[];
+    maxBoundingBox: IPoint3;
+    maxVertexBox: IPoint3;
+    minBoundingBox: IPoint3;
+    minVertexBox: IPoint3;
+    name: string;
+    names: string[];
+    overrideBlending: boolean;
+    parent: any;
+    particleEmitters: number;
+    replacableTextures: number;
+    ribbonEmitters: number;
+    sequences: any[];
+    signature: string;
+    textureLookups: number[];
+    textureMappings: number[];
+    textures: ITexture[];
+    transparencyAnimationLookups: number[];
+    transparencyAnimations: IAnimationBlock[];
+    uvAnimationLookups: number[];
+    uvAnimations: any[];
+    version: number;
+    vertexColorAnimations: any[];
+    vertexRadius: number;
+    vertices: IVertex[];
+    viewCount: number;
+  }
+
   interface IField {
     endian: string;
     fn: string;
@@ -737,138 +864,11 @@ declare module 'blizzardry/lib/restructure' {
 }
 
 declare module 'blizzardry/lib/m2' {
-  namespace blizzardry {
-    function decode(stream: any): IModel;
-
-    export interface IMaterial {
-      blendingMode: number;
-      renderFlags: number;
-    }
-
-    export interface IBone {
-      animated: boolean;
-      billboardType: any;
-      billboarded: boolean;
-      flags: any;
-      keyBoneID: number;
-      parentID: number;
-      pivotPoint: number[];
-      rotation: IAnimationBlock;
-      scaling: IAnimationBlock;
-      submeshID: number;
-      translation: IAnimationBlock;
-    }
-
-    export interface ITrackOptions {
-      target: any;
-      property: string;
-      animationBlock: IAnimationBlock;
-      trackType: string;
-      valueTransform?: (value: any) => any[];
-    }
-    
-    export interface IAnimationBlock {
-      animated: boolean;
-      empty: boolean;
-      firstKeyframe: any;
-      globalSequenceID: number;
-      interpolationType: any;
-      keyframeCount: number;
-      maxTrackLength: number;
-      timestamps: any[];
-      trackCount: number;
-      tracks: any[];
-      values: any[];
-      parent: any;
-    }
-
-    export interface IAnimation {
-      alias: number;
-      blendTime: number;
-      boundingRadius: number;
-      flags: number;
-      id: number;
-      length: number;
-      maxBoundingBox: {x: number, y: number, z: number};
-      minBoundingBox: {x: number, y: number, z: number};
-      movementSpeed: number;
-      nextAnimationID: number;
-      probability: number;
-      subID: number;
-      parent: any;
-    }
-
-    export interface ITexture {
-      filename: string;
-      flags: number;
-      length: number;
-      type: number;
-      parent: any;
-    }
-
-    export interface IVertex {
-      boneIndices: number[];
-      boneWeights: number[];
-      normal: number[];
-      position: number[];
-      textureCoords: number[][2];
-    }
-
-    export interface IPoint3 {
-      x: number;
-      y: number;
-      z: number;
-    }
-
-    export interface IModel {
-      animated: boolean;
-      animationLookups: number;
-      animations: IAnimation[];
-      attachmentLookups: number;
-      attachments: any[];
-      boneLookups: number[];
-      bones: IBone[];
-      boundingNormals: number;
-      boundingRadius: number;
-      boundTriangles: number;
-      boundingVertices: number;
-      cameraLookups: number;
-      cameras: number;
-      canInstance: boolean;
-      events: any;
-      flags: any;
-      keyBoneLookups: number[];
-      lights: any;
-      materials: IMaterial[];
-      maxBoundingBox: IPoint3;
-      maxVertexBox: IPoint3;
-      minBoundingBox: IPoint3;
-      minVertexBox: IPoint3;
-      name: string;
-      names: string[];
-      overrideBlending: boolean;
-      parent: any;
-      particleEmitters: number;
-      replacableTextures: number;
-      ribbonEmitters: number;
-      sequences: any[];
-      signature: string;
-      textureLookups: number[];
-      textureMappings: number[];
-      textures: ITexture[];
-      transparencyAnimationLookups: number[];
-      transparencyAnimations: IAnimationBlock[];
-      uvAnimationLookups: number[];
-      uvAnimations: any[];
-      version: number;
-      vertexColorAnimations: any[];
-      vertexRadius: number;
-      vertices: IVertex[];
-      viewCount: number;
-    }
+  namespace m2 {
+    function decode(stream: any): blizzardry.IModel;
   }
 
-  export = blizzardry;
+  export = m2;
 }
 
 declare module 'blizzardry/lib/m2/skin' {

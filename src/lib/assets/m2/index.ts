@@ -1,14 +1,12 @@
 import { Group, Bone, Vector3, Skeleton, Geometry, Vector4,
-  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion, VertexNormalsHelper, SphereGeometry, MeshBasicMaterial, DoubleSide } from 'three';
+  Matrix4, SkinnedMesh, Mesh, Face3, Vector2, BufferGeometry, Object3D, Quaternion } from 'three';
 import { Submesh } from './Submesh';
 import { Material } from './Material';
 import { AnimationManager } from './AnimationManager';
 import { BatchManager } from './BatchManager';
 import * as M2 from 'blizzardry/lib/m2';
 import * as Skin from 'blizzardry/lib/m2/skin';
-import { IAnimationBlock, IBone } from 'blizzardry/lib/m2';
 import { ISceneObject } from 'interface/ISceneObject';
-import { add } from 'winston';
 
 export class M2Model extends Group implements ISceneObject {
   private cache = {};
@@ -42,7 +40,10 @@ export class M2Model extends Group implements ISceneObject {
     return this;
   }
 
-  constructor(public path: string, private data: M2.IModel, private skinData: Skin.ISkin, instance: any = null) {
+  constructor(public path: string,
+              private data: blizzardry.IModel,
+              private skinData: Skin.ISkin,
+              instance: any = null) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -102,7 +103,7 @@ export class M2Model extends Group implements ISceneObject {
 
   public async initialize() {}
 
-  private createSkeleton(boneDefs: IBone[]) {
+  private createSkeleton(boneDefs: blizzardry.IBone[]) {
     const rootBones: Bone[] = [];
     const bones: Bone[] = [];
     const billboards: Bone[] = [];
@@ -158,9 +159,9 @@ export class M2Model extends Group implements ISceneObject {
             return [
               bone.position.x + -value[0],
               bone.position.y + -value[1],
-              bone.position.z + value[2]
+              bone.position.z + value[2],
             ];
-          }
+          },
         });
       }
 
@@ -174,7 +175,7 @@ export class M2Model extends Group implements ISceneObject {
 
           valueTransform: function(value: any) {
             return [value[0], value[1], -value[2], -value[3]];
-          }
+          },
         });
       }
 
@@ -202,7 +203,7 @@ export class M2Model extends Group implements ISceneObject {
 
   // Returns a map of M2Materials indexed by submesh. Each material represents a batch,
   // to be rendered in the order of appearance in the map's entry for the submesh index.
-  private createBatches(data: M2.IModel, skinData: Skin.ISkin) {
+  private createBatches(data: blizzardry.IModel, skinData: Skin.ISkin) {
     const batches = new Map();
 
     const batchDefs = this.batchManager.createDefs(data, skinData);
@@ -294,7 +295,7 @@ export class M2Model extends Group implements ISceneObject {
     this.mesh = mesh;
   }
 
-  private createSubmeshes(data: M2.IModel, skinData: Skin.ISkin) {
+  private createSubmeshes(data: blizzardry.IModel, skinData: Skin.ISkin) {
     const { vertices } = data;
     const { submeshes, indices, triangles } = skinData;
 
@@ -339,7 +340,7 @@ export class M2Model extends Group implements ISceneObject {
       const vindices = [
         indices[triangles[i]],
         indices[triangles[i + 1]],
-        indices[triangles[i + 2]]
+        indices[triangles[i + 2]],
       ];
 
       const face = new Face3(vindices[0], vindices[1], vindices[2]);
@@ -385,7 +386,7 @@ export class M2Model extends Group implements ISceneObject {
     return submesh;
   }
 
-  private createTextureAnimations(data: M2.IModel) {
+  private createTextureAnimations(data: blizzardry.IModel) {
     const { uvAnimations, transparencyAnimations, vertexColorAnimations } = data;
 
     this.createUVAnimations(uvAnimations);
@@ -437,7 +438,7 @@ export class M2Model extends Group implements ISceneObject {
     });
   }
 
-  private createTransparencyAnimations(transparencyAnimationDefs: IAnimationBlock[]) {
+  private createTransparencyAnimations(transparencyAnimationDefs: blizzardry.IAnimationBlock[]) {
     if (transparencyAnimationDefs.length === 0) {
       return;
     }
