@@ -6678,6 +6678,10 @@ thenify-all@^1.0.0:
   dependencies:
     any-promise "^1.0.0"
 
+three-octree@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/three-octree/-/three-octree-0.6.1.tgz#de405e33a87edda17447791ccd6bfb221c5d1771"
+
 three-vrcontrols-module@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/three-vrcontrols-module/-/three-vrcontrols-module-2.2.1.tgz#00bf9bca96b2f0bd44592df60a22df59beaec91f"

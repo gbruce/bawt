@@ -77,6 +77,7 @@
     "style-loader": "^0.20.3",
     "styled-components": "^3.2.5",
     "three": "^0.92.0",
+    "three-octree": "^0.6.1",
     "three-vrcontrols-module": "^2.2.1",
     "three-vreffect-module": "^2.2.0",
     "ts-loader": "^4.0.1",

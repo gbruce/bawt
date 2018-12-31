@@ -7,15 +7,6 @@ declare module "*.json" {
   export default value;
 }
 
-declare class BigInteger {
-  constructor(a: any, b: any, c?: any);
-}
-
-declare module BigInteger {
-  export let ZERO: any;
-  export function fromInt(num: number): void;
-}
-
 declare module 'jsbn/lib/big-integer' {
   export = BigInteger;
 }
@@ -1028,10 +1019,15 @@ declare module 'webvr-ui' {
   export = webvrui;
 }
 
-declare module "worker-loader!*" {
+declare module 'worker-loader!*' {
   class WebpackWorker extends Worker {
     constructor();
   }
 
   export = WebpackWorker;
+}
+
+declare module 'three-octree' {
+  const content: any;
+  export default content;
 }
