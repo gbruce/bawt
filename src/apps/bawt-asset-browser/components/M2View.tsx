@@ -1,18 +1,16 @@
 import * as React from 'react';
 import * as THREE from 'three';
 import { lazyInject } from 'bawt/Container';
-import { IHttpService } from 'interface/IHttpService';
-import { LoadM2 } from 'bawt/worker/LoadM2';
-import { M2Model } from 'bawt/assets/m2/index';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { ISceneObject } from 'interface/ISceneObject';
 
 interface IProps {
   filePath: string;
 }
 
 export class M2View extends React.Component<IProps, {}> {
-
-  @lazyInject('IHttpService')
-  public httpService!: IHttpService;
+  @lazyInject('IAssetProvider<blizzardry.IModel>')
+  public modelProvider!: IAssetProvider<ISceneObject>;
 
   private threeRootElement: any;
 
@@ -23,7 +21,7 @@ export class M2View extends React.Component<IProps, {}> {
   private renderer: THREE.WebGLRenderer|null = null;
   private scene: THREE.Scene|null = null;
   private camera: THREE.Camera|null = null;
-  private model: M2Model|null = null;
+  private model: ISceneObject|null = null;
 
   private maybeReleaseRenderer() {
     this.camera = null;
@@ -50,13 +48,11 @@ export class M2View extends React.Component<IProps, {}> {
       return;
     }
 
-    const loader = new LoadM2(this.httpService);
-    const mesh = await loader.Start(filePath);
-    this.model = new M2Model(filePath, mesh.m2, mesh.skin);
-    this.model.updateMatrix();
+    this.model = await this.modelProvider.start(filePath);
+    this.model.object3d.updateMatrix();
     const boundingBox = new THREE.Box3();
     const size = new THREE.Vector3();
-    boundingBox.setFromObject(this.model);
+    boundingBox.setFromObject(this.model.object3d);
     boundingBox.getSize(size);
 
     const maxDimension = Math.max(size.x, size.y, size.z);
@@ -64,7 +60,7 @@ export class M2View extends React.Component<IProps, {}> {
     this.camera.position.y = maxDimension;
     this.camera.position.z = maxDimension;
 
-    this.scene.add(this.model);
+    this.scene.add(this.model.object3d);
   }
 
   public async componentDidMount() {
@@ -101,7 +97,7 @@ export class M2View extends React.Component<IProps, {}> {
     if (nextProps.filePath !== this.props.filePath) {
       if (this.renderer !== null && this.scene !== null && this.camera !== null) {
         if (this.model !== null) {
-          this.scene.remove(this.model);
+          this.scene.remove(this.model.object3d);
           this.model.dispose();
           this.model = null;
         }
@@ -119,8 +115,8 @@ export class M2View extends React.Component<IProps, {}> {
   private renderScene = () => {
     const timer = 0.002 * Date.now();
     if (this.model !== null) {
-      this.model.rotateY(0.04);
-      this.model.updateMatrix();
+      this.model.object3d.rotateY(0.04);
+      this.model.object3d.updateMatrix();
     }
 
     if (this.renderer && this.scene && this.camera) {

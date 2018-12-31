@@ -6,6 +6,7 @@ export enum AssetType {
   WDT,
   WMO,
   WMOGroup,
+  Skin,
 }
 
 export interface IWorkerRequest {

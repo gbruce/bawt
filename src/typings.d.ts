@@ -244,6 +244,35 @@ declare namespace blizzardry {
     viewCount: number;
   }
 
+  interface IBatch {
+    flags: number;
+    layer: number;
+    materialIndex: number;
+    opCount: number;
+    shaderID: number;
+    submeshIndex: number;
+    submeshIndex2: number;
+    textureLookup: number;
+    textureMappingIndex: number;
+    transparencyAnimationLookup: number;
+    uvAnimationLookup: number;
+    vertexColorAnimationIndex: number;
+    textureIndices?: any;
+    uvAnimationIndices?: any;
+    parent: any;
+  }
+
+  interface ISkin {
+    batches: IBatch[];
+    boneCount: number;
+    boneIndices: any[];
+    indices: any[];
+    parent: any;
+    signature: string;
+    submeshes: any[];
+    triangles: any[];
+  }
+
   interface IField {
     endian: string;
     fn: string;
@@ -872,40 +901,11 @@ declare module 'blizzardry/lib/m2' {
 }
 
 declare module 'blizzardry/lib/m2/skin' {
-  namespace blizzardry {
-    function decode(stream: any): ISkin;
-
-    interface IBatch {
-      flags: number;
-      layer: number;
-      materialIndex: number;
-      opCount: number;
-      shaderID: number;
-      submeshIndex: number;
-      submeshIndex2: number;
-      textureLookup: number;
-      textureMappingIndex: number;
-      transparencyAnimationLookup: number;
-      uvAnimationLookup: number;
-      vertexColorAnimationIndex: number;
-      textureIndices?: any;
-      uvAnimationIndices?: any;
-      parent: any;
-    }
-
-    interface ISkin {
-      batches: IBatch[];
-      boneCount: number;
-      boneIndices: any[];
-      indices: any[];
-      parent: any;
-      signature: string;
-      submeshes: any[];
-      triangles: any[];
-    }
+  namespace skin {
+    function decode(stream: any): blizzardry.ISkin;
   }
 
-  export = blizzardry;
+  export = skin;
 }
 
 declare module 'blizzardry/lib/adt' {

@@ -2,6 +2,7 @@
 import { LoadADT } from 'bawt/worker/LoadADT';
 import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
+import { IAssetProvider } from 'interface/IAssetProvider';
 
 export class ADT implements IObject {
   private static SIZE = 533.33333;
@@ -45,19 +46,20 @@ export class ADT implements IObject {
     return 32 - (position / this.SIZE) | 0;
   }
 
-  public static loadTile(httpService: IHttpService, mapName: string, tileX: number, tileY: number, wdtFlags: number) {
-    return ADT.load(httpService, `World\\Maps\\${mapName}\\${mapName}_${tileY}_${tileX}.adt`, wdtFlags);
+  public static loadTile( adtProvider: IAssetProvider<blizzardry.IADT>,
+                          mapName: string, tileX: number, tileY: number, wdtFlags: number) {
+    return ADT.load(adtProvider, `World\\Maps\\${mapName}\\${mapName}_${tileY}_${tileX}.adt`, wdtFlags);
   }
 
-  public static loadAtCoords(httpService: IHttpService, mapName: string, x: number, y: number, wdtFlags: number) {
+  public static loadAtCoords( adtProvider: IAssetProvider<blizzardry.IADT>,
+                              mapName: string, x: number, y: number, wdtFlags: number) {
     const tileX = this.tileFor(x);
     const tileY = this.tileFor(y);
-    return this.loadTile(httpService, mapName, tileX, tileY, wdtFlags);
+    return this.loadTile(adtProvider, mapName, tileX, tileY, wdtFlags);
   }
 
-  public static async load(httpService: IHttpService, path: string, wdtFlags: number) {
-    const loader = new LoadADT(httpService);
-    return await loader.start(path);
+  public static async load(adtProvider: IAssetProvider<blizzardry.IADT>, path: string, wdtFlags: number) {
+    return await adtProvider.start(path);
   }
 
 }

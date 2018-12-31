@@ -44,6 +44,8 @@ import { LoadModel } from './worker/LoadModel';
 import { ISceneObject } from 'interface/ISceneObject';
 import { DoodadLoader, IDoodadCollection } from 'bawt/game/DoodadLoader';
 import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
+import { LoadM2 } from 'bawt/worker/LoadM2';
+import { LoadSkin } from 'bawt/worker/LoadSkin';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -110,8 +112,14 @@ export async function InitializeCommon(container: Container) {
 
   container.bind<Doodads>('Doodads').to(Doodads).inSingletonScope();
   container.bind<WorldModels>('WorldModels').to(WorldModels).inSingletonScope();
+
+  // Asset Providers
   container.bind<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>')
     .to(LoadADT).inSingletonScope();
   container.bind<IAssetProvider<ISceneObject>>('IAssetProvider<ISceneObject>')
   .to(LoadModel).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.IModel>>('IAssetProvider<blizzardry.IModel>')
+    .to(LoadM2).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.ISkin>>('IAssetProvider<blizzardry.ISkin>')
+    .to(LoadSkin).inSingletonScope();
 }

@@ -4,8 +4,6 @@ import { Submesh } from './Submesh';
 import { Material } from './Material';
 import { AnimationManager } from './AnimationManager';
 import { BatchManager } from './BatchManager';
-import * as M2 from 'blizzardry/lib/m2';
-import * as Skin from 'blizzardry/lib/m2/skin';
 import { ISceneObject } from 'interface/ISceneObject';
 
 export class M2Model extends Group implements ISceneObject {
@@ -42,7 +40,7 @@ export class M2Model extends Group implements ISceneObject {
 
   constructor(public path: string,
               private data: blizzardry.IModel,
-              private skinData: Skin.ISkin,
+              private skinData: blizzardry.ISkin,
               instance: any = null) {
     super();
 
@@ -203,7 +201,7 @@ export class M2Model extends Group implements ISceneObject {
 
   // Returns a map of M2Materials indexed by submesh. Each material represents a batch,
   // to be rendered in the order of appearance in the map's entry for the submesh index.
-  private createBatches(data: blizzardry.IModel, skinData: Skin.ISkin) {
+  private createBatches(data: blizzardry.IModel, skinData: blizzardry.ISkin) {
     const batches = new Map();
 
     const batchDefs = this.batchManager.createDefs(data, skinData);
@@ -295,7 +293,7 @@ export class M2Model extends Group implements ISceneObject {
     this.mesh = mesh;
   }
 
-  private createSubmeshes(data: blizzardry.IModel, skinData: Skin.ISkin) {
+  private createSubmeshes(data: blizzardry.IModel, skinData: blizzardry.ISkin) {
     const { vertices } = data;
     const { submeshes, indices, triangles } = skinData;
 

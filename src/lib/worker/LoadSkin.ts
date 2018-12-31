@@ -1,16 +1,21 @@
 import { Lock } from 'bawt/utils/Lock';
 import { NewLogger } from 'bawt/utils/Logger';
-import * as Skin from 'blizzardry/lib/m2/skin';
 import { IHttpService } from 'interface/IHttpService';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { inject, injectable } from 'inversify';
+import { Pool } from 'bawt/worker/Pool';
+import { AssetType } from 'interface/IWorkerRequest';
 
 const log = NewLogger('worker/LoadSkin');
 const cache: Map<string, any> = new Map();
 const lock: Lock = new Lock();
 
-export class LoadSkin {
-  constructor(private httpService: IHttpService) {}
+@injectable()
+export class LoadSkin implements IAssetProvider<blizzardry.ISkin> {
+  constructor(@inject('IHttpService') private httpService: IHttpService,
+              @inject('Pool') private pool: Pool) {}
 
-  public async Start(skinPath: string) {
+  public async start(skinPath: string): Promise<blizzardry.ISkin>  {
     await lock.lock();
 
     const cached = cache.get(skinPath);
@@ -20,9 +25,7 @@ export class LoadSkin {
     }
 
     log.info(`Loading ${skinPath}`);
-    const skinStream = await this.httpService.get(skinPath);
-    const skin = Skin.decode(skinStream);
-
+    const skin = await this.pool.request({path: skinPath, flags: {}, type: AssetType.Skin});
     if (skin && !cache.has(skinPath)) {
       cache.set(skinPath, skin);
     }

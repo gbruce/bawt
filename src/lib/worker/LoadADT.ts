@@ -1,8 +1,6 @@
 import ADT = require('blizzardry/lib/adt');
-import { IHttpService } from 'interface/IHttpService';
 import { NewLogger } from 'bawt/utils/Logger';
 import { Lock } from 'bawt/utils/Lock';
-import { lazyInject } from 'bawt/Container';
 import { Pool } from 'bawt/worker/Pool';
 import { AssetType } from 'interface/IWorkerRequest';
 import { IAssetProvider } from 'interface/IAssetProvider';
@@ -14,10 +12,7 @@ const lock: Lock = new Lock();
 
 @injectable()
 export class LoadADT implements IAssetProvider<blizzardry.IADT> {
-  @lazyInject(Pool)
-  public pool!: Pool;
-
-  constructor(@inject('IHttpService') private httpService: IHttpService) {}
+  constructor(@inject('Pool') private pool: Pool) {}
 
   public async start(adtPath: string): Promise<blizzardry.IADT> {
     await lock.lock();

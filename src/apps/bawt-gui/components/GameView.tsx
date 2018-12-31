@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { lazyInject } from 'bawt/Container';
 import * as THREE from 'three';
-import { LoadM2 } from 'bawt/worker/LoadM2';
-import { IHttpService } from 'interface/IHttpService';
-import { M2Model } from 'bawt/assets/m2/index';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { ISceneObject } from 'interface/ISceneObject';
 
 // test webgl scene
 export class GameView extends React.Component<{}, {}> {
-  @lazyInject('IHttpService')
-  public httpService!: IHttpService;
+  @lazyInject('IAssetProvider<blizzardry.IModel>')
+  public modelProvider!: IAssetProvider<ISceneObject>;
 
   private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
   private scene: THREE.Scene = new THREE.Scene();
@@ -47,11 +46,8 @@ export class GameView extends React.Component<{}, {}> {
     this.animate(0);
 
     const path = 'WORLD\\AZEROTH\\DUSKWOOD\\PASSIVEDOODADS\\DUSKWOODSTRAW\\DUSKWOODSTRAW.M2';
-    const loader = new LoadM2(this.httpService);
-    const mesh = await loader.Start(path);
-    const m2 = new M2Model(path, mesh.m2, mesh.skin);
-
-    this.scene.add(m2);
+    const m2 = await this.modelProvider.start(path);
+    this.scene.add(m2.object3d);
   }
 
   public animate = (time: number) => {

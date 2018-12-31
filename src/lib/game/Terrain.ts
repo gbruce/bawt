@@ -7,10 +7,10 @@ import { IObject } from 'interface/IObject';
 import { Subscription, Observable } from 'rxjs';
 import { Object3D, Vector3, CylinderGeometry, MeshBasicMaterial, Mesh, Box3,
    BoxHelper, Sphere } from 'three';
-import { LoadModel } from 'bawt/worker/LoadModel';
 import { NewLogger } from 'bawt/utils/Logger';
-import { ILocation } from 'bawt/game/PlayerState';
 import { IADTCollection, IADTInfo } from 'bawt/game/AdtState';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { ISceneObject } from 'interface/ISceneObject';
 
 const log = NewLogger('game/Terrain');
 
@@ -32,6 +32,8 @@ export class Terrain implements IObject {
   @lazyInject('IHttpService') private httpService!: IHttpService;
   @lazyInject('Observable<WDT.IWDT|null>') private wdtObs!: Observable<WDT.IWDT|null>;
   @lazyInject('Observable<IADTCollection>') private adtColl!: Observable<IADTCollection>;
+  @lazyInject('IAssetProvider<blizzardry.IADT>') private adtProvider!: IAssetProvider<blizzardry.IADT>;
+  @lazyInject('IAssetProvider<ISceneObject>') private modelProvider!: IAssetProvider<ISceneObject>;
 
   private chunksSub: Subscription|null = null;
   private wdtSub: Subscription|null = null;
@@ -109,7 +111,7 @@ export class Terrain implements IObject {
             return;
           }
 
-          const chunk = await Chunk.load(this.httpService, chunkCollection.map,
+          const chunk = await Chunk.load(this.adtProvider, chunkCollection.map,
             this.wdt.flags, chunkX, chunkY);
           if (!chunk) {
             this.chunks.delete(chunkIndex);
@@ -132,10 +134,9 @@ export class Terrain implements IObject {
           for (const doodad of chunk.doodadEntries) {
             log.info(`Loading doodad filename:${doodad.filename}`);
 
-            const modelLoader = new LoadModel(this.httpService);
             const newFilename = doodad.filename.replace(`MDX`, `M2`);
             const newFilename2 = newFilename.replace(`MDL`, `M2`);
-            const asset = await modelLoader.start(newFilename2);
+            const asset = await this.modelProvider.start(newFilename2);
             const model = asset.object3d;
 
             const pos = new Vector3(-(doodad.position.x - 17066), doodad.position.y, -(doodad.position.z - 17066));

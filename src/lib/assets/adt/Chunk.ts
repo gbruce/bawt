@@ -5,6 +5,7 @@ import { ADT } from './index';
 import Material from './Material';
 import { IObject } from 'interface/IObject';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
+import { IAssetProvider } from 'interface/IAssetProvider';
 
 const SIZE = 33.33333;
 const TILE_SIZE = 533.33333;
@@ -139,7 +140,7 @@ export class Chunk extends Mesh implements IObject {
     return (chunk / 16) | 0;
   }
 
-  public static async load( httpServer: IHttpService, mapName: string, wdtFlags: number,
+  public static async load( adtProvider: IAssetProvider<blizzardry.IADT>, mapName: string, wdtFlags: number,
                             chunkX: number, chunkY: number): Promise<Chunk|null> {
     const tileX = this.tileFor(chunkX);
     const tileY = this.tileFor(chunkY);
@@ -149,7 +150,7 @@ export class Chunk extends Mesh implements IObject {
 
     const id = offsetX * 16 + offsetY;
 
-    const adt = await ADT.loadTile(httpServer, mapName, tileX, tileY, wdtFlags);
+    const adt = await ADT.loadTile(adtProvider, mapName, tileX, tileY, wdtFlags);
     if (adt) {
       return new Chunk(adt, id, tileX, tileY);
     }

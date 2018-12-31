@@ -1,19 +1,17 @@
 import * as React from 'react';
 import * as THREE from 'three';
 import { lazyInject } from 'bawt/Container';
-import { IHttpService } from 'interface/IHttpService';
 import { ADT } from 'bawt/assets/adt/index';
 import { M2Model } from 'bawt/assets/m2/index';
 import { Chunk } from 'bawt/assets/adt/Chunk';
+import { IAssetProvider } from 'interface/IAssetProvider';
 
 interface IProps {
   filePath: string;
 }
 
 export class AdtView extends React.Component<IProps, {}> {
-
-  @lazyInject('IHttpService')
-  public httpService!: IHttpService;
+  @lazyInject('IAssetProvider<blizzardry.IADT>') private adtProvider!: IAssetProvider<blizzardry.IADT>;
 
   private threeRootElement: any;
 
@@ -51,7 +49,7 @@ export class AdtView extends React.Component<IProps, {}> {
       return;
     }
 
-    const adt = await ADT.load(this.httpService, this.props.filePath, 0);
+    const adt = await this.adtProvider.start(this.props.filePath);
     
     /*
     const mesh = await loader.Start(filePath);

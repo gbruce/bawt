@@ -1,16 +1,19 @@
 import { Lock } from 'bawt/utils/Lock';
 import { NewLogger } from 'bawt/utils/Logger';
-import * as M2 from 'blizzardry/lib/m2';
-import { IHttpService } from 'interface/IHttpService';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { injectable, inject } from 'inversify';
+import { Pool } from 'bawt/worker/Pool';
+import { AssetType } from 'interface/IWorkerRequest';
 
 const log = NewLogger('worker/LoadM2');
 const cache: Map<string, any> = new Map();
 const lock: Lock = new Lock();
 
-export class LoadM2 {
-  constructor(private httpService: IHttpService) {}
+@injectable()
+export class LoadM2 implements IAssetProvider<blizzardry.IModel>  {
+  constructor(@inject('Pool') private pool: Pool) {}
 
-  public async Start(m2Path: string) {
+  public async start(m2Path: string): Promise<blizzardry.IModel> {
     await lock.lock();
 
     const cached = cache.get(m2Path);
@@ -20,9 +23,7 @@ export class LoadM2 {
     }
 
     log.info(`Loading ${m2Path}`);
-    const m2Stream = await this.httpService.get(m2Path);
-    const m2 = M2.decode(m2Stream);
-
+    const m2 = await this.pool.request({path: m2Path, flags: {}, type: AssetType.M2});
     if (m2) {
       cache.set(m2Path, m2);
     }
