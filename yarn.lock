@@ -256,19 +256,13 @@
   version "0.0.30"
   resolved "https://registry.yarnpkg.com/@types/strip-json-comments/-/strip-json-comments-0.0.30.tgz#9aa30c04db212a9a0649d6ae6fd50accc40748a1"
 
-"@types/three@^0.91.10":
-  version "0.91.11"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.91.11.tgz#22956da3d485bcc41cfca8c63134d19ddadfb365"
-  dependencies:
-    "@types/webvr-api" "*"
+"@types/three@^0.100.0":
+  version "0.93.15"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.93.15.tgz#8fbb4ee8c0648372a305469d16e37d0a939f91c3"
 
 "@types/tough-cookie@*":
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.3.tgz#7f226d67d654ec9070e755f46daebf014628e9d9"
-
-"@types/webvr-api@*":
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.34.tgz#8fa49028de925c7b8bce3d559d3374ce2c89ee28"
 
 "@types/winston@^3.1.0":
   version "2.4.4"
@@ -6690,9 +6684,9 @@ three-vreffect-module@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/three-vreffect-module/-/three-vreffect-module-2.2.0.tgz#ebe86d59ba74a30e4c9a05586ffbceb8d902a0d5"
 
-three@^0.92.0:
-  version "0.92.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.92.0.tgz#8d3d1f5af890e62da7f4cb45d20c09fa51057dcd"
+three@^0.100.0:
+  version "0.100.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.100.0.tgz#262841c0b7d88ebd62af73f28d9f578963b3aa00"
 
 through2@^2.0.0:
   version "2.0.3"
