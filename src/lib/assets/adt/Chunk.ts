@@ -12,9 +12,9 @@ const TILE_SIZE = 533.33333;
 export class Chunk extends Mesh implements IObject {
   private UNIT_SIZE = 33.33333 / 8;
   private data: blizzardry.IMCNKs;
-  private holes: any;
+  private holes: number;
 
-  constructor(private adt: blizzardry.IADT, id: any, tileX: number, tileY: number) {
+  constructor(private adt: blizzardry.IADT, id: number, tileX: number, tileY: number) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -68,7 +68,7 @@ export class Chunk extends Mesh implements IObject {
       uvsAlpha[index * 2 + 1] = y / 8;
     });
 
-    data.MCNR.normals.forEach((normal: any, index: any) => {
+    data.MCNR.normals.forEach((normal: any, index: number) => {
       normals[index * 3] = normal.x;
       normals[index * 3 + 1] = normal.y;
       normals[index * 3 + 2] = normal.z;
@@ -77,7 +77,7 @@ export class Chunk extends Mesh implements IObject {
     const indices = new Uint32Array(8 * 8 * 4 * 3);
 
     let faceIndex = 0;
-    const addFace = (index1: any, index2: any, index3: any) => {
+    const addFace = (index1: number, index2: number, index3: number) => {
       indices[faceIndex * 3] = index1;
       indices[faceIndex * 3 + 1] = index2;
       indices[faceIndex * 3 + 2] = index3;

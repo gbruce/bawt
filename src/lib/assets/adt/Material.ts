@@ -1,41 +1,31 @@
 import { LoadTexture } from 'bawt/worker/LoadTexture';
 import { IObject } from 'interface/IObject';
-import { BackSide, Color, DataTexture, LinearFilter, LuminanceFormat, ShaderMaterial, Texture, UniformsUtils, UniformsLib } from 'three';
+import { BackSide, Color, DataTexture, LinearFilter, LuminanceFormat, ShaderMaterial,
+  Texture, UniformsUtils, UniformsLib, Side } from 'three';
 
 import fragmentShader = require('./shader.frag');
 import vertexShader = require('./shader.vert');
 
 export class Material extends ShaderMaterial implements IObject {
   private layers: any;
-  private rawAlphaMaps: any;
-  private textureNames: any;
+  private rawAlphaMaps: Uint8Array[];
   public vertexShader: any;
   public fragmentShader: any;
-  public side: any;
-  private layerCount: number;
-  private textures: any[];
-  private alphaMaps: any[];
+  public side: Side = BackSide;
+  private layerCount: number = 0;
+  private textures: Texture[] = [];
+  private alphaMaps: Texture[] = [];
   public uniforms: any;
   private loader: LoadTexture;
 
-  constructor(data: any, textureNames: any) {
+  constructor(data: blizzardry.IMCNKs, private textureNames: string[]) {
     super();
 
     this.loader = new LoadTexture();
     this.layers = data.MCLY.layers;
     this.rawAlphaMaps = data.MCAL.alphaMaps;
-    this.textureNames = textureNames;
-
     this.vertexShader = vertexShader;
     this.fragmentShader = fragmentShader;
-
-    this.side = BackSide;
-
-    this.layerCount = 0;
-    this.textures = [];
-    this.alphaMaps = [];
-
-    
   }
 
   public async initialize() {
@@ -72,9 +62,9 @@ export class Material extends ShaderMaterial implements IObject {
   }
 
   private loadAlphaMaps() {
-    const alphaMaps: any[] = [];
+    const alphaMaps: Texture[] = [];
 
-    this.rawAlphaMaps.forEach((raw: any) => {
+    this.rawAlphaMaps.forEach((raw: Uint8Array) => {
       const texture = new DataTexture(raw, 64, 64);
       texture.format = LuminanceFormat;
       texture.minFilter = texture.magFilter = LinearFilter;
@@ -108,6 +98,7 @@ export class Material extends ShaderMaterial implements IObject {
     this.alphaMaps.forEach((alphaMap) => {
       alphaMap.dispose();
     });
+    this.alphaMaps = [];
   }
 }
 
