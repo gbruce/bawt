@@ -1,5 +1,5 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector3, DirectionalLight,
-  RepeatWrapping, BoxGeometry, MeshBasicMaterial, BackSide, Mesh, DirectionalLightHelper } from 'three';
+  RepeatWrapping, Mesh } from 'three';
 import { THREE } from './VRControls';
 import { VREffect } from './VREffect';
 import * as webvrui from 'webvr-ui';
@@ -150,15 +150,15 @@ export class VrTest {
     texture.wrapS = RepeatWrapping;
     texture.wrapT = RepeatWrapping;
     texture.repeat.set(boxSize, boxSize);
-    const geometry = new BoxGeometry(boxSize, boxSize, boxSize);
-    const material = new MeshBasicMaterial({
-      map: texture,
-      color: 0x01BE00,
-      side: BackSide,
-    });
-    // Align the skybox to the floor (which is at y=0).
-    this.skybox = new Mesh(geometry, material);
-    this.skybox.position.y = boxSize / 2;
+    // const geometry = new BoxGeometry(boxSize, boxSize, boxSize);
+    // const material = new MeshBasicMaterial({
+    //   map: texture,
+    //   color: 0x01BE00,
+    //   side: BackSide,
+    // });
+    // // Align the skybox to the floor (which is at y=0).
+    // this.skybox = new Mesh(geometry, material);
+    // this.skybox.position.y = boxSize / 2;
     // this.scene.add(this.skybox);
 
     this.setupStage();
@@ -187,13 +187,13 @@ export class VrTest {
 
   private setStageDimensions(stage: VRStageParameters) {
     // Make the skybox fit the stage.
-    const material = this.skybox!.material;
-    this.scene.remove(this.skybox!);
+    // const material = this.skybox!.material;
+    // this.scene.remove(this.skybox!);
     // Size the skybox according to the size of the actual stage.
-    const geometry = new BoxGeometry(stage.sizeX!, boxSize, stage.sizeY!);
-    this.skybox = new Mesh(geometry, material);
+    // const geometry = new BoxGeometry(stage.sizeX!, boxSize, stage.sizeY!);
+    // this.skybox = new Mesh(geometry, material);
     // Place it on the floor.
-    this.skybox.position.y = boxSize / 2;
+    // this.skybox.position.y = boxSize / 2;
     // this.scene.add(this.skybox);
   }
 
