@@ -10,7 +10,7 @@ import { CopyToVector3 } from 'bawt/utils/Math';
 import { M2Model } from 'bawt/assets/m2';
 
 const log = NewLogger('game/DoodadVisibility');
-const radius = 150;
+const radius = 1;
 
 declare module 'three' {
   interface ISearchResult {
@@ -48,16 +48,16 @@ export class DoodadVisibility {
   private recomputeVis: boolean = true;
   private position: Vector3 = new Vector3(0, 0, 0);
   private visibleNodes: Object3D[] = [];
-  private searchMesh: Mesh;
+  // private searchMesh: Mesh;
 
   constructor(@inject('Observable<IDoodadCollection>') private doodadColl: Observable<IDoodadCollection>,
               @inject('Observable<IStep>') private step: Observable<IStep>,
               @inject('Observable<ILocation>') private location: Observable<ILocation>) {
     const x = (octree as any);
     this.octree = new Octree({undeferred: true, objectsThreshold: 2});
-    this.searchMesh = new Mesh(
-      new SphereGeometry( radius, 50, 30 ),
-      new MeshBasicMaterial( { color: 0x00FF00, transparent: true, opacity: 0.2, side: DoubleSide, wireframe: true }));
+    // this.searchMesh = new Mesh(
+    //   new SphereGeometry( radius, 50, 30 ),
+    // new MeshBasicMaterial( { color: 0x00FF00, transparent: true, opacity: 0.2, side: DoubleSide, wireframe: true }));
     // this.debugRoot.add(this.searchMesh);
     this.root.add(this.debugRoot);
     this.root.add(this.doodadRoot);
@@ -92,7 +92,7 @@ export class DoodadVisibility {
 
   private onLocationChanged = (location: ILocation) => {
     CopyToVector3(location.position, this.position);
-    this.searchMesh.position.copy(this.position);
+    // this.searchMesh.position.copy(this.position);
     this.recomputeVis = true;
   }
 
