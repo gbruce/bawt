@@ -49,7 +49,9 @@ export class VrHud  extends Group {
           c.fillText(`tris : ${info.render.triangles}`, 3, 40);
           c.fillText(`fps : ${fps.toFixed(2)}`, 3, 60);
 
-          this.material.map.needsUpdate = true;
+          if (this.material && this.material.map) {
+            this.material.map.needsUpdate = true;
+          }
           this.last = time;
           this.lastFrame = info.render.frame;
         }
