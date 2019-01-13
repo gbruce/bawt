@@ -69,7 +69,7 @@ export class ChunksState implements IObject {
   }
 
   private onLocationChanged = (location: ILocation) => {
-    log.info(`onLocationChanged ${JSON.stringify(location)}`);
+    // log.info(`onLocationChanged ${JSON.stringify(location)}`);
     const mapSwitched = location.map !== this.map;
     if (location.map === '') {
       this._chunks.next({
