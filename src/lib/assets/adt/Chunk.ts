@@ -33,6 +33,7 @@ export class Chunk extends Mesh implements IObject {
     this.position.z = pos.z;
 
     this.updateMatrix();
+    this.updateMatrixWorld(true);
     this.holes = data.holes;
 
     const vertexCount = data.MCVT.heights.length;
@@ -108,11 +109,11 @@ export class Chunk extends Mesh implements IObject {
     await material.initialize();
     this.material = material;
 
-    const edges = new EdgesGeometry(this.geometry as BufferGeometry, 1); // or WireframeGeometry
-    const edgesMat = new LineBasicMaterial({color: 0xffffff, linewidth: 2, polygonOffset: true,
-      polygonOffsetFactor: 3, // positive value pushes polygon further away
-      polygonOffsetUnits: 1});
-    const wireframe = new LineSegments(edges, edgesMat);
+    // const edges = new EdgesGeometry(this.geometry as BufferGeometry, 1); // or WireframeGeometry
+    // const edgesMat = new LineBasicMaterial({color: 0xffffff, linewidth: 2, polygonOffset: true,
+    //   polygonOffsetFactor: 3, // positive value pushes polygon further away
+    //   polygonOffsetUnits: 1});
+    // const wireframe = new LineSegments(edges, edgesMat);
     // this.add(wireframe);
   }
 
