@@ -54,7 +54,7 @@ export class AdtState {
   }
 
   private onCollectionChanged = (collection: IChunkCollection) => {
-    log.info(`onCollectionChanged ${JSON.stringify(collection)}`);
+    // log.info(`onCollectionChanged ${JSON.stringify(collection)}`);
 
     for (const add of collection.added) {
       if (!this.loading.has(add)) {
