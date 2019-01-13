@@ -92,16 +92,14 @@ export class Material extends ShaderMaterial implements IObject {
   }
 
   private async loadTextures() {
-    const textures: any[] = [];
-
+    const loading: Array<Promise<Texture>> = [];
     for (const layer of this.layers) {
       const filename = this.textureNames[layer.textureID];
-      const texture = await this.loader.Start(filename);
-
-      textures.push(texture);
+      loading.push(this.loader.Start(filename));
     }
 
-    this.textures = textures;
+    const loaded = await Promise.all(loading);
+    this.textures = loaded;
   }
 
   public dispose() {
