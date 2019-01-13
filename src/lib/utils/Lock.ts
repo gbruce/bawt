@@ -1,11 +1,11 @@
-import { delay }  from './Functions';
+import { delay } from './Functions';
 
 export class Lock {
   private locked: boolean = false;
 
   public async lock() {
     while (this.locked) {
-      await delay(10);
+      await delay(0);
     }
 
     this.locked = true;
