@@ -32,7 +32,7 @@ export class Material extends ShaderMaterial implements IObject {
     await this.loadLayers();
 
     this.uniforms = UniformsUtils.merge([
-      UniformsLib['lights'],
+      UniformsLib.lights,
       {
         layerCount: { type: 'i', value: this.layerCount },
         alphaMaps: { type: 'tv', value: this.alphaMaps },

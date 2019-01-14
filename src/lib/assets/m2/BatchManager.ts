@@ -1,11 +1,31 @@
 import { IObject } from 'interface/IObject';
 
+export interface IBatchDesc {
+  flags: number;
+  shaderID: number;
+  opCount: number;
+  textureMapping: number;
+  renderFlags: number;
+  blendingMode: number;
+  textures: blizzardry.ITexture[];
+  textureIndices: any[];
+  uvAnimations: any[];
+  uvAnimationIndices: any[];
+  transparencyAnimation: blizzardry.IAnimationBlock|null;
+  transparencyAnimationIndex: number;
+  vertexColorAnimation: any;
+  vertexColorAnimationIndex: number;
+  submeshIndex: number;
+  layer: number;
+  useSkinning: boolean;
+}
+
 export class BatchManager implements IObject {
 
   public async initialize() {}
   public dispose() {}
-  public createDefs(model: blizzardry.IModel, skin: blizzardry.ISkin) {
-    const defs: any[] = [];
+  public createDefs(model: blizzardry.IModel, skin: blizzardry.ISkin): IBatchDesc[] {
+    const defs: IBatchDesc[] = [];
 
     skin.batches.forEach((batchData) => {
       const def = this.createDef(model, batchData);
@@ -115,23 +135,24 @@ export class BatchManager implements IObject {
   }
 
   private stubDef() {
-    const def = {
+    const def: IBatchDesc = {
       flags: 0,
       shaderID: 0,
       opCount: 0,
       textureMapping: 0,
       renderFlags: 0,
       blendingMode: 0,
-      textures: [] as any[],
-      textureIndices: [] as any[],
-      uvAnimations: [] as any[],
-      uvAnimationIndices: [] as any[],
-      transparencyAnimation: {},
+      textures: [],
+      textureIndices: [],
+      uvAnimations: [],
+      uvAnimationIndices: [],
+      transparencyAnimation: null,
       transparencyAnimationIndex: 0,
       vertexColorAnimation: null,
       vertexColorAnimationIndex: 0,
       submeshIndex: 0,
       layer: 0,
+      useSkinning: false,
     };
 
     return def;

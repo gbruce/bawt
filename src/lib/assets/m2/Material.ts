@@ -19,29 +19,30 @@ import {
   ZeroFactor,
   UniformsLib,
   UniformsUtils,
+  Texture,
 } from 'three';
 
 import fragmentShader = require('./shader.frag');
 import vertexShader = require('./shader.vert');
+import { M2Model } from '.';
+import { IBatchDesc } from './BatchManager';
 
+interface ITextureDesc {
+  type: number;
+  filename: string;
+}
 
 export class Material extends ShaderMaterial implements IObject {
-  private m2: any;
   private shaderID: any;
   private skins: any;
-  private textures: any[];
-  private textureDefs: any;
+  private textures: Texture[];
+  private textureDefs: blizzardry.ITexture[];
   private eventListeners: any[];
   private textureLoader: TextureLoader;
 
-  constructor(m2: any, def: any) {
-    if (def.useSkinning) {
-      super({ skinning: true });
-    } else {
-      super({ skinning: false });
-    }
+  constructor(private m2: M2Model, def: IBatchDesc) {
+    super({ skinning: def.useSkinning });
 
-    this.m2 = m2;
     this.textureLoader = new TextureLoader();
     this.eventListeners = [];
 
@@ -49,25 +50,25 @@ export class Material extends ShaderMaterial implements IObject {
     const fragmentShaderMode = this.fragmentShaderModeFromID(def.shaderID, def.opCount);
 
     this.uniforms = UniformsUtils.merge([
-      UniformsLib['lights'],
+      UniformsLib.lights,
       {
         lights: { value: true },
         textureCount: {value: 0 },
         textures: { value: [] },
-        
+
         blendingMode: { value: 0 },
         vertexShaderMode: { value: vertexShaderMode },
         fragmentShaderMode: { value: fragmentShaderMode },
-  
+
         billboarded: { value: 0.0 },
-  
+
         // Animated vertex colors
         animatedVertexColorRGB: { value: new Vector3(1.0, 1.0, 1.0) },
         animatedVertexColorAlpha: { value: 1.0 },
-  
+
         // Animated transparency
         animatedTransparency: { value: 1.0 },
-  
+
         // Animated texture coordinate transform matrices
         animatedUVs: {
           value: [
@@ -77,26 +78,26 @@ export class Material extends ShaderMaterial implements IObject {
             new Matrix4(),
           ],
         },
-  
+
         // Managed by light manager
         lightModifier: { value: '1.0' },
         ambientLight: { value: new Color(0.4, 0.4, 0.4) },
         diffuseLight: { value: new Color(1.0, 1.0, 1.0) },
-  
+
         // Managed by light manager
         fogModifier: { value: '1.0' },
-        //fogColor: { value: new Color(0.25, 0.5, 1.0) },
+        // fogColor: { value: new Color(0.25, 0.5, 1.0) },
         fogColor: { value: new Color(1.0, 1.0, 1.0) },
         fogStart: { value: 5.0 },
         fogEnd: { value: 400.0 },
-      }
+      },
     ]);
 
     this.lights = true;
     // this.uniforms = {
     //   textureCount: {value: 0 },
     //   textures: { value: [] },
-      
+
     //   blendingMode: { value: 0 },
     //   vertexShaderMode: { value: vertexShaderMode },
     //   fragmentShaderMode: { value: fragmentShaderMode },
@@ -287,12 +288,15 @@ export class Material extends ShaderMaterial implements IObject {
   }
 
   private loadTextures() {
-    const textureDefs: any[] = this.textureDefs;
+    const textureDefs: ITextureDesc[] = this.textureDefs;
 
-    const textures: any[] = [];
+    const textures: Texture[] = [];
 
-    textureDefs.forEach((textureDef) => {
-      textures.push(this.loadTexture(textureDef));
+    textureDefs.forEach((textureDef: ITextureDesc) => {
+      const texture = this.loadTexture(textureDef);
+      if (texture) {
+        textures.push(texture);
+      }
     });
 
     this.textures = textures;
@@ -302,7 +306,7 @@ export class Material extends ShaderMaterial implements IObject {
     this.uniforms.textureCount = { value: textures.length };
   }
 
-  private loadTexture(textureDef: any) {
+  private loadTexture(textureDef: ITextureDesc): Texture|null {
     const wrapS = RepeatWrapping;
     const wrapT = RepeatWrapping;
     const flipY = false;
@@ -338,7 +342,7 @@ export class Material extends ShaderMaterial implements IObject {
     }
 
     if (path) {
-      return this.textureLoader.load(path, wrapS, wrapT, flipY);
+      return this.textureLoader.load(path, wrapS, wrapT, flipY) || null;
     } else {
       return null;
     }

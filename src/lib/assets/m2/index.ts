@@ -6,6 +6,13 @@ import { AnimationManager } from './AnimationManager';
 import { BatchManager } from './BatchManager';
 import { ISceneObject } from 'interface/ISceneObject';
 
+interface IM2InstanceParams {
+  animations: any;
+  geometry: any;
+  submeshGeometries: any;
+  batches: any;
+}
+
 export class M2Model extends Group implements ISceneObject {
   private cache = {};
   private eventListeners: any[] = [];
@@ -26,13 +33,13 @@ export class M2Model extends Group implements ISceneObject {
   private skeleton: any = null;
   private bones: any[] = [];
   private rootBones: any[] = [];
-  private animations: AnimationManager;
+  public animations: AnimationManager;
   private receivesAnimationUpdates: boolean;
   private batches: any;
   private textureAnimations: any = new Object3D();
-  private uvAnimationValues: any[] = [];
-  private transparencyAnimationValues: any[] = [];
-  private vertexColorAnimationValues: any[] = [];
+  public uvAnimationValues: any[] = [];
+  public transparencyAnimationValues: any[] = [];
+  public vertexColorAnimationValues: any[] = [];
 
   public get object3d(): Object3D {
     return this;
@@ -41,7 +48,7 @@ export class M2Model extends Group implements ISceneObject {
   constructor(public path: string,
               private data: blizzardry.IModel,
               private skinData: blizzardry.ISkin,
-              instance: any = null) {
+              instance: IM2InstanceParams|null = null) {
     super();
 
     this.matrixAutoUpdate = false;
@@ -601,18 +608,12 @@ export class M2Model extends Group implements ISceneObject {
   }
 
   public cloneM2() {
-    let instance: any = {};
-
-    if (this.canInstance) {
-      instance.animations = this.animations;
-      instance.geometry = this.geometry;
-      instance.submeshGeometries = this.submeshGeometries;
-      instance.batches = this.batches;
-    } else {
-      instance = null;
-    }
-
-    return new M2Model(this.path, this.data, this.skinData, instance);
+    return new M2Model(this.path, this.data, this.skinData,
+      this.canInstance ? {
+        animations: this.animations,
+        geometry: this.geometry,
+        submeshGeometries: this.submeshGeometries,
+        batches: this.batches,
+      } : null);
   }
-
 }
