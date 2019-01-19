@@ -1,9 +1,14 @@
 import * as React from 'react';
 import { lazyInject } from 'bawt/Container';
 import * as THREE from 'three';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { ISceneObject } from 'interface/ISceneObject';
 
 // test webgl scene
 export class GameView extends React.Component<{}, {}> {
+  @lazyInject('IAssetProvider<blizzardry.IModel>')
+  public modelProvider!: IAssetProvider<ISceneObject>;
+
   private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
   private scene: THREE.Scene = new THREE.Scene();
   private camera: THREE.Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -32,13 +37,17 @@ export class GameView extends React.Component<{}, {}> {
     this.box.position.x = 0.5;
     this.box.rotation.y = 0.5;
 
-    this.camera.position.x = 5;
-    this.camera.position.y = 5;
-    this.camera.position.z = 5;
+    this.camera.position.x = 20;
+    this.camera.position.y = 20;
+    this.camera.position.z = 20;
 
     this.camera.lookAt(this.scene.position);
 
     this.animate(0);
+
+    const path = 'WORLD\\AZEROTH\\DUSKWOOD\\PASSIVEDOODADS\\DUSKWOODSTRAW\\DUSKWOODSTRAW.M2';
+    const m2 = await this.modelProvider.start(path);
+    this.scene.add(m2.object3d);
   }
 
   public animate = (time: number) => {

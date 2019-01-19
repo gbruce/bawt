@@ -8,7 +8,7 @@
       "name": "Launch Program",
       "type": "node",
       "request": "launch",
-      "args": ["${workspaceRoot}/src/apps/bawt-cli/index.ts"],
+      "args": ["${workspaceRoot}/src/apps/index.ts"],
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register", "-r", "tsconfig-paths/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
@@ -22,8 +22,8 @@
       "type": "node",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
       "request": "launch",
-      "args": ["${workspaceRoot}/src/lib/characters/tests/Handler.spec.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "args": ["${workspaceRoot}/src/**/*.test.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register", "-r", "tsconfig-paths/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",
@@ -41,6 +41,28 @@
       "protocol": "inspector",
       "console": "internalConsole",
       "outputCapture": "std"
+    },
+    {
+      "name": "Launch Asset Browser",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9000/",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Attach Asset Browser",
+      "type": "chrome",
+      "request": "attach",
+      "port": "9222",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Launch WebVR",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8000/webvr.html",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
     },
   ]
 }

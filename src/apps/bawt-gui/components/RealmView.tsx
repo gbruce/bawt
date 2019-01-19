@@ -5,7 +5,8 @@ import { IRealm } from 'interface/IRealm';
 import { Names } from 'bawt/utils/Names';
 import ReactTable, { Column } from 'react-table';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import { DialogTitle, DialogContent, DialogActions } from 'material-ui/Dialog';
+import Button from 'material-ui/Button';
 
 export interface IProps {
   onSelected?: (realm: IRealm) => void;
@@ -115,56 +116,55 @@ export class RealmView extends React.Component<IProps, IState> {
         ),
       }];
 
-    const actions = [
-      <FlatButton
-        label='Okay'
-        primary={true}
-        onClick={this.onOkay}
-        disabled={this.state.selected === null}
-      />,
-    ];
-
     return(
       <Dialog
         title='World of Warcraft'
-        titleStyle={{textAlign: 'center'}}
-        modal={true}
         open={true}
-        contentStyle={{ width: '600px'}}
-        bodyStyle={{minHeight: '200px'}}
-        actions={actions}
       >
-        <ReactTable
-          pageSize={10}
-          data={this.state.realms}
-          columns={columns}
-          showPagination={false}
-          className='-highlight'
-          style={{
-            height: '400px',
-            width: '520px',
-            margin: 'auto',
-          }}
-          getTrProps={(state: any, rowInfo: any, column: any, instance: any) => {
-            return {
-              onClick: (e: any, handleOriginal: any) => {
-                this.onClicked(rowInfo.original);
-              },
-              style: {
-                background: (this.state.selected && rowInfo &&
-                  this.state.selected === rowInfo.original) ? 'SkyBlue' : 'none',
-              },
-            };
-          }}
-          getTdProps={(state: any, rowInfo: any, column: any, instance: any) => {
-            return {
-              style: {
-                fontWeight: (this.state.selected && rowInfo &&
-                  this.state.selected === rowInfo.original) ? 'bold' : 'normal',
-              },
-            };
-          }}
-        />
+        <DialogTitle style={{textAlign: 'center'}}>
+          {'World of Warcraft'}
+        </DialogTitle>
+        <DialogContent style={{ width: '520px', height: '400px', textAlign: 'center'}}>
+          <ReactTable
+            pageSize={10}
+            data={this.state.realms}
+            columns={columns}
+            showPagination={false}
+            className='-highlight'
+            style={{
+              height: '400px',
+              width: '520px',
+              margin: 'auto',
+            }}
+            getTrProps={(state: any, rowInfo: any, column: any, instance: any) => {
+              return {
+                onClick: (e: any, handleOriginal: any) => {
+                  this.onClicked(rowInfo.original);
+                },
+                style: {
+                  background: (this.state.selected && rowInfo &&
+                    this.state.selected === rowInfo.original) ? 'SkyBlue' : 'none',
+                },
+              };
+            }}
+            getTdProps={(state: any, rowInfo: any, column: any, instance: any) => {
+              return {
+                style: {
+                  fontWeight: (this.state.selected && rowInfo &&
+                    this.state.selected === rowInfo.original) ? 'bold' : 'normal',
+                },
+              };
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={this.onOkay}
+            color='primary'
+            disabled={this.state.selected === null}>
+              Login
+          </Button>
+        </DialogActions>
       </Dialog>
     );
   }

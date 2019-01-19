@@ -28,7 +28,24 @@ import { AuthHeaderDeserializer, Deserializer, GameHeaderDeserializer,
 import { AuthHeaderSerializer, GameHeaderSerializer, IHeaderSerializer, Serializer } from 'bawt/net/Serializer';
 import { Config } from 'bawt/auth/Config';
 import { Names } from 'bawt/utils/Names';
+import { Step, IStep } from 'bawt/utils/Step';
 import { AuthPacketMap, WorldPacketMap } from 'bawt/net/PacketMap';
+import { PlayerState, ILocation } from 'bawt/game/PlayerState';
+import { ChunksState, IChunkCollection } from 'bawt/game/ChunksState';
+import { WdtState } from 'bawt/game/WdtState';
+import { Observable } from 'rxjs';
+import * as WDT from 'blizzardry/lib/wdt';
+import { AdtState, IADTCollection } from 'bawt/game/AdtState';
+import { Doodads } from 'bawt/game/Doodads';
+import { WorldModels } from 'bawt/game/WorldModels';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { LoadADT } from './worker/LoadADT';
+import { LoadModel } from './worker/LoadModel';
+import { ISceneObject } from 'interface/ISceneObject';
+import { DoodadLoader, IDoodadCollection } from 'bawt/game/DoodadLoader';
+import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
+import { LoadM2 } from 'bawt/worker/LoadM2';
+import { LoadSkin } from 'bawt/worker/LoadSkin';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -59,4 +76,50 @@ export async function InitializeCommon(container: Container) {
   container.bind<AuthHandler>(AuthHandler).toSelf().inSingletonScope();
   container.bind<GameHandler>(GameHandler).toSelf().inSingletonScope();
   container.bind<ISession>('ISession').to(Client);
+
+  container.bind<Step>('Step').to(Step).inSingletonScope();
+  container.bind<Observable<IStep>>('Observable<IStep>').toDynamicValue((context) => {
+    return context.container.get<Step>('Step').step.observable;
+  });
+
+  container.bind<PlayerState>('PlayerState').to(PlayerState).inSingletonScope();
+  container.bind<Observable<ILocation>>('Observable<ILocation>').toDynamicValue((context) => {
+    return context.container.get<PlayerState>('PlayerState').location.observable;
+  });
+  container.bind<Observable<WDT.IWDT|null>>('Observable<WDT.IWDT|null>').toDynamicValue((context) => {
+    return context.container.get<WdtState>('WdtState').wdtSubject;
+  });
+
+  container.bind<WdtState>('WdtState').to(WdtState).inSingletonScope();
+  await container.get<WdtState>('WdtState').initialize();
+
+  container.bind<ChunksState>('ChunksState').to(ChunksState).inSingletonScope();
+  container.bind<Observable<IChunkCollection>>('Observable<IChunkCollection>').toDynamicValue((context) => {
+    return context.container.get<ChunksState>('ChunksState').chunks;
+  });
+  await container.get<ChunksState>('ChunksState').initialize();
+
+  container.bind<AdtState>(AdtState).toSelf().inSingletonScope();
+  container.bind<Observable<IADTCollection>>('Observable<IADTCollection>').toDynamicValue((context) => {
+    return context.container.get<AdtState>(AdtState).adt;
+  });
+
+  container.bind<DoodadVisibility>('DoodadVisibility').to(DoodadVisibility).inSingletonScope();
+  container.bind<DoodadLoader>('DoodadLoader').to(DoodadLoader).inSingletonScope();
+  container.bind<Observable<IDoodadCollection>>('Observable<IDoodadCollection>').toDynamicValue((context) => {
+    return context.container.get<DoodadLoader>('DoodadLoader').doodadSubject;
+  });
+
+  container.bind<Doodads>('Doodads').to(Doodads).inSingletonScope();
+  container.bind<WorldModels>('WorldModels').to(WorldModels).inSingletonScope();
+
+  // Asset Providers
+  container.bind<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>')
+    .to(LoadADT).inSingletonScope();
+  container.bind<IAssetProvider<ISceneObject>>('IAssetProvider<ISceneObject>')
+  .to(LoadModel).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.IModel>>('IAssetProvider<blizzardry.IModel>')
+    .to(LoadM2).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.ISkin>>('IAssetProvider<blizzardry.ISkin>')
+    .to(LoadSkin).inSingletonScope();
 }

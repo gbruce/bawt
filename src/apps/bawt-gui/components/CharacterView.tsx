@@ -1,5 +1,4 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import { lazyInject } from 'bawt/Container';
 import { GameHandler } from 'bawt/game/Handler';
 import { AuthHandler } from 'bawt/auth/AuthHandler';
@@ -8,7 +7,8 @@ import { IRealm } from 'interface/IRealm';
 import { ICharacter } from 'interface/ICharacter';
 import ReactTable, { Column, TableCellRenderer } from 'react-table';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import { DialogTitle, DialogContent, DialogActions } from 'material-ui/Dialog';
+import Button from 'material-ui/Button';
 
 interface IProps {
   realm: IRealm;
@@ -19,20 +19,6 @@ interface IState {
   characters: ICharacter [];
   selected: ICharacter|null;
 }
-
-const Wrapper = styled.div`
-  padding: 4em;
-  background: white;
-`;
-
-const ButtonsWrapper = styled.div`
-  margin: 'auto';
-  width: '520px';
-`;
-
-const ButtonStyled = styled.button`
-margin: 'auto',
-`;
 
 export class CharacterView extends React.Component<IProps, IState> {
   @lazyInject(GameHandler)
@@ -123,57 +109,57 @@ export class CharacterView extends React.Component<IProps, IState> {
       },
     ];
 
-    const actions = [
-      <FlatButton
-        label='Enter World'
-        primary={true}
-        onClick={this.onEnterWorld}
-        disabled={this.state.selected === null}
-      />,
-    ];
-
     return(
       <Dialog
         title='World of Warcraft'
-        titleStyle={{textAlign: 'center'}}
-        actions={actions}
-        modal={true}
         open={true}
-        contentStyle={{ width: '600px'}}
-        bodyStyle={{minHeight: '450px'}}
       >
-        <ReactTable
-          pageSize={10}
-          data={this.state.characters}
-          columns={columns}
-          showPagination={false}
-          className='-highlight'
-          style={{
-            height: '400px',
-            width: '520px',
-            margin: 'auto',
-          }}
-          getTrProps={(state: any, rowInfo: any, column: any, instance: any) => {
-            return {
-              onClick: (e: any, handleOriginal: any) => {
-                this.onClicked(rowInfo.original);
-              },
-              style: {
-                background: (this.state.selected && rowInfo &&
-                  this.state.selected === rowInfo.original) ? 'SkyBlue' : 'none',
-              },
-            };
-          }}
-          getTdProps={(state: any, rowInfo: any, column: any, instance: any) => {
-            return {
-              style: {
-                fontWeight: (this.state.selected && rowInfo &&
-                  this.state.selected === rowInfo.original) ? 'bold' : 'normal',
-              },
-            };
-          }}
-          >
-        </ReactTable>
-      </Dialog>);
+        <DialogTitle style={{textAlign: 'center'}}>
+          {'World of Warcraft'}
+        </DialogTitle>
+        <DialogContent style={{ width: '600px', minHeight: '450px'}}>
+          <ReactTable
+            pageSize={10}
+            data={this.state.characters}
+            columns={columns}
+            showPagination={false}
+            className='-highlight'
+            style={{
+              height: '400px',
+              width: '520px',
+              margin: 'auto',
+            }}
+            getTrProps={(state: any, rowInfo: any, column: any, instance: any) => {
+              return {
+                onClick: (e: any, handleOriginal: any) => {
+                  this.onClicked(rowInfo.original);
+                },
+                style: {
+                  background: (this.state.selected && rowInfo &&
+                    this.state.selected === rowInfo.original) ? 'SkyBlue' : 'none',
+                },
+              };
+            }}
+            getTdProps={(state: any, rowInfo: any, column: any, instance: any) => {
+              return {
+                style: {
+                  fontWeight: (this.state.selected && rowInfo &&
+                    this.state.selected === rowInfo.original) ? 'bold' : 'normal',
+                },
+              };
+            }}
+            >
+          </ReactTable>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={this.onEnterWorld}
+            color='primary'
+            disabled={this.state.selected === null}>
+              Enter World
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
   }
 }

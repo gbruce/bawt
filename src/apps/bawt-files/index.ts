@@ -14,10 +14,10 @@ export default class Server {
 
   public start() {
     this.app.listen(this.port, () => {
-      // console.log(`Listening at http://localhost:${this.port}/`);
+      console.log(`Listening at http://localhost:${this.port}/`);
     });
   }
 }
 
-const server = new Server(8000);
+const server = new Server(8080);
 server.start();

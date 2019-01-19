@@ -14,6 +14,10 @@ module.exports = {
       {
         test: /\.css$/,
         use: [ 'style-loader', 'css-loader' ]
+      },
+      {
+        test: /\.(glsl|vert|frag)$/,
+        loader: "raw-loader",
       }
     ]
   },
@@ -21,6 +25,7 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.js' ],
     alias: {
       'bawt': path.resolve(__dirname, 'src/lib/'),
+      'interface': path.resolve(__dirname, 'src/interface/'),
       '*': path.resolve(__dirname, 'src/')
     }
   },

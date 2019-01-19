@@ -4,13 +4,14 @@
   "rules": {
     "variable-name": [true, "check-format", "allow-leading-underscore", "allow-pascal-case"],
     "quotemark": [true, "single"],
-    "max-classes-per-file": [false],
+    "max-classes-per-file": [false, 1],
     "interface-name": [true, "always-prefix"],
     "no-bitwise": false,
     "no-empty": false,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "one-line": false,
-    "member-ordering": false
+    "member-ordering": false,
+    "no-namespace": false
   }
 }

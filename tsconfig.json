@@ -14,7 +14,8 @@
     "baseUrl": "./src",
     "outDir": "dist",
     "paths": {
-      "bawt/*": ["./lib/*"]
+      "bawt/*": ["./lib/*"],
+      "interface/*": ["./interface/*"]
     }
   },
   "exclude": [
