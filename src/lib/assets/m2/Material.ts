@@ -1,4 +1,5 @@
 import { TextureLoader } from 'bawt/assets/TextureLoader';
+import { LoadTexture } from 'bawt/worker/LoadTexture';
 import { IObject } from 'interface/IObject';
 import {
   BackSide,
@@ -151,12 +152,13 @@ export class Material extends ShaderMaterial implements IObject {
 
     this.textures = [];
     this.textureDefs = def.textures;
-    this.loadTextures();
-
     this.registerAnimations(def);
   }
 
-  public async initialize() {}
+  public async initialize() {
+    await this.loadTextures();
+  }
+
   private vertexShaderModeFromID(shaderID: any, opCount: any) {
     if (opCount === 1) {
       return 0;
@@ -287,18 +289,15 @@ export class Material extends ShaderMaterial implements IObject {
     }
   }
 
-  private loadTextures() {
+  private async loadTextures() {
     const textureDefs: ITextureDesc[] = this.textureDefs;
 
-    const textures: Texture[] = [];
-
+    const textureLoaders: Array<Promise<Texture>> = [];
     textureDefs.forEach((textureDef: ITextureDesc) => {
-      const texture = this.loadTexture(textureDef);
-      if (texture) {
-        textures.push(texture);
-      }
+      textureLoaders.push(this.loadTexture(textureDef));
     });
 
+    const textures = await Promise.all(textureLoaders);
     this.textures = textures;
 
     // Update shader uniforms to reflect loaded textures.
@@ -306,7 +305,7 @@ export class Material extends ShaderMaterial implements IObject {
     this.uniforms.textureCount = { value: textures.length };
   }
 
-  private loadTexture(textureDef: ITextureDesc): Texture|null {
+  private async loadTexture(textureDef: ITextureDesc): Promise<Texture> {
     const wrapS = RepeatWrapping;
     const wrapT = RepeatWrapping;
     const flipY = false;
@@ -341,11 +340,8 @@ export class Material extends ShaderMaterial implements IObject {
         break;
     }
 
-    if (path) {
-      return this.textureLoader.load(path, wrapS, wrapT, flipY) || null;
-    } else {
-      return null;
-    }
+    const loader = new LoadTexture();
+    return await loader.Start(path, wrapS, wrapT, flipY);
   }
 
   private registerAnimations(def: any) {
@@ -373,7 +369,7 @@ export class Material extends ShaderMaterial implements IObject {
     };
 
     // animations.on('update', updater);
-    animations.onUpdate.subscribe(() => updater());
+    animations!.onUpdate.subscribe(() => updater());
 
     this.eventListeners.push([animations, 'update', updater]);
   }
@@ -394,7 +390,7 @@ export class Material extends ShaderMaterial implements IObject {
     };
 
     // animations.on('update', updater);
-    animations.onUpdate.subscribe(() => updater());
+    animations!.onUpdate.subscribe(() => updater());
 
     // this.eventListeners.push([animations, 'update', updater]);
   }
@@ -417,7 +413,7 @@ export class Material extends ShaderMaterial implements IObject {
     };
 
     // animations.on('update', updater);
-    animations.onUpdate.subscribe(() => updater());
+    animations!.onUpdate.subscribe(() => updater());
 
     this.eventListeners.push([animations, 'update', updater]);
   }
@@ -434,6 +430,7 @@ export class Material extends ShaderMaterial implements IObject {
     this.skins.skin2 = skin2;
     this.skins.skin3 = skin3;
 
+    // FIXME: this wont work.
     this.loadTextures();
   }
 

@@ -15,7 +15,7 @@ export class Doodads {
 
   constructor(@inject('Observable<IADTCollection>') private adtColl: Observable<IADTCollection>,
               @inject('IAssetProvider<ISceneObject>') private modelAssetProvider: IAssetProvider<ISceneObject>) {
-    // this.adtColl.subscribe({ next: this.onAdtChanged });
+    this.adtColl.subscribe({ next: this.onAdtChanged });
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {

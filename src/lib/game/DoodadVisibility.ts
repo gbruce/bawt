@@ -10,7 +10,7 @@ import { CopyToVector3 } from 'bawt/utils/Math';
 import { M2Model } from 'bawt/assets/m2';
 
 const log = NewLogger('game/DoodadVisibility');
-const radius = 1;
+const radius = 150;
 
 declare module 'three' {
   interface ISearchResult {

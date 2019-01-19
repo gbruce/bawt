@@ -18,7 +18,9 @@ export class LoadModel implements IAssetProvider<ISceneObject> {
     const cached = cache.get(m2Path);
     if (cached) {
       lock.unlock();
-      return cached.cloneM2();
+      const tmp = cached.cloneM2();
+      await tmp.initialize();
+      return tmp;
     }
 
     log.info(`Loading ${m2Path}`);
@@ -28,6 +30,7 @@ export class LoadModel implements IAssetProvider<ISceneObject> {
     const skinPath = m2Path.replace(/\.m2/i, `0${quality}.skin`);
     const skin = await this.skinProvider.start(skinPath);
     const model = new M2Model(m2Path, m2, skin);
+    await model.initialize();
 
     if (model) {
       cache.set(m2Path, model);
@@ -35,6 +38,8 @@ export class LoadModel implements IAssetProvider<ISceneObject> {
 
     lock.unlock();
 
-    return model.cloneM2();
+    const cloned = model.cloneM2();
+    await cloned.initialize();
+    return cloned;
   }
 }

@@ -17,8 +17,8 @@ export class M2Model extends Group implements ISceneObject {
   private cache = {};
   private eventListeners: any[] = [];
   private batchManager = new BatchManager();
-  private canInstance: boolean;
-  private animated: boolean;
+  private canInstance: boolean = false;
+  private animated: boolean = false;
   private billboards: any[] = [];
   // Keep track of whether or not to use skinning. If the M2 has bone animations, useSkinning is
   // set to true, and all meshes and materials used in the M2 will be skinning enabled. Otherwise,
@@ -33,8 +33,8 @@ export class M2Model extends Group implements ISceneObject {
   private skeleton: any = null;
   private bones: any[] = [];
   private rootBones: any[] = [];
-  public animations: AnimationManager;
-  private receivesAnimationUpdates: boolean;
+  public animations: AnimationManager|null = null;
+  private receivesAnimationUpdates: boolean = false;
   private batches: any;
   private textureAnimations: any = new Object3D();
   public uvAnimationValues: any[] = [];
@@ -48,53 +48,9 @@ export class M2Model extends Group implements ISceneObject {
   constructor(public path: string,
               private data: blizzardry.IModel,
               private skinData: blizzardry.ISkin,
-              instance: IM2InstanceParams|null = null) {
+              private instance: IM2InstanceParams|null = null) {
     super();
 
-    this.matrixAutoUpdate = false;
-    this.eventListeners = [];
-    this.name = path.split('\\').slice(-1).pop() || '';
-    this.path = path;
-    this.data = data;
-    this.skinData = skinData;
-
-    // Instanceable M2s share geometry, texture units, and animations.
-    this.canInstance = data.canInstance;
-    this.animated = data.animated;
-
-    if (instance) {
-      this.animations = instance.animations;
-
-      // To prevent over-updating animation timelines, instanced M2s shouldn't receive animation
-      // time deltas. Instead, only the original M2 should receive time deltas.
-      this.receivesAnimationUpdates = false;
-    } else {
-      this.animations = new AnimationManager(this, data.animations, data.sequences);
-
-      if (this.animated) {
-        this.receivesAnimationUpdates = true;
-      } else {
-        this.receivesAnimationUpdates = false;
-      }
-    }
-
-    this.createSkeleton(data.bones);
-
-    // Instanced M2s can share geometries and texture units.
-    if (instance) {
-      this.batches = instance.batches;
-      this.geometry = instance.geometry;
-      this.submeshGeometries = instance.submeshGeometries;
-      this.geometry!.computeBoundingSphere();
-
-    } else {
-      this.createTextureAnimations(data);
-      this.createBatches(data, skinData);
-      this.createGeometry(data.vertices);
-    }
-
-    this.createMesh(this.geometry, this.skeleton, this.rootBones);
-    this.createSubmeshes(data, skinData);
     // if (this.geometry) {
     //   this.geometry.computeBoundingSphere();
     //   const mesh = new Mesh(
@@ -106,7 +62,50 @@ export class M2Model extends Group implements ISceneObject {
     // }
   }
 
-  public async initialize() {}
+  public async initialize() {
+    this.matrixAutoUpdate = false;
+    this.eventListeners = [];
+    this.name = this.path.split('\\').slice(-1).pop() || '';
+    this.path = this.path;
+
+    // Instanceable M2s share geometry, texture units, and animations.
+    this.canInstance = this.data.canInstance;
+    this.animated = this.data.animated;
+
+    if (this.instance) {
+      this.animations = this.instance.animations;
+
+      // To prevent over-updating animation timelines, instanced M2s shouldn't receive animation
+      // time deltas. Instead, only the original M2 should receive time deltas.
+      this.receivesAnimationUpdates = false;
+    } else {
+      this.animations = new AnimationManager(this, this.data.animations, this.data.sequences);
+
+      if (this.animated) {
+        this.receivesAnimationUpdates = true;
+      } else {
+        this.receivesAnimationUpdates = false;
+      }
+    }
+
+    this.createSkeleton(this.data.bones);
+
+    // Instanced M2s can share geometries and texture units.
+    if (this.instance) {
+      this.batches = this.instance.batches;
+      this.geometry = this.instance.geometry;
+      this.submeshGeometries = this.instance.submeshGeometries;
+      this.geometry!.computeBoundingSphere();
+
+    } else {
+      this.createTextureAnimations(this.data);
+      await this.createBatches(this.data, this.skinData);
+      this.createGeometry(this.data.vertices);
+    }
+
+    this.createMesh(this.geometry, this.skeleton, this.rootBones);
+    this.createSubmeshes(this.data, this.skinData);
+  }
 
   private createSkeleton(boneDefs: blizzardry.IBone[]) {
     const rootBones: Bone[] = [];
@@ -155,7 +154,7 @@ export class M2Model extends Group implements ISceneObject {
 
       // Bone translation animation block
       if (boneDef.translation.animated) {
-        this.animations.registerTrack({
+        this.animations!.registerTrack({
           target: bone,
           property: 'position',
           animationBlock: boneDef.translation,
@@ -173,7 +172,7 @@ export class M2Model extends Group implements ISceneObject {
 
       // Bone rotation animation block
       if (boneDef.rotation.animated) {
-        this.animations.registerTrack({
+        this.animations!.registerTrack({
           target: bone,
           property: 'quaternion',
           animationBlock: boneDef.rotation,
@@ -187,7 +186,7 @@ export class M2Model extends Group implements ISceneObject {
 
       // Bone scaling animation block
       if (boneDef.scaling.animated) {
-        this.animations.registerTrack({
+        this.animations!.registerTrack({
           target: bone,
           property: 'scale',
           animationBlock: boneDef.scaling,
@@ -209,12 +208,12 @@ export class M2Model extends Group implements ISceneObject {
 
   // Returns a map of M2Materials indexed by submesh. Each material represents a batch,
   // to be rendered in the order of appearance in the map's entry for the submesh index.
-  private createBatches(data: blizzardry.IModel, skinData: blizzardry.ISkin) {
+  private async createBatches(data: blizzardry.IModel, skinData: blizzardry.ISkin) {
     const batches = new Map();
-
     const batchDefs = this.batchManager.createDefs(data, skinData);
-
     const batchLen = batchDefs.length;
+    const materialsInit: Array<Promise<void>> = [];
+
     for (let batchIndex = 0; batchIndex < batchLen; ++batchIndex) {
       const batchDef = batchDefs[batchIndex];
 
@@ -231,10 +230,12 @@ export class M2Model extends Group implements ISceneObject {
       batchDef.useSkinning = this.useSkinning;
 
       const batchMaterial = new Material(this, batchDef);
-
       submeshBatches.unshift(batchMaterial);
+
+      materialsInit.push(batchMaterial.initialize());
     }
 
+    await Promise.all(materialsInit);
     this.batches = batches;
   }
 
@@ -417,7 +418,7 @@ export class M2Model extends Group implements ISceneObject {
 
       const { translation } = uvAnimationDef;
 
-      this.animations.registerTrack({
+      this.animations!.registerTrack({
         target: this,
         property: 'uvAnimationValues[' + index + '].translation',
         animationBlock: translation,
@@ -438,7 +439,7 @@ export class M2Model extends Group implements ISceneObject {
       };
 
       // this.animations.on('update', updater);
-      this.animations.onUpdate.subscribe(() => updater());
+      this.animations!.onUpdate.subscribe(() => updater());
 
       this.eventListeners.push([this.animations, 'update', updater]);
     });
@@ -453,7 +454,7 @@ export class M2Model extends Group implements ISceneObject {
       // Default value
       this.transparencyAnimationValues[index] = 1.0;
 
-      this.animations.registerTrack({
+      this.animations!.registerTrack({
         target: this,
         property: 'transparencyAnimationValues[' + index + ']',
         animationBlock: transparencyAnimationDef,
@@ -480,14 +481,14 @@ export class M2Model extends Group implements ISceneObject {
 
       const { color, alpha } = vertexColorAnimationDef;
 
-      this.animations.registerTrack({
+      this.animations!.registerTrack({
         target: this,
         property: 'vertexColorAnimationValues[' + index + '].color',
         animationBlock: color,
         trackType: 'VectorKeyframeTrack',
       });
 
-      this.animations.registerTrack({
+      this.animations!.registerTrack({
         target: this,
         property: 'vertexColorAnimationValues[' + index + '].alpha',
         animationBlock: alpha,

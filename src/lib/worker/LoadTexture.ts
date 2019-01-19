@@ -3,6 +3,7 @@ import { Lock } from 'bawt/utils/Lock';
 import { NewLogger } from 'bawt/utils/Logger';
 import { IHttpService } from 'interface/IHttpService';
 import { RepeatWrapping, Texture, TextureLoader } from 'three';
+import * as THREE from 'three';
 
 const log = NewLogger('worker/LoadDBC');
 const cache: Map<string, Texture> = new Map();
@@ -31,17 +32,16 @@ export class LoadTexture {
     log.info(`Loading ${url}`);
 
     return new Promise<Texture>((resolve) => {
-      const loader = new TextureLoader();
-      loader.load(url, (texture: Texture) => {
+      const loader = new (THREE as any).ImageBitmapLoader();
+      loader.load(url, (imageBitmap: any) => {
+        const texture = new THREE.CanvasTexture( imageBitmap );
         texture.sourceFile = path;
-        // texture.textureKey = textureKey;
-
         texture.wrapS = wrapS;
         texture.wrapT = wrapT;
         texture.flipY = flipY;
 
         texture.needsUpdate = true;
-        
+
         if (!cache.has(path)) {
           cache.set(path, texture);
         }
@@ -50,7 +50,7 @@ export class LoadTexture {
         resolve(texture);
       },
       () => {},
-      (error) => {
+      (error: any) => {
         lock.unlock();
       });
     });
