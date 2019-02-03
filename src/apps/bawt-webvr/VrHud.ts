@@ -1,5 +1,7 @@
 import { Texture, MeshBasicMaterial, Mesh, PlaneGeometry, CanvasTexture, Group, Renderer } from 'three';
 
+const smoothing = 0.4;
+
 export class VrHud  extends Group {
   private canvas: HTMLCanvasElement;
   private hudBitmap: CanvasRenderingContext2D|null;
@@ -8,6 +10,8 @@ export class VrHud  extends Group {
   public mesh: Mesh;
   private last: number = 0;
   private lastFrame: number = 0;
+  private lastFps: number = 0;
+  private nextRender: number = 0;
 
   constructor(private renderer: Renderer) {
     super();
@@ -35,10 +39,15 @@ export class VrHud  extends Group {
   }
 
   public update(time: number) {
+    const info = (this.renderer as any).info;
+    const fps = 1000 / (time - this.last);
+    this.lastFps = smoothing * fps + (1 - smoothing) * this.lastFps;
+    this.last = time;
+    this.lastFrame = info.render.frame;
+
     if (this.hudBitmap) {
-      if (time - this.last > 300) {
-        const info = (this.renderer as any).info;
-        const fps = ((info.render.frame - this.lastFrame) * 1000) / (time - this.last);
+      if (time - this.nextRender) {
+        this.nextRender = time + 300;
         const c = this.canvas.getContext('2d');
         if (c) {
           c.fillStyle = 'white';
@@ -47,13 +56,11 @@ export class VrHud  extends Group {
           c.font = '16pt sans-serif';
           c.fillText(`calls: ${info.render.calls}`, 3, 20);
           c.fillText(`tris : ${info.render.triangles}`, 3, 40);
-          c.fillText(`fps : ${fps.toFixed(2)}`, 3, 60);
+          c.fillText(`fps : ${this.lastFps.toFixed(2)}`, 3, 60);
 
           if (this.material && this.material.map) {
             this.material.map.needsUpdate = true;
           }
-          this.last = time;
-          this.lastFrame = info.render.frame;
         }
       }
     }

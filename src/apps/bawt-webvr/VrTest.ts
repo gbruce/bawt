@@ -12,7 +12,6 @@ import { BehaviorSubject } from 'rxjs';
 import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
 import { Terrain } from 'bawt/game/Terrain';
 import { Step, IStep } from 'bawt/utils/Step';
-import { Doodads } from 'bawt/game/Doodads';
 import { WorldModels } from 'bawt/game/WorldModels';
 import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
 import { inject, injectable } from 'inversify';
@@ -68,7 +67,6 @@ export class VrTest {
     @inject('IHttpService') private httpService: IHttpService,
     @inject('PlayerState') private player: PlayerState,
     @inject('Step') private step: Step,
-    @inject('Doodads') private doodads: Doodads,
     @inject('WorldModels') private worldModels: WorldModels,
     @inject('DoodadVisibility') private doodadVis: DoodadVisibility,
   ) {
@@ -180,7 +178,6 @@ export class VrTest {
     this.updateSubjects();
 
     this.scene.add(this.terrain.root);
-    // this.scene.add(this.doodads.root);
     this.scene.add(this.worldModels.root);
     this.scene.add(this.doodadVis.root);
   }
@@ -216,9 +213,7 @@ export class VrTest {
       time: 0,
     });
     this.updateSubjects();
-    this.vrHud.update(timestamp);
-
-    this.fpControls.update(delta);
+    
     this.lastRenderTime = timestamp;
     // Only update controls if we're presenting.
     if (this.vrButton.isPresenting()) {
@@ -227,5 +222,8 @@ export class VrTest {
     // Render the scene.
     this.effect.render(this.scene, this.camera);
     this.vrDisplay!.requestAnimationFrame(this.animate);
+
+    this.vrHud.update(timestamp);
+    this.fpControls.update(delta);
   }
 }

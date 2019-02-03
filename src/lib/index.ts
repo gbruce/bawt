@@ -36,7 +36,6 @@ import { WdtState } from 'bawt/game/WdtState';
 import { Observable } from 'rxjs';
 import * as WDT from 'blizzardry/lib/wdt';
 import { AdtState, IADTCollection } from 'bawt/game/AdtState';
-import { Doodads } from 'bawt/game/Doodads';
 import { WorldModels } from 'bawt/game/WorldModels';
 import { IAssetProvider } from 'interface/IAssetProvider';
 import { LoadADT } from './worker/LoadADT';
@@ -110,7 +109,6 @@ export async function InitializeCommon(container: Container) {
     return context.container.get<DoodadLoader>('DoodadLoader').doodadSubject;
   });
 
-  container.bind<Doodads>('Doodads').to(Doodads).inSingletonScope();
   container.bind<WorldModels>('WorldModels').to(WorldModels).inSingletonScope();
 
   // Asset Providers
