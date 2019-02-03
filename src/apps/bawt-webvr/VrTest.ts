@@ -207,13 +207,14 @@ export class VrTest {
 
   private tmp = new Vector3();
   private animate(timestamp: number) {
+    const startTime = performance.now();
     const delta = Math.min(timestamp - this.lastRenderTime, 500);
     this.stepSubject.next({
       delta,
       time: 0,
     });
     this.updateSubjects();
-    
+
     this.lastRenderTime = timestamp;
     // Only update controls if we're presenting.
     if (this.vrButton.isPresenting()) {
@@ -223,7 +224,7 @@ export class VrTest {
     this.effect.render(this.scene, this.camera);
     this.vrDisplay!.requestAnimationFrame(this.animate);
 
-    this.vrHud.update(timestamp);
+    this.vrHud.update(timestamp, performance.now() - startTime);
     this.fpControls.update(delta);
   }
 }

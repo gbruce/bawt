@@ -1031,3 +1031,15 @@ declare module 'three-octree' {
   const content: any;
   export default content;
 }
+
+declare module 'moving-averages' {
+  namespace ma {
+    function dma(data: (number|undefined)[], alpha: number, noHead?: boolean): (number|undefined)[];
+    function sma(data: (number|undefined)[], size: number, times?: number): (number|undefined)[];
+    function ema(data: (number|undefined)[], size: number): (number|undefined)[];
+    function ma(data: (number|undefined)[], size: number): (number|undefined)[];
+    function wma(data: (number|undefined)[], size: number): (number|undefined)[];
+  }
+
+  export = ma;
+}
