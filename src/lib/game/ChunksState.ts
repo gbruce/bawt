@@ -1,25 +1,23 @@
-import { lazyInject } from 'bawt/Container';
-import { ILocation } from 'bawt/game/PlayerState';
+
 import { chunkForTerrainCoordinate, chunksForArea, worldPosToTerrain } from 'bawt/utils/Functions';
 import { IObject } from 'interface/IObject';
-import { injectable } from 'inversify';
+import { injectable, interfaces } from 'inversify';
 import { BehaviorSubject, Subscription, Observable } from 'rxjs';
 import { NewLogger } from 'bawt/utils/Logger';
+import { IVector3 } from 'interface/IVector3';
 
 const log = NewLogger('game/ChunkState');
 
 const chunkRadius = 5;
 
 export interface IChunkCollection {
-  map: string;
   added: number[];
   deleted: number[];
   current: number[];
 }
 
-const computeDifference = (map: string, oldChunks: number[], newChunks: number[]): IChunkCollection => {
+const computeDifference = (oldChunks: number[], newChunks: number[]): IChunkCollection => {
   const diff: IChunkCollection = {
-    map,
     added: [],
     deleted: [],
     current: [],
@@ -43,18 +41,26 @@ const computeDifference = (map: string, oldChunks: number[], newChunks: number[]
   return diff;
 };
 
+export type ChunksStateFactory = (position: Observable<IVector3>) => Promise<ChunksState>;
+
+export const ChunksStateFactoryImpl = (context: interfaces.Context): ChunksStateFactory => {
+  return async (position: Observable<IVector3>): Promise<ChunksState> => {
+    const state = new ChunksState(position);
+    await state.initialize();
+    return state;
+  };
+};
+
 @injectable()
 export class ChunksState implements IObject {
-  @lazyInject('Observable<ILocation>') private location!: Observable<ILocation>;
-  private locationSub: Subscription|null = null;
+  constructor(private position: Observable<IVector3>) {}
+  private positionSub: Subscription|null = null;
 
   private chunkX: number = -1;
   private chunkY: number = -1;
-  private map: string = '';
   private chunksCache: number[] = [];
 
   private _chunks: BehaviorSubject<IChunkCollection> = new BehaviorSubject<IChunkCollection>({
-    map: '',
     added: [],
     deleted: [],
     current: [],
@@ -65,58 +71,31 @@ export class ChunksState implements IObject {
   }
 
   public initialize = async () => {
-    this.locationSub = this.location.subscribe({ next: this.onLocationChanged });
+    this.positionSub = this.position.subscribe({ next: this.onLocationChanged });
   }
 
-  private onLocationChanged = (location: ILocation) => {
+  private onLocationChanged = (position: IVector3) => {
     // log.info(`onLocationChanged ${JSON.stringify(location)}`);
-    const mapSwitched = location.map !== this.map;
-    if (location.map === '') {
-      this._chunks.next({
-        added: [],
-        current: [],
-        deleted: this.chunksCache,
-        map: location.map,
-      });
-      this.chunksCache = [];
-      this.map = location.map;
-      this.chunkX = -1;
-      this.chunkY = -1;
-      return;
-    }
-
-    const terrainPos = worldPosToTerrain([location.position.x, location.position.y, location.position.z]);
+    const terrainPos = worldPosToTerrain([position.x, position.y, position.z]);
     const chunkX = chunkForTerrainCoordinate(terrainPos.x);
     const chunkY = chunkForTerrainCoordinate(terrainPos.y);
-    if (chunkX !== this.chunkX || chunkY !== this.chunkY || mapSwitched) {
+    if (chunkX !== this.chunkX || chunkY !== this.chunkY) {
       const chunks = chunksForArea(chunkX, chunkY, chunkRadius);
 
       let diff: IChunkCollection;
-      if (mapSwitched) {
-        diff = {
-          added: chunks,
-          current: [],
-          deleted: this.chunksCache,
-          map: location.map,
-        };
-      }
-      else {
-        diff = computeDifference(location.map, this.chunksCache, chunks);
-        diff.map = location.map;
-      }
+      diff = computeDifference(this.chunksCache, chunks);
 
       this._chunks.next(diff);
       this.chunksCache = chunks;
       this.chunkX = chunkX;
       this.chunkY = chunkY;
-      this.map = location.map;
     }
   }
 
   public dispose = () => {
-    if (this.locationSub) {
-      this.locationSub.unsubscribe();
-      this.locationSub = null;
+    if (this.positionSub) {
+      this.positionSub.unsubscribe();
+      this.positionSub = null;
     }
   }
 }

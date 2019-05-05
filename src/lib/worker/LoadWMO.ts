@@ -3,21 +3,20 @@ import { IHttpService } from 'interface/IHttpService';
 import { NewLogger } from 'bawt/utils/Logger';
 import { Lock } from 'bawt/utils/Lock';
 import { Pool } from 'bawt/worker/Pool';
-import { lazyInject } from 'bawt/Container';
 import { AssetType } from 'interface/IWorkerRequest';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { inject, injectable } from 'inversify';
 
-const log = NewLogger('worker/LoadDBC');
+const log = NewLogger('worker/LoadWMO');
 
 const cache: Map<string, blizzardry.IWMO> = new Map();
 const lock: Lock = new Lock();
 
-export class LoadWMO {
-  constructor(private httpService: IHttpService) {}
+@injectable()
+export class LoadWMO implements IAssetProvider<blizzardry.IWMO>  {
+  constructor(@inject('Pool') private pool: Pool) {}
 
-  @lazyInject(Pool)
-  public pool!: Pool;
-
-  public async Start(wmoPath: string): Promise<blizzardry.IWMO|null> {
+  public async start(wmoPath: string): Promise<blizzardry.IWMO> {
     await lock.lock();
 
     const cached = cache.get(wmoPath);
@@ -38,7 +37,7 @@ export class LoadWMO {
     }
 
     lock.unlock();
-    
+
     return decoded;
   }
 }

@@ -1,22 +1,20 @@
 import * as WMOGroup from 'blizzardry/lib/wmo/group';
-import { IHttpService } from 'interface/IHttpService';
 import { NewLogger } from 'bawt/utils/Logger';
 import { Lock } from 'bawt/utils/Lock';
 import { AssetType } from 'interface/IWorkerRequest';
-import { lazyInject } from 'bawt/Container';
 import { Pool } from 'bawt/worker/Pool';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { inject, injectable } from 'inversify';
 
 const log = NewLogger('worker/LoadDBC');
 const cache: Map<string, blizzardry.IWMOGroup> = new Map();
 const lock: Lock = new Lock();
 
-export class LoadWMOGroup {
-  constructor(private httpService: IHttpService) {}
+@injectable()
+export class LoadWMOGroup implements IAssetProvider<blizzardry.IWMOGroup> {
+  constructor(@inject('Pool') private pool: Pool) {}
 
-  @lazyInject(Pool)
-  public pool!: Pool;
-
-  public async Start(wmoPath: string): Promise<blizzardry.IWMOGroup|null> {
+  public async start(wmoPath: string): Promise<blizzardry.IWMOGroup> {
     await lock.lock();
 
     const cached = cache.get(wmoPath);

@@ -1,21 +1,18 @@
 import * as React from 'react';
 import * as THREE from 'three';
 import { lazyInject } from 'bawt/Container';
-import { IHttpService } from 'interface/IHttpService';
 import { WMOGroup } from 'bawt/assets/wmo/group/WMOGroup';
-import { LoadWMO } from 'bawt/worker/LoadWMO';
-import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
 import { WMO } from 'bawt/assets/wmo/index';
 import { Vector3 } from 'three';
+import { IAssetProvider } from 'interface/IAssetProvider';
 
 interface IProps {
   filePath: string;
 }
 
 export class WmoView extends React.Component<IProps, {}> {
-
-  @lazyInject('IHttpService')
-  public httpService!: IHttpService;
+  @lazyInject('IAssetProvider<blizzardry.IWMO>') private wmoProvider!: IAssetProvider<blizzardry.IWMO>;
+  @lazyInject('IAssetProvider<blizzardry.IWMOGroup>') private wmoGroupProvider!: IAssetProvider<blizzardry.IWMOGroup>;
 
   private threeRootElement: any;
 
@@ -60,10 +57,9 @@ export class WmoView extends React.Component<IProps, {}> {
     // const regex = new RegExp('.+_\d{3}');
     if (result && result.length > 0) {
       const wmoRootFile = filePath.substring(0, filePath.length - 8) + '.wmo';
-      const wmoRootLoader = new LoadWMO(this.httpService);
-      const wmoRoot = await wmoRootLoader.Start(wmoRootFile);
-      const wmoGroupLoader = new LoadWMOGroup(this.httpService);
-      const wmoGroup = await wmoGroupLoader.Start(this.props.filePath);
+
+      const wmoRoot = await this.wmoProvider.start(wmoRootFile);
+      const wmoGroup = await this.wmoGroupProvider.start(this.props.filePath);
       if (wmoRoot && wmoGroup) {
         this.wmoGroup = new WMOGroup(wmoRoot, '', wmoGroup);
         await this.wmoGroup.initialize();
@@ -71,8 +67,7 @@ export class WmoView extends React.Component<IProps, {}> {
       }
     }
     else {
-      const wmoLoader = new LoadWMO(this.httpService);
-      const wmo = await wmoLoader.Start(this.props.filePath);
+      const wmo = await this.wmoProvider.start(this.props.filePath);
       if (wmo) {
         this.wmo = new WMO(wmo);
       }

@@ -1,6 +1,6 @@
-import { injectable, inject } from 'inversify';
-import { IADTCollection } from 'bawt/game/AdtState';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { injectable, interfaces } from 'inversify';
+import { IADTCollection, AdtState } from 'bawt/game/AdtState';
+import { BehaviorSubject } from 'rxjs';
 import { NewLogger } from 'bawt/utils/Logger';
 import { Vector3 } from 'three';
 import { ISceneObject } from 'interface/ISceneObject';
@@ -28,6 +28,16 @@ class DoodadItem {
                 public canceled: boolean = false) {}
 }
 
+export type DoodadStateFactory =
+  (adtState: AdtState, modelAssetProvider: IAssetProvider<ISceneObject>) => Promise<DoodadLoader>;
+
+export const DoodadStateFactoryImpl = (context: interfaces.Context): DoodadStateFactory => {
+  return async (adtState: AdtState, modelAssetProvider: IAssetProvider<ISceneObject>):
+    Promise<DoodadLoader> => {
+    return new DoodadLoader(adtState, modelAssetProvider);
+  };
+};
+
 @injectable()
 export class DoodadLoader {
   private doodads: Map<number, DoodadItem> = new Map();
@@ -39,9 +49,8 @@ export class DoodadLoader {
     current: [],
   });
 
-  constructor(@inject('Observable<IADTCollection>') private adtColl: Observable<IADTCollection>,
-              @inject('IAssetProvider<ISceneObject>') private modelAssetProvider: IAssetProvider<ISceneObject>) {
-    this.adtColl.subscribe({ next: this.onAdtChanged });
+  constructor(private atdState: AdtState, private modelAssetProvider: IAssetProvider<ISceneObject>) {
+    this.atdState.adt.subscribe({ next: this.onAdtChanged });
   }
 
   private loadDoodad = async (chunkId: number, item: DoodadItem) => {

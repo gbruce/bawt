@@ -1,17 +1,17 @@
 import * as React from 'react';
 import * as THREE from 'three';
+import * as WDT from 'blizzardry/lib/wdt';
 import { lazyInject } from 'bawt/Container';
-import { IHttpService } from 'interface/IHttpService';
 import { M2Model } from 'bawt/assets/m2/index';
-import { LoadWDT } from 'bawt/worker/LoadWDT';
+import { IAssetProvider } from 'interface/IAssetProvider';
 interface IProps {
   filePath: string;
 }
 
 export class WdtView extends React.Component<IProps, {}> {
 
-  @lazyInject('IHttpService')
-  public httpService!: IHttpService;
+  @lazyInject('IAssetProvider<WDT.IWDT>')
+  public wdtAssetProvider!: IAssetProvider<WDT.IWDT>;
 
   private threeRootElement: any;
 
@@ -49,8 +49,7 @@ export class WdtView extends React.Component<IProps, {}> {
       return;
     }
 
-    const loader = new LoadWDT(this.httpService);
-    const wdt = await loader.Start(this.props.filePath);
+    const wdt = await this.wdtAssetProvider.start(this.props.filePath);
     /*
     const mesh = await loader.Start(filePath);
     this.model = new M2Model(filePath, mesh.m2, mesh.skin);
