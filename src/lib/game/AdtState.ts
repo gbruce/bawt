@@ -1,5 +1,5 @@
 import { IChunkCollection } from 'bawt/game/ChunksState';
-import { inject, injectable } from 'inversify';
+import { interfaces } from 'inversify';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { NewLogger } from 'bawt/utils/Logger';
 import { IAssetProvider } from 'interface/IAssetProvider';
@@ -29,7 +29,17 @@ export interface IADTCollection {
   current: IADTInfo[];
 }
 
-@injectable()
+export type AdtStateFactory = ( map: string,
+                                chunks: Observable<IChunkCollection>,
+                                adtAssetProvider: IAssetProvider<blizzardry.IADT>) => Promise<AdtState>;
+
+export const AdtStateFactoryImpl = (context: interfaces.Context): AdtStateFactory => {
+  return async (map: string, chunks: Observable<IChunkCollection>,
+                adtAssetProvider: IAssetProvider<blizzardry.IADT>): Promise<AdtState> => {
+    return new AdtState(map, chunks, adtAssetProvider);
+  };
+};
+
 export class AdtState {
   private loading: Map<number, ILoading> = new Map();
   private adts: Map<number, IADTInfo> = new Map();
@@ -43,9 +53,8 @@ export class AdtState {
     return this.adtSubject;
   }
 
-  constructor(
-    @inject('Observable<IChunkCollection>') private chunks: Observable<IChunkCollection>,
-    @inject('IAssetProvider<blizzardry.IADT>') private adtAssetProvider: IAssetProvider<blizzardry.IADT>) {
+  constructor(private map: string, private chunks: Observable<IChunkCollection>,
+              private adtAssetProvider: IAssetProvider<blizzardry.IADT>) {
     this.chunks.subscribe(this.onCollectionChanged);
   }
 
@@ -71,7 +80,7 @@ export class AdtState {
           const offsetY = chunkY - tileY * 16;
 
           const id = offsetX * 16 + offsetY;
-          const path = `World\\Maps\\${collection.map}\\${collection.map}_${tileY}_${tileX}.adt`;
+          const path = `World\\Maps\\${this.map}\\${this.map}_${tileY}_${tileX}.adt`;
 
           // TODO: add wdt flags here
           this.adtAssetProvider.start(path).then((adt: blizzardry.IADT) => {

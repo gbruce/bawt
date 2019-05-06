@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { DoodadLoader } from 'bawt/game/DoodadLoader';
 import { suite, test } from 'mocha-typescript';
 import { Observable } from 'rxjs';
-import { IADTCollection } from 'bawt/game/AdtState';
+import { IADTCollection, AdtState } from 'bawt/game/AdtState';
 import { spy, SinonSpy } from 'sinon';
 import { Mock, It, IMock } from 'typemoq';
 import { IAssetProvider } from 'interface/IAssetProvider';
@@ -21,7 +21,7 @@ const initialAdtData: IADTCollection = {
 
 @suite
 class DoodadLoaderTester {
-  private mockAdtCollection: IMock<Observable<IADTCollection>> = Mock.ofType<Observable<IADTCollection>>();
+  private mockAdtCollection: IMock<AdtState> = Mock.ofType<AdtState>();
   private adtCollectionObserver: any = null;
 
   private mockSceneObject: IMock<ISceneObject> = Mock.ofType<ISceneObject>();
@@ -39,11 +39,11 @@ class DoodadLoaderTester {
   };
 
   public before() {
-    this.mockAdtCollection = Mock.ofType<Observable<IADTCollection>>();
-    this.mockAdtCollection.setup((x: Observable<IADTCollection>) => x.subscribe( It.isAny()))
-      .callback(((param1: any) => {
-        this.adtCollectionObserver = param1;
-      }));
+    this.mockAdtCollection = Mock.ofType<AdtState>();
+    // this.mockAdtCollection.setup((x: Observable<IADTCollection>) => x.subscribe( It.isAny()))
+    //   .callback(((param1: any) => {
+    //     this.adtCollectionObserver = param1;
+    //   }));
 
     this.mockSceneObject = Mock.ofType<ISceneObject>();
     this.sceneObject = new Object3D();
@@ -57,7 +57,7 @@ class DoodadLoaderTester {
     this.doodadLoader = new DoodadLoader(this.mockAdtCollection.object, this.mockModelAssetProvider.object);
 
     this.doodadSubjectSpy = spy();
-    this.doodadLoader.doodadSubject.subscribe(this.doodadSubjectSpy);
+    this.doodadLoader!.doodadSubject.subscribe(this.doodadSubjectSpy);
 
     this.setAdtData([], [], [], []);
   }

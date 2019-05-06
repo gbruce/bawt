@@ -3,19 +3,18 @@ import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector
 import { THREE } from './VRControls';
 import { VREffect } from './VREffect';
 import * as webvrui from 'webvr-ui';
-import { IHttpService } from 'interface/IHttpService';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
 import { Keys } from './Keys';
 import { FirstPersonControls } from './MapControls';
-import { PlayerState, ILocation } from 'bawt/game/PlayerState';
 import { BehaviorSubject } from 'rxjs';
 import { MakeVector3, CopyToVector3 } from 'bawt/utils/Math';
-import { Terrain } from 'bawt/game/Terrain';
+import { Terrain, TerrainFactory } from 'bawt/game/Terrain';
 import { Step, IStep } from 'bawt/utils/Step';
-import { WorldModels } from 'bawt/game/WorldModels';
-import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
+import { DoodadVisibility, DoodadVisibilityFactory } from 'bawt/game/DoodadVisibility';
 import { inject, injectable } from 'inversify';
 import { VrHud } from './VrHud';
+import { MapFactory, IMap } from 'bawt/game/Map';
+import { IVector3 } from 'interface/IVector3';
 
 const boxSize = 5;
 const userHeight = 1.6;
@@ -33,10 +32,7 @@ export class VrTest {
   private vrButton: webvrui.EnterVRButton;
   private keys: Keys = new Keys();
   private fpControls: FirstPersonControls;
-  private locationSubject: BehaviorSubject<ILocation> = new BehaviorSubject<ILocation>({
-    position: MakeVector3(0, 0, 0),
-    map: '',
-  });
+  private locationSubject: BehaviorSubject<IVector3> = new BehaviorSubject<IVector3>(MakeVector3(0, 0, 0));
   private stepSubject: BehaviorSubject<IStep> = new BehaviorSubject<IStep>({
     delta: 0,
     time: 0,
@@ -62,13 +58,14 @@ export class VrTest {
   // [-454.4, -2649.1, 99.4] durotar, crossroads
   private terrainCoords = [235.2, -4565.5, 19.98];
   private map = 'kalimdor';
+  private theMap: IMap|null = null;
+  private doodadVis: DoodadVisibility|null = null;
 
   constructor(
-    @inject('IHttpService') private httpService: IHttpService,
-    @inject('PlayerState') private player: PlayerState,
+    @inject('MapProvider') private mapProvider: MapFactory,
     @inject('Step') private step: Step,
-    @inject('WorldModels') private worldModels: WorldModels,
-    @inject('DoodadVisibility') private doodadVis: DoodadVisibility,
+    @inject('DoodadVisibilityFactory') private doodadVisFactory: DoodadVisibilityFactory,
+    @inject('TerrainFactory') private terrainFactory: TerrainFactory,
   ) {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -126,12 +123,8 @@ export class VrTest {
 
     const pos = terrainPosToWorld(this.terrainCoords);
     this.camera.position.copy(pos);
-    this.locationSubject.next({
-      map: this.map,
-      position: new Vector3(pos.x, pos.y, pos.z),
-    });
+    this.locationSubject.next(new Vector3(pos.x, pos.y, pos.z));
 
-    this.player.location.acquire(this.locationSubject);
     this.step.step.acquire(this.stepSubject);
 
     this.vrHud = new VrHud(this.renderer);
@@ -173,12 +166,16 @@ export class VrTest {
       }
     });
 
-    this.terrain = new Terrain();
+    this.theMap = await this.mapProvider('kalimdor');
+    this.theMap.position.acquire(this.locationSubject);
+
+    this.terrain = this.terrainFactory(this.theMap.adts);
     await this.terrain.initialize();
     this.updateSubjects();
 
     this.scene.add(this.terrain.root);
-    this.scene.add(this.worldModels.root);
+
+    this.doodadVis = this.doodadVisFactory(this.theMap.doodads.doodadSubject, this.theMap.position.observable);
     this.scene.add(this.doodadVis.root);
   }
 
@@ -196,12 +193,9 @@ export class VrTest {
 
   private updateSubjects() {
     // Update position subject if the camera has moved enough.
-    CopyToVector3(this.locationSubject.value.position, this.tmp);
+    CopyToVector3(this.locationSubject.value, this.tmp);
     if (this.camera.position.manhattanDistanceTo(this.tmp) > 0.001) {
-      this.locationSubject.next({
-        map: this.locationSubject.value.map,
-        position: MakeVector3(this.camera.position.x, this.camera.position.y, this.camera.position.z),
-      });
+      this.locationSubject.next(MakeVector3(this.camera.position.x, this.camera.position.y, this.camera.position.z));
     }
   }
 

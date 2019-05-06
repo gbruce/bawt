@@ -1,19 +1,21 @@
-import { lazyInject } from 'bawt/Container';
-import { PlayerState, ILocation } from 'bawt/game/PlayerState';
-import { LoadWDT } from 'bawt/worker/LoadWDT';
 import * as WDT from 'blizzardry/lib/wdt';
-import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
-import { BehaviorSubject, Subscription, Observable } from 'rxjs';
-import { injectable } from 'inversify';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { injectable, interfaces } from 'inversify';
+import { IAssetProvider } from 'interface/IAssetProvider';
+
+export type WdtStateFactory = (map: string, wdtAssetProvider: IAssetProvider<WDT.IWDT>) => Promise<WdtState>;
+
+export const WdtStateFactoryImpl = (context: interfaces.Context): WdtStateFactory => {
+  return async (map: string, wdtAssetProvider: IAssetProvider<WDT.IWDT>): Promise<WdtState> => {
+    return new WdtState(map, wdtAssetProvider);
+  };
+};
 
 @injectable()
 export class WdtState implements IObject {
-  private mapSub: Subscription|null = null;
-  private map: string = '';
-
-  @lazyInject('Observable<ILocation>') private location!: Observable<ILocation>;
-  @lazyInject('IHttpService') private httpService!: IHttpService;
+  constructor(private map: string, private wdtAssetProvider: IAssetProvider<WDT.IWDT>) {
+  }
 
   private _wdtSubject: BehaviorSubject<WDT.IWDT|null> = new BehaviorSubject<WDT.IWDT|null>(null);
   public get wdtSubject(): Observable<WDT.IWDT|null> {
@@ -21,27 +23,10 @@ export class WdtState implements IObject {
   }
 
   public async initialize() {
-    this.mapSub = this.location.subscribe({ next: this.onMapChanged });
-  }
-
-  public dispose(): void {
-    this.mapSub!.unsubscribe();
-  }
-
-  private onMapChanged = async (location: ILocation) => {
-    const mapChanged = this.map !== location.map;
-    this.map = location.map;
-    if (location.map === '') {
-      return;
-    }
-
-    if (!mapChanged) {
-      return;
-    }
-
-    const mapPath = `World\\maps\\${location.map}\\${location.map}.wdt`;
-    const wdtLoader = new LoadWDT(this.httpService);
-    const wdt = await wdtLoader.Start(mapPath);
+    const mapPath = `World\\maps\\${this.map}\\${this.map}.wdt`;
+    const wdt = await this.wdtAssetProvider.start(mapPath);
     this._wdtSubject.next(wdt);
   }
+
+  public dispose(): void {}
 }

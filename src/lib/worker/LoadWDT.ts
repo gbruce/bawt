@@ -1,22 +1,36 @@
 import * as WDT from 'blizzardry/lib/wdt';
-import { IHttpService } from 'interface/IHttpService';
 import { NewLogger } from 'bawt/utils/Logger';
-const log = NewLogger('worker/LoadDBC');
+import { injectable, inject } from 'inversify';
+import { IAssetProvider } from 'interface/IAssetProvider';
+import { Pool } from './Pool';
+import { Lock } from 'bawt/utils/Lock';
+import { AssetType } from 'interface/IWorkerRequest';
 
-export class LoadWDT {
-  constructor(private httpService: IHttpService) {}
+const log = NewLogger('worker/LoadWDT');
+const cache: Map<string, WDT.IWDT> = new Map();
+const lock: Lock = new Lock();
 
-  public async Start(wdtPath: string): Promise<WDT.IWDT> {
+@injectable()
+export class LoadWDT implements IAssetProvider<WDT.IWDT> {
+  constructor(@inject('Pool') private pool: Pool) {}
+
+  public async start(wdtPath: string): Promise<WDT.IWDT> {
+    await lock.lock();
+
+    const cached = cache.get(wdtPath);
+    if (cached) {
+      lock.unlock();
+      return cached;
+    }
+
     log.info(`Loading ${wdtPath}`);
 
-    const wdtStream = await this.httpService.get(wdtPath);
-    let decoded = null;
-    try {
-      decoded = WDT.decode(wdtStream);
+    const decoded = await this.pool.request({path: wdtPath, flags: {}, type: AssetType.WDT});
+    if (decoded && !cache.has(wdtPath)) {
+      cache.set(wdtPath, decoded);
     }
-    catch (e) {
-      log.error(e);
-    }
+
+    lock.unlock();
 
     return decoded;
   }

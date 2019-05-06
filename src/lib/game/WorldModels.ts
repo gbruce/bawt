@@ -1,24 +1,31 @@
-import { inject, injectable } from 'inversify';
+import { interfaces } from 'inversify';
 import { NewLogger } from 'bawt/utils/Logger';
 import { Vector3, Object3D, Group, Quaternion } from 'three';
-import { IADTCollection } from 'bawt/game/AdtState';
-import { LoadWMO } from 'bawt/worker/LoadWMO';
+import { IADTCollection, AdtState } from 'bawt/game/AdtState';
 import { WMO } from 'bawt/assets/wmo';
-import { LoadWMOGroup } from 'bawt/worker/LoadWMOGroup';
 import { terrainCoordToWorld } from 'bawt/utils/Functions';
 import WMOGroup from 'bawt/assets/wmo/group/WMOGroup';
-import { IHttpService } from 'interface/IHttpService';
-import { Observable } from 'rxjs';
+import { IAssetProvider } from 'interface/IAssetProvider';
 
 const log = NewLogger('game/WorldModels');
 
-@injectable()
+export type WorldModelFactory = ( adtState: AdtState,
+                                  wmoAssetProvider: IAssetProvider<blizzardry.IWMO>,
+                                  wmoGroupAssetProvider: IAssetProvider<blizzardry.IWMOGroup>) => Promise<WorldModels>;
+
+export const WorldModelFactoryImpl = (context: interfaces.Context): WorldModelFactory => {
+  return async (adtState: AdtState, wmoAssetProvider: IAssetProvider<blizzardry.IWMO>,
+                wmoGroupAssetProvider: IAssetProvider<blizzardry.IWMOGroup>): Promise<WorldModels> => {
+    return new WorldModels(adtState, wmoAssetProvider, wmoGroupAssetProvider);
+  };
+};
+
 export class WorldModels {
   public root: Object3D = new Object3D();
 
-  constructor(@inject('Observable<IADTCollection>') private adtColl: Observable<IADTCollection>,
-              @inject('IHttpService') private httpService: IHttpService) {
-    // this.adtColl.subscribe({ next: this.onAdtChanged });
+  constructor(private adtState: AdtState, private wmoAssetProvider: IAssetProvider<blizzardry.IWMO>,
+              private wmoGroupAssetProvider: IAssetProvider<blizzardry.IWMOGroup>) {
+    this.adtState.adt.subscribe({ next: this.onAdtChanged });
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {
@@ -30,8 +37,7 @@ export class WorldModels {
       for (const wmoEntry of wmoEntries) {
         log.info(`Loading wmo filename:${wmoEntry.filename}`);
 
-        const wmoLoader = new LoadWMO(this.httpService);
-        const wmo = await wmoLoader.Start(wmoEntry.filename);
+        const wmo = await this.wmoAssetProvider.start(wmoEntry.filename);
         if (!wmo) {
           continue;
         }
@@ -68,8 +74,7 @@ export class WorldModels {
         for (let i = 0; i < wmo.MOHD.groupCount; i++) {
           const group = wmo.MOGI.groups[i];
           const wmoGroupFile = `${wmoBase}_${zeroPad(i, 3)}.wmo`;
-          const wmoGroupLoader = new LoadWMOGroup(this.httpService);
-          const wmoGroup = await wmoGroupLoader.Start(wmoGroupFile);
+          const wmoGroup = await this.wmoGroupAssetProvider.start(wmoGroupFile);
 
           if (wmoGroup) {
             const grp = new WMOGroup(wmo, '', wmoGroup);

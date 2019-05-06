@@ -2,22 +2,17 @@ import { Container } from 'inversify';
 
 import { Client } from './Client';
 import { IDeserializer } from 'interface/IDeserializer';
-import { IFactory } from 'interface/IFactory';
-import { IPacket } from 'interface/IPacket';
 import { IConfig } from 'interface/IConfig';
 import { ISerializer } from 'interface/ISerializer';
 import { ISession } from 'interface/ISession';
 import { AuthHandler } from 'bawt/auth/AuthHandler';
-import AuthOpcode from 'bawt/auth/Opcode';
 import { PacketMap} from 'bawt/net/PacketMap';
 import { SLogonChallenge } from 'bawt/auth/packets/server/LogonChallenge';
 import { SLogonProof } from 'bawt/auth/packets/server/LogonProof';
 import { RealmList } from 'bawt/auth/packets/server/RealmList';
 import { GameHandler } from 'bawt/game/Handler';
-import GameOpcode from 'bawt/game/Opcode';
 import { SAuthChallenge } from 'bawt/game/packets/server/AuthChallenge';
 import { SAuthResponse } from 'bawt/game/packets/server/AuthResponse';
-import { NewServerPacket } from 'bawt/game/packets/server/ServerPacket';
 import { SMsgCharEnum } from 'bawt/game/packets/server/SMsgCharEnum';
 import { SMsgLoginVerifyWorld } from 'bawt/game/packets/server/SMsgLoginVerifyWorld';
 import { SMsgSetProficiency } from 'bawt/game/packets/server/SMsgSetProficiency';
@@ -30,21 +25,24 @@ import { Config } from 'bawt/auth/Config';
 import { Names } from 'bawt/utils/Names';
 import { Step, IStep } from 'bawt/utils/Step';
 import { AuthPacketMap, WorldPacketMap } from 'bawt/net/PacketMap';
-import { PlayerState, ILocation } from 'bawt/game/PlayerState';
-import { ChunksState, IChunkCollection } from 'bawt/game/ChunksState';
-import { WdtState } from 'bawt/game/WdtState';
+import { ChunksState, ChunksStateFactory, ChunksStateFactoryImpl } from 'bawt/game/ChunksState';
+import { WdtState, WdtStateFactory, WdtStateFactoryImpl } from 'bawt/game/WdtState';
 import { Observable } from 'rxjs';
 import * as WDT from 'blizzardry/lib/wdt';
-import { AdtState, IADTCollection } from 'bawt/game/AdtState';
-import { WorldModels } from 'bawt/game/WorldModels';
+import { AdtState, AdtStateFactory, AdtStateFactoryImpl } from 'bawt/game/AdtState';
 import { IAssetProvider } from 'interface/IAssetProvider';
 import { LoadADT } from './worker/LoadADT';
 import { LoadModel } from './worker/LoadModel';
 import { ISceneObject } from 'interface/ISceneObject';
-import { DoodadLoader, IDoodadCollection } from 'bawt/game/DoodadLoader';
-import { DoodadVisibility } from 'bawt/game/DoodadVisibility';
+import { DoodadLoader, DoodadStateFactory, DoodadStateFactoryImpl } from 'bawt/game/DoodadLoader';
+import { DoodadVisibility, DoodadVisibilityFactory, DoodadVisibilityFactoryImpl } from 'bawt/game/DoodadVisibility';
 import { LoadM2 } from 'bawt/worker/LoadM2';
 import { LoadSkin } from 'bawt/worker/LoadSkin';
+import { IMap, MapFactory, MapFactoryImpl } from './game/Map';
+import { LoadWDT } from './worker/LoadWDT';
+import { LoadWMO } from './worker/LoadWMO';
+import { LoadWMOGroup } from './worker/LoadWMOGroup';
+import { TerrainFactory, TerrainFactoryImpl, Terrain } from './game/Terrain';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -81,35 +79,11 @@ export async function InitializeCommon(container: Container) {
     return context.container.get<Step>('Step').step.observable;
   });
 
-  container.bind<PlayerState>('PlayerState').to(PlayerState).inSingletonScope();
-  container.bind<Observable<ILocation>>('Observable<ILocation>').toDynamicValue((context) => {
-    return context.container.get<PlayerState>('PlayerState').location.observable;
-  });
   container.bind<Observable<WDT.IWDT|null>>('Observable<WDT.IWDT|null>').toDynamicValue((context) => {
     return context.container.get<WdtState>('WdtState').wdtSubject;
   });
 
-  container.bind<WdtState>('WdtState').to(WdtState).inSingletonScope();
-  await container.get<WdtState>('WdtState').initialize();
-
-  container.bind<ChunksState>('ChunksState').to(ChunksState).inSingletonScope();
-  container.bind<Observable<IChunkCollection>>('Observable<IChunkCollection>').toDynamicValue((context) => {
-    return context.container.get<ChunksState>('ChunksState').chunks;
-  });
-  await container.get<ChunksState>('ChunksState').initialize();
-
-  container.bind<AdtState>(AdtState).toSelf().inSingletonScope();
-  container.bind<Observable<IADTCollection>>('Observable<IADTCollection>').toDynamicValue((context) => {
-    return context.container.get<AdtState>(AdtState).adt;
-  });
-
   container.bind<DoodadVisibility>('DoodadVisibility').to(DoodadVisibility).inSingletonScope();
-  container.bind<DoodadLoader>('DoodadLoader').to(DoodadLoader).inSingletonScope();
-  container.bind<Observable<IDoodadCollection>>('Observable<IDoodadCollection>').toDynamicValue((context) => {
-    return context.container.get<DoodadLoader>('DoodadLoader').doodadSubject;
-  });
-
-  container.bind<WorldModels>('WorldModels').to(WorldModels).inSingletonScope();
 
   // Asset Providers
   container.bind<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>')
@@ -120,4 +94,20 @@ export async function InitializeCommon(container: Container) {
     .to(LoadM2).inSingletonScope();
   container.bind<IAssetProvider<blizzardry.ISkin>>('IAssetProvider<blizzardry.ISkin>')
     .to(LoadSkin).inSingletonScope();
+  container.bind<IAssetProvider<WDT.IWDT>>('IAssetProvider<WDT.IWDT>')
+    .to(LoadWDT).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.IWMO>>('IAssetProvider<blizzardry.IWMO>')
+    .to(LoadWMO).inSingletonScope();
+  container.bind<IAssetProvider<blizzardry.IWMOGroup>>('IAssetProvider<blizzardry.IWMOGroup>')
+    .to(LoadWMOGroup).inSingletonScope();
+
+  container.bind<DoodadVisibilityFactory>('DoodadVisibilityFactory')
+    .toFactory<DoodadVisibility>(DoodadVisibilityFactoryImpl);
+  container.bind<TerrainFactory>('TerrainFactory').toFactory<Terrain>(TerrainFactoryImpl);
+
+  container.bind<ChunksStateFactory>('ChunksStateProvider').toProvider<ChunksState>(ChunksStateFactoryImpl);
+  container.bind<MapFactory>('MapProvider').toProvider<IMap>(MapFactoryImpl);
+  container.bind<AdtStateFactory>('AdtStateProvider').toProvider<AdtState>(AdtStateFactoryImpl);
+  container.bind<DoodadStateFactory>('DoodadStateProvider').toProvider<DoodadLoader>(DoodadStateFactoryImpl);
+  container.bind<WdtStateFactory>('WdtStateProvider').toProvider<WdtState>(WdtStateFactoryImpl);
 }

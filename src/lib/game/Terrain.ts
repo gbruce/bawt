@@ -1,12 +1,11 @@
 import Chunk from 'bawt/assets/adt/Chunk';
-import { lazyInject } from 'bawt/Container';
 import { IObject } from 'interface/IObject';
-import { Observable } from 'rxjs';
 import { Object3D } from 'three';
 import { NewLogger } from 'bawt/utils/Logger';
-import { IADTCollection, IADTInfo } from 'bawt/game/AdtState';
+import { IADTCollection, IADTInfo, AdtState } from 'bawt/game/AdtState';
 import { IAssetProvider } from 'interface/IAssetProvider';
 import { ISceneObject } from 'interface/ISceneObject';
+import { interfaces } from 'inversify';
 
 const log = NewLogger('game/Terrain');
 
@@ -23,16 +22,26 @@ interface IChunkLoader {
 
 const chunksPerRow = 16 * 64; // fixme
 
+export type TerrainFactory = (adtState: AdtState) => Terrain;
+
+export const TerrainFactoryImpl = (context: interfaces.Context): TerrainFactory => {
+  return (adtState: AdtState): Terrain => {
+    const adtProvider = context.container.get<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>');
+    const sceneObjectProvider = context.container.get<IAssetProvider<ISceneObject>>('IAssetProvider<ISceneObject>');
+    return new Terrain(adtState, adtProvider, sceneObjectProvider);
+  };
+};
+
 export class Terrain implements IObject {
-  @lazyInject('Observable<IADTCollection>') private adtColl!: Observable<IADTCollection>;
-  @lazyInject('IAssetProvider<blizzardry.IADT>') private adtProvider!: IAssetProvider<blizzardry.IADT>;
-  @lazyInject('IAssetProvider<ISceneObject>') private modelProvider!: IAssetProvider<ISceneObject>;
+  constructor(private adtState: AdtState, private adtProvider: IAssetProvider<blizzardry.IADT>,
+              private modelProvider: IAssetProvider<ISceneObject>) {
+  }
 
   public root: Object3D = new Object3D();
   private chunks: Map<number, IChunkLoader> = new Map();
 
   public initialize = async () => {
-    this.adtColl.subscribe({ next: this.onAdtChanged });
+    this.adtState.adt.subscribe({ next: this.onAdtChanged });
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {

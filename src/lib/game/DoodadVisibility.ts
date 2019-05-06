@@ -1,13 +1,13 @@
 import { IDoodadCollection } from 'bawt/game/DoodadLoader';
 import { NewLogger } from 'bawt/utils/Logger';
-import { inject, injectable } from 'inversify';
+import { interfaces } from 'inversify';
 import { Observable } from 'rxjs';
 import { Object3D, Octree, Vector3, SphereGeometry, Mesh, MeshBasicMaterial, DoubleSide } from 'three';
 import octree = require('three-octree');
 import { IStep } from 'bawt/utils/Step';
-import { ILocation } from 'bawt/game/PlayerState';
 import { CopyToVector3 } from 'bawt/utils/Math';
 import { M2Model } from 'bawt/assets/m2';
+import { IVector3 } from 'interface/IVector3';
 
 const log = NewLogger('game/DoodadVisibility');
 const radius = 150;
@@ -39,7 +39,16 @@ declare module 'three' {
   }
 }
 
-@injectable()
+export type DoodadVisibilityFactory = ( doodads: Observable<IDoodadCollection>,
+                                        position: Observable<IVector3>) => DoodadVisibility;
+
+export const DoodadVisibilityFactoryImpl = (context: interfaces.Context): DoodadVisibilityFactory => {
+  const stepper = context.container.get<Observable<IStep>>('Observable<IStep>');
+  return (doodads: Observable<IDoodadCollection>, position: Observable<IVector3>): DoodadVisibility => {
+    return new DoodadVisibility(doodads, stepper, position);
+  };
+};
+
 export class DoodadVisibility {
   public root: Object3D = new Object3D();
   private debugRoot: Object3D = new Object3D();
@@ -50,9 +59,8 @@ export class DoodadVisibility {
   private visibleNodes: Object3D[] = [];
   // private searchMesh: Mesh;
 
-  constructor(@inject('Observable<IDoodadCollection>') private doodadColl: Observable<IDoodadCollection>,
-              @inject('Observable<IStep>') private step: Observable<IStep>,
-              @inject('Observable<ILocation>') private location: Observable<ILocation>) {
+  constructor(private doodadColl: Observable<IDoodadCollection>, private step: Observable<IStep>,
+              private location: Observable<IVector3>) {
     const x = (octree as any);
     this.octree = new Octree({undeferred: true, objectsThreshold: 2});
     // this.searchMesh = new Mesh(
@@ -90,8 +98,8 @@ export class DoodadVisibility {
     }
   }
 
-  private onLocationChanged = (location: ILocation) => {
-    CopyToVector3(location.position, this.position);
+  private onLocationChanged = (position: IVector3) => {
+    CopyToVector3(position, this.position);
     // this.searchMesh.position.copy(this.position);
     this.recomputeVis = true;
   }
