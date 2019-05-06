@@ -12,7 +12,6 @@ export const WdtStateFactoryImpl = (context: interfaces.Context): WdtStateFactor
   };
 };
 
-@injectable()
 export class WdtState implements IObject {
   constructor(private map: string, private wdtAssetProvider: IAssetProvider<WDT.IWDT>) {
   }

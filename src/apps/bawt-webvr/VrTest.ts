@@ -62,7 +62,7 @@ export class VrTest {
   private doodadVis: DoodadVisibility|null = null;
 
   constructor(
-    @inject('MapProvider') private mapProvider: MapFactory,
+    @inject('MapFactory') private mapProvider: MapFactory,
     @inject('Step') private step: Step,
     @inject('DoodadVisibilityFactory') private doodadVisFactory: DoodadVisibilityFactory,
     @inject('TerrainFactory') private terrainFactory: TerrainFactory,
