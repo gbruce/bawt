@@ -79,12 +79,6 @@ export async function InitializeCommon(container: Container) {
     return context.container.get<Step>('Step').step.observable;
   });
 
-  container.bind<Observable<WDT.IWDT|null>>('Observable<WDT.IWDT|null>').toDynamicValue((context) => {
-    return context.container.get<WdtState>('WdtState').wdtSubject;
-  });
-
-  container.bind<DoodadVisibility>('DoodadVisibility').to(DoodadVisibility).inSingletonScope();
-
   // Asset Providers
   container.bind<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>')
     .to(LoadADT).inSingletonScope();
@@ -105,9 +99,9 @@ export async function InitializeCommon(container: Container) {
     .toFactory<DoodadVisibility>(DoodadVisibilityFactoryImpl);
   container.bind<TerrainFactory>('TerrainFactory').toFactory<Terrain>(TerrainFactoryImpl);
 
-  container.bind<ChunksStateFactory>('ChunksStateProvider').toProvider<ChunksState>(ChunksStateFactoryImpl);
-  container.bind<MapFactory>('MapProvider').toProvider<IMap>(MapFactoryImpl);
-  container.bind<AdtStateFactory>('AdtStateProvider').toProvider<AdtState>(AdtStateFactoryImpl);
-  container.bind<DoodadStateFactory>('DoodadStateProvider').toProvider<DoodadLoader>(DoodadStateFactoryImpl);
-  container.bind<WdtStateFactory>('WdtStateProvider').toProvider<WdtState>(WdtStateFactoryImpl);
+  container.bind<ChunksStateFactory>('ChunksStateFactory').toProvider<ChunksState>(ChunksStateFactoryImpl);
+  container.bind<MapFactory>('MapFactory').toProvider<IMap>(MapFactoryImpl);
+  container.bind<AdtStateFactory>('AdtStateFactory').toProvider<AdtState>(AdtStateFactoryImpl);
+  container.bind<DoodadStateFactory>('DoodadStateFactory').toProvider<DoodadLoader>(DoodadStateFactoryImpl);
+  container.bind<WdtStateFactory>('WdtStateFactory').toProvider<WdtState>(WdtStateFactoryImpl);
 }
