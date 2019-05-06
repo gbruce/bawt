@@ -13,8 +13,7 @@ export const WdtStateFactoryImpl = (context: interfaces.Context): WdtStateFactor
 };
 
 export class WdtState implements IObject {
-  constructor(private map: string, private wdtAssetProvider: IAssetProvider<WDT.IWDT>) {
-  }
+  constructor(private map: string, private wdtAssetProvider: IAssetProvider<WDT.IWDT>) {}
 
   private _wdtSubject: BehaviorSubject<WDT.IWDT|null> = new BehaviorSubject<WDT.IWDT|null>(null);
   public get wdtSubject(): Observable<WDT.IWDT|null> {

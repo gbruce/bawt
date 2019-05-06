@@ -6,6 +6,8 @@ import { WMO } from 'bawt/assets/wmo';
 import { terrainCoordToWorld } from 'bawt/utils/Functions';
 import WMOGroup from 'bawt/assets/wmo/group/WMOGroup';
 import { IAssetProvider } from 'interface/IAssetProvider';
+import { IObject } from 'interface/IObject';
+import { Subscription } from 'rxjs';
 
 const log = NewLogger('game/WorldModels');
 
@@ -20,12 +22,22 @@ export const WorldModelFactoryImpl = (context: interfaces.Context): WorldModelFa
   };
 };
 
-export class WorldModels {
+export class WorldModels implements IObject {
   public root: Object3D = new Object3D();
+  private sub: Subscription|null = null;
 
   constructor(private adtState: AdtState, private wmoAssetProvider: IAssetProvider<blizzardry.IWMO>,
-              private wmoGroupAssetProvider: IAssetProvider<blizzardry.IWMOGroup>) {
-    this.adtState.adt.subscribe({ next: this.onAdtChanged });
+              private wmoGroupAssetProvider: IAssetProvider<blizzardry.IWMOGroup>) {}
+
+  public async initialize(): Promise<void> {
+    this.sub = this.adtState.adt.subscribe({ next: this.onAdtChanged });
+  }
+
+  public dispose(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+      this.sub = null;
+    }
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {

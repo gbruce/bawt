@@ -1,10 +1,11 @@
 import { injectable, interfaces } from 'inversify';
 import { IADTCollection, AdtState } from 'bawt/game/AdtState';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { NewLogger } from 'bawt/utils/Logger';
 import { Vector3 } from 'three';
 import { ISceneObject } from 'interface/ISceneObject';
 import { IAssetProvider } from 'interface/IAssetProvider';
+import { IObject } from 'interface/IObject';
 
 const log = NewLogger('game/DoodadLoader');
 
@@ -38,10 +39,10 @@ export const DoodadStateFactoryImpl = (context: interfaces.Context): DoodadState
   };
 };
 
-@injectable()
-export class DoodadLoader {
+export class DoodadLoader implements IObject {
   private doodads: Map<number, DoodadItem> = new Map();
   private chunkMap: Map<number, DoodadItem[]> = new Map();
+  private sub: Subscription|null = null;
 
   public doodadSubject: BehaviorSubject<IDoodadCollection> = new BehaviorSubject<IDoodadCollection>({
     added: [],
@@ -49,8 +50,17 @@ export class DoodadLoader {
     current: [],
   });
 
-  constructor(private atdState: AdtState, private modelAssetProvider: IAssetProvider<ISceneObject>) {
-    this.atdState.adt.subscribe({ next: this.onAdtChanged });
+  constructor(private atdState: AdtState, private modelAssetProvider: IAssetProvider<ISceneObject>) {}
+
+  public async initialize(): Promise<void> {
+    this.sub = this.atdState.adt.subscribe({ next: this.onAdtChanged });
+  }
+
+  public dispose(): void {
+    if (this.sub) {
+      this.sub.unsubscribe()
+      this.sub = null;
+    }
   }
 
   private loadDoodad = async (chunkId: number, item: DoodadItem) => {

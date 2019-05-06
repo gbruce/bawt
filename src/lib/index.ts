@@ -38,7 +38,7 @@ import { DoodadLoader, DoodadStateFactory, DoodadStateFactoryImpl } from 'bawt/g
 import { DoodadVisibility, DoodadVisibilityFactory, DoodadVisibilityFactoryImpl } from 'bawt/game/DoodadVisibility';
 import { LoadM2 } from 'bawt/worker/LoadM2';
 import { LoadSkin } from 'bawt/worker/LoadSkin';
-import { IMap, MapFactory, MapFactoryImpl } from './game/Map';
+import { Map, MapFactory, MapFactoryImpl } from './game/Map';
 import { LoadWDT } from './worker/LoadWDT';
 import { LoadWMO } from './worker/LoadWMO';
 import { LoadWMOGroup } from './worker/LoadWMOGroup';
@@ -96,11 +96,10 @@ export async function InitializeCommon(container: Container) {
     .to(LoadWMOGroup).inSingletonScope();
 
   container.bind<DoodadVisibilityFactory>('DoodadVisibilityFactory')
-    .toFactory<DoodadVisibility>(DoodadVisibilityFactoryImpl);
-  container.bind<TerrainFactory>('TerrainFactory').toFactory<Terrain>(TerrainFactoryImpl);
-
+    .toProvider<DoodadVisibility>(DoodadVisibilityFactoryImpl);
+  container.bind<TerrainFactory>('TerrainFactory').toProvider<Terrain>(TerrainFactoryImpl);
   container.bind<ChunksStateFactory>('ChunksStateFactory').toProvider<ChunksState>(ChunksStateFactoryImpl);
-  container.bind<MapFactory>('MapFactory').toProvider<IMap>(MapFactoryImpl);
+  container.bind<MapFactory>('MapFactory').toProvider<Map>(MapFactoryImpl);
   container.bind<AdtStateFactory>('AdtStateFactory').toProvider<AdtState>(AdtStateFactoryImpl);
   container.bind<DoodadStateFactory>('DoodadStateFactory').toProvider<DoodadLoader>(DoodadStateFactoryImpl);
   container.bind<WdtStateFactory>('WdtStateFactory').toProvider<WdtState>(WdtStateFactoryImpl);

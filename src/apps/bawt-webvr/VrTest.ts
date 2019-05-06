@@ -13,7 +13,7 @@ import { Step, IStep } from 'bawt/utils/Step';
 import { DoodadVisibility, DoodadVisibilityFactory } from 'bawt/game/DoodadVisibility';
 import { inject, injectable } from 'inversify';
 import { VrHud } from './VrHud';
-import { MapFactory, IMap } from 'bawt/game/Map';
+import { MapFactory, Map } from 'bawt/game/Map';
 import { IVector3 } from 'interface/IVector3';
 
 const boxSize = 5;
@@ -58,11 +58,11 @@ export class VrTest {
   // [-454.4, -2649.1, 99.4] durotar, crossroads
   private terrainCoords = [235.2, -4565.5, 19.98];
   private map = 'kalimdor';
-  private theMap: IMap|null = null;
+  private theMap: Map|null = null;
   private doodadVis: DoodadVisibility|null = null;
 
   constructor(
-    @inject('MapFactory') private mapProvider: MapFactory,
+    @inject('MapFactory') private mapFactory: MapFactory,
     @inject('Step') private step: Step,
     @inject('DoodadVisibilityFactory') private doodadVisFactory: DoodadVisibilityFactory,
     @inject('TerrainFactory') private terrainFactory: TerrainFactory,
@@ -166,16 +166,18 @@ export class VrTest {
       }
     });
 
-    this.theMap = await this.mapProvider('kalimdor');
-    this.theMap.position.acquire(this.locationSubject);
+    this.theMap = await this.mapFactory('kalimdor');
+    await this.theMap.initialize();
 
-    this.terrain = this.terrainFactory(this.theMap.adts);
+    this.terrain = await this.terrainFactory(this.theMap.adts);
     await this.terrain.initialize();
+
+    this.doodadVis = await this.doodadVisFactory(this.theMap.doodads.doodadSubject, this.theMap.position.observable);
+    await this.doodadVis.initialize();
+
+    this.theMap.position.acquire(this.locationSubject);
     this.updateSubjects();
-
     this.scene.add(this.terrain.root);
-
-    this.doodadVis = this.doodadVisFactory(this.theMap.doodads.doodadSubject, this.theMap.position.observable);
     this.scene.add(this.doodadVis.root);
   }
 

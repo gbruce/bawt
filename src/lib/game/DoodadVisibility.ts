@@ -1,13 +1,14 @@
 import { IDoodadCollection } from 'bawt/game/DoodadLoader';
 import { NewLogger } from 'bawt/utils/Logger';
 import { interfaces } from 'inversify';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Object3D, Octree, Vector3, SphereGeometry, Mesh, MeshBasicMaterial, DoubleSide } from 'three';
 import octree = require('three-octree');
 import { IStep } from 'bawt/utils/Step';
 import { CopyToVector3 } from 'bawt/utils/Math';
 import { M2Model } from 'bawt/assets/m2';
 import { IVector3 } from 'interface/IVector3';
+import { IObject } from 'interface/IObject';
 
 const log = NewLogger('game/DoodadVisibility');
 const radius = 150;
@@ -40,16 +41,16 @@ declare module 'three' {
 }
 
 export type DoodadVisibilityFactory = ( doodads: Observable<IDoodadCollection>,
-                                        position: Observable<IVector3>) => DoodadVisibility;
+                                        position: Observable<IVector3>) => Promise<DoodadVisibility>;
 
 export const DoodadVisibilityFactoryImpl = (context: interfaces.Context): DoodadVisibilityFactory => {
   const stepper = context.container.get<Observable<IStep>>('Observable<IStep>');
-  return (doodads: Observable<IDoodadCollection>, position: Observable<IVector3>): DoodadVisibility => {
+  return async (doodads: Observable<IDoodadCollection>, position: Observable<IVector3>): Promise<DoodadVisibility> => {
     return new DoodadVisibility(doodads, stepper, position);
   };
 };
 
-export class DoodadVisibility {
+export class DoodadVisibility implements IObject {
   public root: Object3D = new Object3D();
   private debugRoot: Object3D = new Object3D();
   private doodadRoot: Object3D = new Object3D();
@@ -57,6 +58,7 @@ export class DoodadVisibility {
   private recomputeVis: boolean = true;
   private position: Vector3 = new Vector3(0, 0, 0);
   private visibleNodes: Object3D[] = [];
+  private sub: Subscription|null = null;
   // private searchMesh: Mesh;
 
   constructor(private doodadColl: Observable<IDoodadCollection>, private step: Observable<IStep>,
@@ -69,10 +71,19 @@ export class DoodadVisibility {
     // this.debugRoot.add(this.searchMesh);
     this.root.add(this.debugRoot);
     this.root.add(this.doodadRoot);
+  }
 
-    this.doodadColl.subscribe({ next: this.onDoodadCollChanged });
-    this.step.subscribe({ next: this.onStep});
-    this.location.subscribe({ next: this.onLocationChanged});
+  public async initialize(): Promise<void> {
+    this.sub = this.doodadColl.subscribe({ next: this.onDoodadCollChanged });
+    this.sub.add(this.step.subscribe({ next: this.onStep}));
+    this.sub.add(this.location.subscribe({ next: this.onLocationChanged}));
+  }
+
+  public dispose(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+      this.sub = null;
+    }
   }
 
   private onDoodadCollChanged = async (collection: IDoodadCollection) => {

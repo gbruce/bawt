@@ -6,6 +6,7 @@ import { IADTCollection, IADTInfo, AdtState } from 'bawt/game/AdtState';
 import { IAssetProvider } from 'interface/IAssetProvider';
 import { ISceneObject } from 'interface/ISceneObject';
 import { interfaces } from 'inversify';
+import { Subscription } from 'rxjs';
 
 const log = NewLogger('game/Terrain');
 
@@ -22,10 +23,10 @@ interface IChunkLoader {
 
 const chunksPerRow = 16 * 64; // fixme
 
-export type TerrainFactory = (adtState: AdtState) => Terrain;
+export type TerrainFactory = (adtState: AdtState) => Promise<Terrain>;
 
 export const TerrainFactoryImpl = (context: interfaces.Context): TerrainFactory => {
-  return (adtState: AdtState): Terrain => {
+  return async (adtState: AdtState): Promise<Terrain> => {
     const adtProvider = context.container.get<IAssetProvider<blizzardry.IADT>>('IAssetProvider<blizzardry.IADT>');
     const sceneObjectProvider = context.container.get<IAssetProvider<ISceneObject>>('IAssetProvider<ISceneObject>');
     return new Terrain(adtState, adtProvider, sceneObjectProvider);
@@ -34,14 +35,21 @@ export const TerrainFactoryImpl = (context: interfaces.Context): TerrainFactory 
 
 export class Terrain implements IObject {
   constructor(private adtState: AdtState, private adtProvider: IAssetProvider<blizzardry.IADT>,
-              private modelProvider: IAssetProvider<ISceneObject>) {
-  }
+              private modelProvider: IAssetProvider<ISceneObject>) {}
 
   public root: Object3D = new Object3D();
   private chunks: Map<number, IChunkLoader> = new Map();
+  private sub: Subscription|null = null;
 
   public initialize = async () => {
-    this.adtState.adt.subscribe({ next: this.onAdtChanged });
+    this.sub = this.adtState.adt.subscribe({ next: this.onAdtChanged });
+  }
+
+  public dispose = () => {
+    if (this.sub) {
+      this.sub.unsubscribe();
+      this.sub = null;
+    }
   }
 
   private onAdtChanged = async (collection: IADTCollection) => {
@@ -132,6 +140,4 @@ export class Terrain implements IObject {
   //           zArrowMesh.position.y += height / 2;
   //           zAxisMesh.position.z += height / 2;
   //           axisRoot.add(zAxisMesh);
-
-  public dispose = () => {}
 }

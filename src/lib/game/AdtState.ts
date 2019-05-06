@@ -1,8 +1,9 @@
 import { IChunkCollection } from 'bawt/game/ChunksState';
 import { interfaces } from 'inversify';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { NewLogger } from 'bawt/utils/Logger';
 import { IAssetProvider } from 'interface/IAssetProvider';
+import { IObject } from 'interface/IObject';
 
 const log = NewLogger('game/AdtState');
 
@@ -40,9 +41,10 @@ export const AdtStateFactoryImpl = (context: interfaces.Context): AdtStateFactor
   };
 };
 
-export class AdtState {
+export class AdtState implements IObject {
   private loading: Map<number, ILoading> = new Map();
   private adts: Map<number, IADTInfo> = new Map();
+  private sub: Subscription|null = null;
 
   private adtSubject: BehaviorSubject<IADTCollection> = new BehaviorSubject<IADTCollection>({
     added: [],
@@ -54,8 +56,17 @@ export class AdtState {
   }
 
   constructor(private map: string, private chunks: Observable<IChunkCollection>,
-              private adtAssetProvider: IAssetProvider<blizzardry.IADT>) {
-    this.chunks.subscribe(this.onCollectionChanged);
+              private adtAssetProvider: IAssetProvider<blizzardry.IADT>) {}
+
+  public async initialize(): Promise<void> {
+    this.sub = this.chunks.subscribe(this.onCollectionChanged);
+  }
+
+  public dispose(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+      this.sub = null;
+    }
   }
 
   private tileFor(chunkPosition: number) {
