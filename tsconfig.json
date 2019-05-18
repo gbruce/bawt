@@ -4,13 +4,16 @@
     "lib": ["es5", "es6", "dom", "esnext"],
     "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
     "strict": true,                            /* Enable all strict type-checking options. */
-    "typeRoots": ["./src", "./node_modules/@types", "typings"],                       /* List of folders to include type definitions from. */
+    "typeRoots": [
+      "./src",
+      "./node_modules/@types",
+      "typings"],                       /* List of folders to include type definitions from. */
     "sourceMap": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "jsx": "react",
-    "types": ["node"],
+    "types": ["node","babylonjs"],
     "baseUrl": "./src",
     "outDir": "dist",
     "paths": {
