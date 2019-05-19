@@ -8,7 +8,8 @@ declare module "*.json" {
 }
 
 declare module 'jsbn/lib/big-integer' {
-  export = BigInteger;
+  const value: any;
+  export = value;
 }
 
 declare module 'jsbn/lib/sha1' {
