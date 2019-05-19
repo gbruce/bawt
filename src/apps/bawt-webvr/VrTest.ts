@@ -15,6 +15,7 @@ import { inject, injectable } from 'inversify';
 import { VrHud } from './VrHud';
 import { MapFactory, Map } from 'bawt/game/Map';
 import { IVector3 } from 'interface/IVector3';
+import { RenderEngineFactory, IRenderEngine } from 'interface/IRenderEngine';
 
 const boxSize = 5;
 const userHeight = 1.6;
@@ -60,12 +61,14 @@ export class VrTest {
   private map = 'kalimdor';
   private theMap: Map|null = null;
   private doodadVis: DoodadVisibility|null = null;
+  private renderEngine: IRenderEngine;
 
   constructor(
     @inject('MapFactory') private mapFactory: MapFactory,
     @inject('Step') private step: Step,
     @inject('DoodadVisibilityFactory') private doodadVisFactory: DoodadVisibilityFactory,
     @inject('TerrainFactory') private terrainFactory: TerrainFactory,
+    @inject('RenderEngineFactory') renderEngineFactory: RenderEngineFactory,
   ) {
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -73,20 +76,16 @@ export class VrTest {
     this.setStageDimensions = this.setStageDimensions.bind(this);
     this.animate = this.animate.bind(this);
 
-    this.renderer = new WebGLRenderer( { antialias: true });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderEngine = renderEngineFactory();
+    this.renderer = this.renderEngine.mainRenderer;
+    this.scene = this.renderEngine.mainScene;
+    this.camera = this.renderEngine.mainCamera;
 
-    document.body.appendChild(this.renderer.domElement);
-
-    this.scene = new Scene();
     this.light.position.copy(new Vector3(1, 0.6, 0));
     this.light.intensity = 0.1;
 
     this.scene.add(this.light);
 
-    const aspect = window.innerWidth / window.innerHeight;
-    this.camera = new PerspectiveCamera( 75, aspect, 0.1, 10000);
-    this.scene.add(this.camera);
     this.controls = new THREE.VRControls(this.camera);
     this.camera.position.y = userHeight;
 
