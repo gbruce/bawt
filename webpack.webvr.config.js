@@ -4,7 +4,7 @@ const { resolve } = require("path");
 module.exports = {
   // context: path.resolve(__dirname, 'src/apps/bawt-webvr'),
   entry: {
-    app: './src/apps/bawt-webvr/index.tsx',
+    app: './src/apps/bawt-webvr/index.ts',
     worker: './src/lib/worker/Worker.ts'
   },
   devtool: 'source-map',

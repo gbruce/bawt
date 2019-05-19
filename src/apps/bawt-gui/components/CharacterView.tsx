@@ -118,6 +118,21 @@ export class CharacterView extends React.Component<IProps, IState> {
           {'World of Warcraft'}
         </DialogTitle>
         <DialogContent style={{ width: '600px', minHeight: '450px'}}>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={this.onEnterWorld}
+            color='primary'
+            disabled={this.state.selected === null}>
+              Enter World
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+}
+
+/* insert between DialogContent
           <ReactTable
             pageSize={10}
             data={this.state.characters}
@@ -150,16 +165,4 @@ export class CharacterView extends React.Component<IProps, IState> {
             }}
             >
           </ReactTable>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={this.onEnterWorld}
-            color='primary'
-            disabled={this.state.selected === null}>
-              Enter World
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
-}
+*/

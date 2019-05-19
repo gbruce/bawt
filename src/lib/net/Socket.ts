@@ -72,7 +72,7 @@ export class Socket implements ISocket {
       return false;
     }
 
-    this.socket.write(buffer);
+    this.socket.write(new Uint8Array(buffer));
     this.onPacketSentEvent.dispatch(buffer);
     return true;
   }

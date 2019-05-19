@@ -14,6 +14,7 @@ container.bind<IHttpService>('IHttpService').toConstantValue(new HttpService('19
 container.bind<Pool>('Pool').to(Pool).inSingletonScope();
 container.bind<VrTest>('VrTest').to(VrTest).inSingletonScope();
 InitializeCommon(container).then(() => {
-  const config = container.get<IConfig>('IConfig');
-  const vrTest = container.get<VrTest>('VrTest');
+  container.get<IConfig>('IConfig');
+  container.get<VrTest>('VrTest');
 });
+
