@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import ADT = require('blizzardry/lib/adt');
-import * as WMO from 'blizzardry/lib/wmo';
-import * as WMOGroup from 'blizzardry/lib/wmo/group';
-import * as M2 from 'blizzardry/lib/m2';
-import * as Skin from 'blizzardry/lib/m2/skin';
+import WMO from 'blizzardry/lib/wmo';
+import WMOGroup from 'blizzardry/lib/wmo/group';
+import M2 from 'blizzardry/lib/m2';
+import Skin from 'blizzardry/lib/m2/skin';
 import { worker } from 'workerpool';
 import { NewLogger } from 'bawt/utils/Logger';
 import { HttpService } from 'bawt/utils/browser/HttpService';

@@ -71,7 +71,7 @@ export class TextureLoader {
   }
 
   private backgroundUnload() {
-    this.pendingUnload.forEach((textureKey) => {
+    this.pendingUnload.forEach((textureKey: any, x: any, set: Set<any>) => {
       if (this.cache.has(textureKey)) {
         const texture = this.cache.get(textureKey);
         if (texture) {

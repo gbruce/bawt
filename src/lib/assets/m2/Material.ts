@@ -135,8 +135,8 @@ export class Material extends ShaderMaterial implements IObject {
     //   fogEnd: { value: 400.0 },
     // };
 
-    this.vertexShader = vertexShader as any;
-    this.fragmentShader = fragmentShader as any;
+    this.vertexShader = vertexShader.default as any;
+    this.fragmentShader = fragmentShader.default as any;
 
     this.applyRenderFlags(def.renderFlags);
     this.applyBlendingMode(def.blendingMode);

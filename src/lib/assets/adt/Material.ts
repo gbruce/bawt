@@ -24,8 +24,8 @@ export class Material extends ShaderMaterial implements IObject {
     this.loader = new LoadTexture();
     this.layers = data.MCLY.layers;
     this.rawAlphaMaps = data.MCAL.alphaMaps;
-    this.vertexShader = vertexShader;
-    this.fragmentShader = fragmentShader;
+    this.vertexShader = vertexShader.default;
+    this.fragmentShader = fragmentShader.default;
   }
 
   public async initialize() {

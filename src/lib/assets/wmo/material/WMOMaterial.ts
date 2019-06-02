@@ -81,8 +81,8 @@ class WMOMaterial extends ShaderMaterial {
       this.wrapping = RepeatWrapping;
     }
 
-    this.vertexShader = vertexShader as any;
-    this.fragmentShader = fragmentShader as any;
+    this.vertexShader = vertexShader.default as any;
+    this.fragmentShader = fragmentShader.default as any;
 
     this.loadTextures(textureDefs);
   }

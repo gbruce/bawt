@@ -42,8 +42,8 @@ class WMOMaterial extends ShaderMaterial implements IObject {
     }
 
     this.lights = true;
-    this.vertexShader = vertexShader as any;
-    this.fragmentShader = fragmentShader as any;
+    this.vertexShader = vertexShader.default as any;
+    this.fragmentShader = fragmentShader.default as any;
   }
 
   public async initialize() {
