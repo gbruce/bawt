@@ -48,12 +48,15 @@ export class VREffect {
     this.defaultRightBounds = [ 0.5, 0.0, 0.5, 1.0 ];
 
     window.addEventListener('vrdisplaypresentchange', this.onVRDisplayPresentChange, false);
+    window.addEventListener('resize', this.onSizeChanged, true);
 
     this.cameraL = new PerspectiveCamera();
     this.cameraL.layers.enable(1);
 
     this.cameraR = new PerspectiveCamera();
     this.cameraR.layers.enable(2);
+
+    this.setSize(window.innerWidth, window.innerHeight, {});
   }
 
   public gotVRDisplays(displays: any) {
@@ -80,6 +83,10 @@ export class VREffect {
     console.warn( 'THREE.VREffect: getVRDisplays() is being deprecated.' );
     return this.vrDisplays;
   };
+
+  private onSizeChanged() {
+    this.setSize(window.innerWidth, window.innerHeight, {});
+  }
 
   public setSize(width: number, height: number, updateStyle: any) {
     this.rendererSize = { width: width, height: height };

@@ -38,4 +38,7 @@ class BabylonjsEngine implements IRenderEngine, IObject {
   public get mainCamera() {
     return this.camera;
   }
+
+  public render(camera: any, scene: any): void {
+  }
 }

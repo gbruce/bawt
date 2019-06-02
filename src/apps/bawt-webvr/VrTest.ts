@@ -1,7 +1,6 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector3, DirectionalLight,
   RepeatWrapping, Mesh } from 'three';
 import { THREE } from './VRControls';
-import { VREffect } from './VREffect';
 import * as webvrui from 'webvr-ui';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
 import { Keys } from './Keys';
@@ -25,7 +24,6 @@ export class VrTest {
   private renderer: WebGLRenderer;
   private scene: Scene;
   private controls: THREE.VRControls;
-  private effect: VREffect;
   private camera: PerspectiveCamera;
   private vrDisplay: VRDisplay|null = null;
   private skybox: Mesh|null = null;
@@ -70,6 +68,8 @@ export class VrTest {
     @inject('TerrainFactory') private terrainFactory: TerrainFactory,
     @inject('RenderEngineFactory') renderEngineFactory: RenderEngineFactory,
   ) {
+    const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
+
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
     this.onResize = this.onResize.bind(this);
     this.setupStage = this.setupStage.bind(this);
@@ -89,9 +89,7 @@ export class VrTest {
     this.controls = new THREE.VRControls(this.camera);
     this.camera.position.y = userHeight;
 
-    this.fpControls = new FirstPersonControls(this.camera, this.renderer.domElement);
-    this.effect = new VREffect(this.renderer);
-    this.effect.setSize(window.innerWidth, window.innerHeight, {});
+    this.fpControls = new FirstPersonControls(this.camera, canvas);
 
     const loader = new TextureLoader();
     loader.load('src/apps/bawt-webvr/img/box.png', this.onTextureLoaded);
@@ -104,7 +102,7 @@ export class VrTest {
       background: 'white',
       corners: 'square',
     };
-    this.vrButton = new webvrui.EnterVRButton(this.renderer.domElement, uiOptions);
+    this.vrButton = new webvrui.EnterVRButton(canvas, uiOptions);
     this.vrButton.on('exit', () => {
       this.camera.quaternion.set(0, 0, 0, 1);
       this.camera.position.set(0, userHeight, 0);
@@ -131,7 +129,6 @@ export class VrTest {
   }
 
   private onResize() {
-    this.effect.setSize(window.innerWidth, window.innerHeight, {});
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
   }
@@ -216,7 +213,7 @@ export class VrTest {
       this.controls.update();
     }
     // Render the scene.
-    this.effect.render(this.scene, this.camera);
+    this.renderEngine.render(this.camera, this.scene);
     this.vrDisplay!.requestAnimationFrame(this.animate);
 
     this.vrHud.update(timestamp, performance.now() - startTime);
