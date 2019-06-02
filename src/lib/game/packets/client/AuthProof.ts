@@ -1,4 +1,4 @@
-import * as ByteBuffer from 'bytebuffer';
+import ByteBuffer from 'bytebuffer';
 import { Serialize, UInt8Prop, UInt16Prop, UInt32Prop, UInt64Prop, StringProp,
   StringNoNullProp, ByteArrayProp, ConstByteBufferProp } from 'bawt/net/Serialization';
 import { ClientPacket } from './ClientPacket';

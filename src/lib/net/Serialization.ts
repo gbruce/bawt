@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import * as ByteBuffer from 'bytebuffer';
+import ByteBuffer from 'bytebuffer';
 
 import { ISerializable } from 'interface/ISerializable';
 import { NewLogger } from 'bawt/utils/Logger';

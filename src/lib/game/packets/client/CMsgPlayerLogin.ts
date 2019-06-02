@@ -1,9 +1,6 @@
-import * as ByteBuffer from 'bytebuffer';
-import { Serialize, UInt64Prop, StringProp,
-  StringNoNullProp, ByteArrayProp, ConstByteBufferProp } from 'bawt/net/Serialization';
+import { Serialize, UInt64Prop } from 'bawt/net/Serialization';
 import { ClientPacket } from './ClientPacket';
-import { IFactory } from 'interface/IFactory';
-import * as Long from 'long';
+import Long from 'long';
 import Opcode from '../../Opcode';
 
 export class CMsgPlayerLogin extends ClientPacket {

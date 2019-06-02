@@ -1,4 +1,4 @@
-import * as ByteBuffer from 'bytebuffer';
+import ByteBuffer from 'bytebuffer';
 import { inject, injectable } from 'inversify';
 import { EventList, IEvent } from 'strongly-typed-events';
 import { ICrypt } from 'interface/ICrypt';

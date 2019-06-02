@@ -8,7 +8,7 @@ import { IPacket } from 'interface/IPacket';
 import { ISerializable } from 'interface/ISerializable';
 import Opcode from '../../Opcode';
 import { NewLogger } from 'bawt/utils/Logger';
-import * as Long from 'long';
+import Long from 'long';
 
 const log = NewLogger('SMsgCharEnum');
 

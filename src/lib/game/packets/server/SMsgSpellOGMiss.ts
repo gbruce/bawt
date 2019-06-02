@@ -4,7 +4,7 @@ import { RegisterPacket, WorldPacketMap } from 'bawt/net/PacketMap';
 import { ServerPacket } from './ServerPacket';
 import { IFactory } from 'interface/IFactory';
 import { IPacket } from 'interface/IPacket';
-import * as Long from 'long';
+import Long from 'long';
 import Opcode from '../../Opcode';
 import { NewLogger } from 'bawt/utils/Logger';
 

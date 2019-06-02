@@ -1,9 +1,8 @@
 
-// import { DecodeStream } from 'blizzardry/lib/restructure';
 import { PNG } from 'pngjs';
-import * as express from 'express';
+import express from 'express';
 import { Request, Response } from 'express-serve-static-core';
-import BLP = require('blizzardry/lib/blp');
+import BLP from 'blizzardry/lib/blp';
 import MPQ  = require('blizzardry/lib/mpq');
 import DBC = require('blizzardry/lib/dbc/entities');
 import Restructure = require('blizzardry/lib/restructure');

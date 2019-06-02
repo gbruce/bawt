@@ -1,7 +1,5 @@
-import * as express from 'express';
-
+import express from 'express';
 import Pipeline from './pipeline';
-import { ServerStyleSheet } from 'styled-components';
 
 export default class Server {
   private app: express.Application;

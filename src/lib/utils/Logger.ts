@@ -1,6 +1,6 @@
 
-import * as winston from 'winston';
-import * as Transport from 'winston-transport';
+import winston from 'winston';
+import Transport from 'winston-transport';
 import { TransformableInfo } from 'logform';
 
 const startTime: number = new Date().getTime();

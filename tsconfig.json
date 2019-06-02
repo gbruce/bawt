@@ -7,7 +7,7 @@
     "typeRoots": [
       "./src",
       "./node_modules/@types",
-      "typings"],                       /* List of folders to include type definitions from. */
+      "./@typings"],                       /* List of folders to include type definitions from. */
     "sourceMap": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
@@ -16,9 +16,10 @@
     "types": ["node","babylonjs"],
     "baseUrl": "./src",
     "outDir": "dist",
+    "esModuleInterop": true,
     "paths": {
       "bawt/*": ["./lib/*"],
-      "interface/*": ["./interface/*"]
+      "interface/*": ["./interface/*"],
     }
   },
   "exclude": [
