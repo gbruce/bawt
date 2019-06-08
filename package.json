@@ -15,7 +15,7 @@
     "serve": "webpack-serve --port 8000",
     "browser-dev": "yarn proxy | yarn serve",
     "node-test": "mocha -r tsconfig-paths/register -r ts-node/register src/tests/NodeTest.ts --exit",
-    "file-serve": "ts-node ---files ./src/apps/bawt-files/index.ts",
+    "file-serve": "ts-node --files ./src/apps/bawt-files/index.ts",
     "asset-browser-dev": "webpack-serve --port 9000 --config ./webpack.asset-browser.config.js",
     "webvr-dev": "webpack-dev-server --port 8000 --host 0.0.0.0 --config ./webpack.webvr.config.js",
     "test": "mocha -r tsconfig-paths/register -r ts-node/register ./src/**/*.test.ts"
