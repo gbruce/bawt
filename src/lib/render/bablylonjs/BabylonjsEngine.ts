@@ -1,4 +1,4 @@
-import { IRenderEngine, RenderEngineFactory } from 'interface/IRenderEngine';
+import { IRenderEngine, RenderEngineFactory, ILightDesc } from 'interface/IRenderEngine';
 import { IObject } from 'interface/IObject';
 import { Engine, Scene, Vector3, WebVRFreeCamera } from 'babylonjs';
 import { interfaces } from 'inversify';
@@ -31,14 +31,22 @@ class BabylonjsEngine implements IRenderEngine, IObject {
     return this.engine;
   }
 
-  public get mainScene() {
-    return this.scene;
-  }
-
   public get mainCamera() {
     return this.camera;
   }
 
-  public render(camera: any, scene: any): void {
+  public render(camera: any): void {
+  }
+
+  public updateControls(): void {
+
+  }
+
+  public addLight(lightDesc: ILightDesc): void {
+
+  }
+
+  public addObject(object: any): void {
+
   }
 }

@@ -1,6 +1,5 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, Texture, Vector3, DirectionalLight,
+import { WebGLRenderer, PerspectiveCamera, TextureLoader, Texture, Vector3,
   RepeatWrapping, Mesh } from 'three';
-import { THREE } from './VRControls';
 import * as webvrui from 'webvr-ui';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
 import { Keys } from './Keys';
@@ -22,8 +21,6 @@ const userHeight = 1.6;
 @injectable()
 export class VrTest {
   private renderer: WebGLRenderer;
-  private scene: Scene;
-  private controls: THREE.VRControls;
   private camera: PerspectiveCamera;
   private vrDisplay: VRDisplay|null = null;
   private skybox: Mesh|null = null;
@@ -37,7 +34,6 @@ export class VrTest {
     time: 0,
   });
   private terrain: Terrain|null = null;
-  private light: DirectionalLight = new DirectionalLight();
   private vrHud: VrHud;
 
   // azeroth
@@ -78,15 +74,13 @@ export class VrTest {
 
     this.renderEngine = renderEngineFactory();
     this.renderer = this.renderEngine.mainRenderer;
-    this.scene = this.renderEngine.mainScene;
     this.camera = this.renderEngine.mainCamera;
 
-    this.light.position.copy(new Vector3(1, 0.6, 0));
-    this.light.intensity = 0.1;
+    this.renderEngine.addLight({
+      position: {x: 1, y: 0.6, z: 0},
+      intensity: 0.1,
+    });
 
-    this.scene.add(this.light);
-
-    this.controls = new THREE.VRControls(this.camera);
     this.camera.position.y = userHeight;
 
     this.fpControls = new FirstPersonControls(this.camera, canvas);
@@ -173,8 +167,8 @@ export class VrTest {
 
     this.theMap.position.acquire(this.locationSubject);
     this.updateSubjects();
-    this.scene.add(this.terrain.root);
-    this.scene.add(this.doodadVis.root);
+    this.renderEngine.addObject(this.terrain.root);
+    this.renderEngine.addObject(this.doodadVis.root);
   }
 
   private setStageDimensions(stage: VRStageParameters) {
@@ -210,10 +204,10 @@ export class VrTest {
     this.lastRenderTime = timestamp;
     // Only update controls if we're presenting.
     if (this.vrButton.isPresenting()) {
-      this.controls.update();
+      this.renderEngine.updateControls();
     }
     // Render the scene.
-    this.renderEngine.render(this.camera, this.scene);
+    this.renderEngine.render(this.camera);
     this.vrDisplay!.requestAnimationFrame(this.animate);
 
     this.vrHud.update(timestamp, performance.now() - startTime);

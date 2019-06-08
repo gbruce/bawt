@@ -1,8 +1,9 @@
-import { IRenderEngine, RenderEngineFactory } from 'interface/IRenderEngine';
+import { IRenderEngine, RenderEngineFactory, ILightDesc } from 'interface/IRenderEngine';
 import { IObject } from 'interface/IObject';
-import { WebGLRenderer, PerspectiveCamera, Scene } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, DirectionalLight, Vector3 } from 'three';
 import { interfaces } from 'inversify';
 import { VREffect } from './VREffect';
+import { THREE } from './VRControls';
 
 export const ThreejsFactoryImpl = (context: interfaces.Context): RenderEngineFactory => {
   return (): IRenderEngine => {
@@ -15,6 +16,7 @@ class ThreejsEngine implements IRenderEngine, IObject {
   private camera: PerspectiveCamera|null = null;
   private scene: Scene|null = null;
   private effect: VREffect;
+  private controls: THREE.VRControls;
 
   constructor() {
     const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
@@ -27,6 +29,7 @@ class ThreejsEngine implements IRenderEngine, IObject {
     this.scene.add(this.camera);
 
     this.effect = new VREffect(this.renderer);
+    this.controls = new THREE.VRControls(this.camera);
   }
 
   public async initialize(): Promise<void> {
@@ -39,15 +42,30 @@ class ThreejsEngine implements IRenderEngine, IObject {
     return this.renderer;
   }
 
-  public get mainScene() {
-    return this.scene;
-  }
-
   public get mainCamera() {
     return this.camera;
   }
 
-  public render(camera: any, scene: any): void {
+  public render(camera: any): void {
     this.effect.render(this.scene, this.camera);
+  }
+
+  public updateControls(): void {
+    this.controls.update();
+  }
+
+  public addLight(lightDesc: ILightDesc): void {
+    if (this.scene) {
+      const light = new DirectionalLight();
+      light.position.copy(new Vector3(lightDesc.position.x, lightDesc.position.y, lightDesc.position.z));
+      light.intensity = 0.1;
+      this.scene.add(light);
+    }
+  }
+
+  public addObject(object: any): void {
+    if (this.scene) {
+      this.scene.add(object);
+    }
   }
 }
