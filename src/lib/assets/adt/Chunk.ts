@@ -1,6 +1,5 @@
 import { Mesh, BufferGeometry, BufferAttribute, EdgesGeometry, LineBasicMaterial,
   LineSegments, VertexNormalsHelper } from 'three';
-import { IHttpService } from 'interface/IHttpService';
 import { ADT } from './index';
 import Material from './Material';
 import { IObject } from 'interface/IObject';

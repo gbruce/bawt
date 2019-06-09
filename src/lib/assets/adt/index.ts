@@ -1,5 +1,4 @@
 
-import { LoadADT } from 'bawt/worker/LoadADT';
 import { IHttpService } from 'interface/IHttpService';
 import { IObject } from 'interface/IObject';
 import { IAssetProvider } from 'interface/IAssetProvider';

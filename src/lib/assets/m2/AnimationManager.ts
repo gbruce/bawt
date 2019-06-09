@@ -1,6 +1,6 @@
 
 import { SignalDispatcher } from 'strongly-typed-events';
-import { AnimationMixer, AnimationClip, AnimationAction, KeyframeTrack, InterpolateLinear, Bone } from 'three';
+import { AnimationMixer, AnimationClip, AnimationAction, KeyframeTrack, InterpolateLinear } from 'three';
 import { IObject } from 'interface/IObject';
 
 export class AnimationManager implements IObject {

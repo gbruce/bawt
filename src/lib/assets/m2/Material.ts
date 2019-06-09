@@ -1,4 +1,3 @@
-import { TextureLoader } from 'bawt/assets/TextureLoader';
 import { LoadTexture } from 'bawt/worker/LoadTexture';
 import { IObject } from 'interface/IObject';
 import {
@@ -39,12 +38,10 @@ export class Material extends ShaderMaterial implements IObject {
   private textures: Texture[];
   private textureDefs: blizzardry.ITexture[];
   private eventListeners: any[];
-  private textureLoader: TextureLoader;
 
   constructor(private m2: M2Model, def: IBatchDesc) {
     super({ skinning: def.useSkinning });
 
-    this.textureLoader = new TextureLoader();
     this.eventListeners = [];
 
     const vertexShaderMode = this.vertexShaderModeFromID(def.shaderID, def.opCount);
@@ -439,9 +436,5 @@ export class Material extends ShaderMaterial implements IObject {
 
     this.detachEventListeners();
     this.eventListeners = [];
-
-    this.textures.forEach((texture) => {
-      this.textureLoader.unload(texture);
-    });
   }
 }
