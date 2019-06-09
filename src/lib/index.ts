@@ -45,6 +45,7 @@ import { LoadWMOGroup } from './worker/LoadWMOGroup';
 import { TerrainFactory, TerrainFactoryImpl, Terrain } from './game/Terrain';
 import { ThreejsFactoryImpl } from './render/threejs/ThreejsEngine';
 import { IRenderEngine, RenderEngineFactory } from 'interface/IRenderEngine';
+import { BabylonjsFactoryImpl } from './render/bablylonjs/BabylonjsEngine';
 
 // We need to directly reference the classes to trigger their decorators.
 SLogonChallenge.Referenced = true;
@@ -106,5 +107,5 @@ export async function InitializeCommon(container: Container) {
   container.bind<DoodadStateFactory>('DoodadStateFactory').toProvider<DoodadLoader>(DoodadStateFactoryImpl);
   container.bind<WdtStateFactory>('WdtStateFactory').toProvider<WdtState>(WdtStateFactoryImpl);
   container.bind<RenderEngineFactory>('RenderEngineFactory').toFactory<IRenderEngine>(ThreejsFactoryImpl);
-  // container.bind<RenderEngineFactory>('RenderEngineFactory').toProvider<IRenderEngine>(BabylonjsFactoryImpl);
+  // container.bind<RenderEngineFactory>('RenderEngineFactory').toFactory<IRenderEngine>(BabylonjsFactoryImpl);
 }

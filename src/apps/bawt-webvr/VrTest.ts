@@ -1,5 +1,4 @@
-import { WebGLRenderer, PerspectiveCamera, TextureLoader, Texture, Vector3,
-  RepeatWrapping, Mesh } from 'three';
+import { WebGLRenderer, TextureLoader, Texture, Vector3, RepeatWrapping, Mesh } from 'three';
 import * as webvrui from 'webvr-ui';
 import { terrainPosToWorld } from 'bawt/utils/Functions';
 import { Keys } from './Keys';
@@ -13,7 +12,7 @@ import { inject, injectable } from 'inversify';
 import { VrHud } from './VrHud';
 import { MapFactory, Map } from 'bawt/game/Map';
 import { IVector3 } from 'interface/IVector3';
-import { RenderEngineFactory, IRenderEngine } from 'interface/IRenderEngine';
+import { RenderEngineFactory, IRenderEngine, ICamera } from 'interface/IRenderEngine';
 
 const boxSize = 5;
 const userHeight = 1.6;
@@ -21,7 +20,7 @@ const userHeight = 1.6;
 @injectable()
 export class VrTest {
   private renderer: WebGLRenderer;
-  private camera: PerspectiveCamera;
+  private camera: ICamera;
   private vrDisplay: VRDisplay|null = null;
   private skybox: Mesh|null = null;
   private lastRenderTime: number = 0;
@@ -67,29 +66,25 @@ export class VrTest {
     const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
 
     this.onTextureLoaded = this.onTextureLoaded.bind(this);
-    this.onResize = this.onResize.bind(this);
     this.setupStage = this.setupStage.bind(this);
     this.setStageDimensions = this.setStageDimensions.bind(this);
     this.animate = this.animate.bind(this);
 
     this.renderEngine = renderEngineFactory();
-    this.renderer = this.renderEngine.mainRenderer;
     this.camera = this.renderEngine.mainCamera;
+    this.renderer = this.renderEngine.mainRenderer;
 
     this.renderEngine.addLight({
       position: {x: 1, y: 0.6, z: 0},
       intensity: 0.1,
     });
 
-    this.camera.position.y = userHeight;
+    this.camera.setPosition({y: userHeight});
 
-    this.fpControls = new FirstPersonControls(this.camera, canvas);
+    this.fpControls = new FirstPersonControls(this.camera.nativeCamera, canvas);
 
     const loader = new TextureLoader();
     loader.load('src/apps/bawt-webvr/img/box.png', this.onTextureLoaded);
-
-    window.addEventListener('resize', this.onResize, true);
-    window.addEventListener('vrdisplaypresentchange', this.onResize, true);
 
     const uiOptions = {
       color: 'black',
@@ -98,8 +93,8 @@ export class VrTest {
     };
     this.vrButton = new webvrui.EnterVRButton(canvas, uiOptions);
     this.vrButton.on('exit', () => {
-      this.camera.quaternion.set(0, 0, 0, 1);
-      this.camera.position.set(0, userHeight, 0);
+      this.camera.setRotation({ x: 0, y: 0, z: 0, w: 1});
+      this.camera.setPosition({ x: 0, y: userHeight, z: 0});
     });
     this.vrButton.on('hide', () => {
       document.getElementById('ui')!.style.display = 'none';
@@ -113,18 +108,13 @@ export class VrTest {
     });
 
     const pos = terrainPosToWorld(this.terrainCoords);
-    this.camera.position.copy(pos);
+    this.camera.setPosition(pos);
     this.locationSubject.next(new Vector3(pos.x, pos.y, pos.z));
 
     this.step.step.acquire(this.stepSubject);
 
     this.vrHud = new VrHud(this.renderer);
-    this.camera.add(this.vrHud.mesh);
-  }
-
-  private onResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    this.camera.nativeCamera.add(this.vrHud.mesh);
   }
 
   private onTextureLoaded(texture: Texture): void {
@@ -186,7 +176,7 @@ export class VrTest {
   private updateSubjects() {
     // Update position subject if the camera has moved enough.
     CopyToVector3(this.locationSubject.value, this.tmp);
-    if (this.camera.position.manhattanDistanceTo(this.tmp) > 0.001) {
+    if (this.camera.nativeCamera.position.manhattanDistanceTo(this.tmp) > 0.001) {
       this.locationSubject.next(MakeVector3(this.camera.position.x, this.camera.position.y, this.camera.position.z));
     }
   }
@@ -207,7 +197,7 @@ export class VrTest {
       this.renderEngine.updateControls();
     }
     // Render the scene.
-    this.renderEngine.render(this.camera);
+    this.renderEngine.render();
     this.vrDisplay!.requestAnimationFrame(this.animate);
 
     this.vrHud.update(timestamp, performance.now() - startTime);

@@ -1,9 +1,11 @@
-import { IRenderEngine, RenderEngineFactory, ILightDesc } from 'interface/IRenderEngine';
 import { IObject } from 'interface/IObject';
-import { WebGLRenderer, PerspectiveCamera, Scene, DirectionalLight, Vector3 } from 'three';
+import { ICamera, ILightDesc, IRenderEngine, RenderEngineFactory } from 'interface/IRenderEngine';
 import { interfaces } from 'inversify';
-import { VREffect } from './VREffect';
+import { DirectionalLight, Scene, Vector3, WebGLRenderer } from 'three';
+
+import { ThreejsCamera } from './ThreejsCamera';
 import { THREE } from './VRControls';
+import { VREffect } from './VREffect';
 
 export const ThreejsFactoryImpl = (context: interfaces.Context): RenderEngineFactory => {
   return (): IRenderEngine => {
@@ -13,7 +15,7 @@ export const ThreejsFactoryImpl = (context: interfaces.Context): RenderEngineFac
 
 class ThreejsEngine implements IRenderEngine, IObject {
   private renderer: WebGLRenderer|null = null;
-  private camera: PerspectiveCamera|null = null;
+  private camera: ThreejsCamera;
   private scene: Scene|null = null;
   private effect: VREffect;
   private controls: THREE.VRControls;
@@ -24,30 +26,31 @@ class ThreejsEngine implements IRenderEngine, IObject {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new Scene();
 
-    const aspect = window.innerWidth / window.innerHeight;
-    this.camera = new PerspectiveCamera( 75, aspect, 0.1, 10000);
-    this.scene.add(this.camera);
+    this.camera = new ThreejsCamera();
+    this.scene.add(this.camera.nativeCamera);
 
     this.effect = new VREffect(this.renderer);
-    this.controls = new THREE.VRControls(this.camera);
+    this.controls = new THREE.VRControls(this.camera.nativeCamera);
   }
 
   public async initialize(): Promise<void> {
+    await this.camera.initialize();
   }
 
   public dispose(): void {
+    this.camera.dispose();
   }
 
   public get mainRenderer() {
     return this.renderer;
   }
 
-  public get mainCamera() {
+  public get mainCamera(): ICamera {
     return this.camera;
   }
 
-  public render(camera: any): void {
-    this.effect.render(this.scene, this.camera);
+  public render(): void {
+    this.effect.render(this.scene, this.camera.nativeCamera);
   }
 
   public updateControls(): void {

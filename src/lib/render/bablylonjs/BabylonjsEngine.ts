@@ -1,7 +1,9 @@
-import { IRenderEngine, RenderEngineFactory, ILightDesc } from 'interface/IRenderEngine';
+import { Engine, Scene } from 'babylonjs';
 import { IObject } from 'interface/IObject';
-import { Engine, Scene, Vector3, WebVRFreeCamera } from 'babylonjs';
+import { ILightDesc, IRenderEngine, RenderEngineFactory } from 'interface/IRenderEngine';
 import { interfaces } from 'inversify';
+
+import { BabylonjsCamera } from './BabylonjsCamera';
 
 export const BabylonjsFactoryImpl = (context: interfaces.Context): RenderEngineFactory => {
   return (): IRenderEngine => {
@@ -12,19 +14,21 @@ export const BabylonjsFactoryImpl = (context: interfaces.Context): RenderEngineF
 class BabylonjsEngine implements IRenderEngine, IObject {
   private engine: Engine|null = null;
   private scene: Scene|null = null;
-  private camera: WebVRFreeCamera|null = null;
+  private camera: BabylonjsCamera;
 
   constructor() {
     const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
-    this.camera = new WebVRFreeCamera('camera', new Vector3(0, 2, 0), this.scene);
+    this.camera = new BabylonjsCamera(this.scene);
   }
 
   public async initialize(): Promise<void> {
+    await this.camera.initialize();
   }
 
   public dispose(): void {
+    this.camera.dispose();
   }
 
   public get mainRenderer() {
@@ -35,7 +39,7 @@ class BabylonjsEngine implements IRenderEngine, IObject {
     return this.camera;
   }
 
-  public render(camera: any): void {
+  public render(): void {
   }
 
   public updateControls(): void {
