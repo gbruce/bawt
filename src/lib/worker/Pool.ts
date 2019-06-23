@@ -1,20 +1,21 @@
-import Worker = require('worker-loader!./Worker');
-import { IObject } from 'interface/IObject';
 import { IWorkerRequest } from 'interface/IWorkerRequest';
-import { pool, WorkerPool } from 'workerpool';
 import { lazyInject } from 'bawt/Container';
 import { IHttpService } from 'interface/IHttpService';
 import { injectable } from 'inversify';
+import { spawn, Pool as ThreadPool, Worker } from 'threads';
+import { read } from './Worker';
 
 @injectable()
 export class Pool {
   @lazyInject('IHttpService')
   public httpService!: IHttpService;
 
-  private pool: WorkerPool = pool('worker.js');
+  private pool2 = ThreadPool(() => spawn(new Worker('worker.js')), 8);
 
   public async request(request: IWorkerRequest): Promise<any> {
-    const result = await this.pool.exec('read', ['192.168.1.3', 8080, request]);
-    return result;
+    return await this.pool2.queue(async doIt => {
+      const result = await read('192.168.1.24', 8080, request);
+      return result;
+    });
   }
 }

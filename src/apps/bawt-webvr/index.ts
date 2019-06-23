@@ -10,7 +10,7 @@ import { VrTest } from './VrTest';
 
 const container = GlobalContainer();
 container.bind<ISocket>('ISocket').to(WSocket);
-container.bind<IHttpService>('IHttpService').toConstantValue(new HttpService('192.168.1.3', 8080));
+container.bind<IHttpService>('IHttpService').toConstantValue(new HttpService('192.168.1.24', 8080));
 container.bind<Pool>('Pool').to(Pool).inSingletonScope();
 container.bind<VrTest>('VrTest').to(VrTest).inSingletonScope();
 InitializeCommon(container).then(() => {

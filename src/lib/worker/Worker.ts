@@ -4,14 +4,15 @@ import WMO from 'blizzardry/lib/wmo';
 import WMOGroup from 'blizzardry/lib/wmo/group';
 import M2 from 'blizzardry/lib/m2';
 import Skin from 'blizzardry/lib/m2/skin';
-import { worker } from 'workerpool';
+import WDT from 'blizzardry/lib/wdt';
 import { NewLogger } from 'bawt/utils/Logger';
 import { HttpService } from 'bawt/utils/browser/HttpService';
 import { IWorkerRequest, AssetType } from 'interface/IWorkerRequest';
+import { expose } from 'threads';
 
 const log = NewLogger('worker');
 
-const read = async (host: string, port: number, request: IWorkerRequest): Promise<any> => {
+export const read = async (host: string, port: number, request: IWorkerRequest): Promise<any> => {
   const stream = await new HttpService(host, port).get(request.path);
   switch (request.type) {
     case AssetType.ADT:
@@ -24,9 +25,9 @@ const read = async (host: string, port: number, request: IWorkerRequest): Promis
       return M2.decode(stream);
     case AssetType.Skin:
       return Skin.decode(stream);
+    case AssetType.WDT:
+      return WDT.decode(stream);
   }
 };
 
-worker({
-  read,
-});
+expose(read);

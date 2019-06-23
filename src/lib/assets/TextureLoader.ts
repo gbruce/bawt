@@ -32,7 +32,7 @@ export class TextureLoader {
     ++refCount;
     this.references.set(textureKey, refCount);
 
-    const url = `http://192.168.1.3:8080/pipeline/${path}.png`;
+    const url = `http://192.168.1.24:8080/pipeline/${path}.png`;
     const encodedPath = encodeURI(url);
 
     log.info(`** Loading ${encodedPath}`);
